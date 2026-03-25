@@ -13,9 +13,10 @@
     "@react-router/serve": "7.13.2",
     "clsx": "^2.1.1",
     "isbot": "^5.1.36",
-    "pdfjs-dist": "^5.5.207",
+    "pdfjs-dist": "^3.11.174",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-dropzone": "^15.0.0",
     "react-router": "7.13.2",
     "tailwind-merge": "^3.5.0",
     "zustand": "^5.0.12"
