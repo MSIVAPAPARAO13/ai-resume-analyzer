@@ -1,87 +1,132 @@
-# Welcome to React Router!
+🚀 AI Resume Analyzer
+<div align="center">
 
-A modern, production-ready template for building full-stack React applications using React Router.
+🧠 AI-powered Resume Evaluation Platform
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+Analyze resumes, match with jobs, and get ATS scores with smart feedback.
 
-## Features
+</div>
+📌 Overview
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+AI Resume Analyzer is a full-stack web application that allows users to:
 
-## Getting Started
+Upload resumes 📄
+Analyze them using AI 🤖
+Get ATS (Applicant Tracking System) scores 📊
+Receive personalized feedback based on job descriptions 🎯
 
-### Installation
+It is built using modern technologies like React Router, TypeScript, Tailwind CSS, and Puter.js, with a focus on performance, scalability, and clean UI.
 
-Install the dependencies:
-
-```bash
-npm install
-```
-
-### Development
-
-Start the development server with HMR:
-
-```bash
-npm run dev
-```
-
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
-
-```bash
-npm run build
-```
-
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
+✨ Key Features
+🔐 Authentication
+Serverless authentication using Puter.js
+No backend setup required
+📂 Resume Management
+Upload and store multiple resumes
+Organized and secure storage
+🤖 AI Resume Analysis
+ATS score generation
+Job-specific feedback
+Smart evaluation based on job descriptions
+🎨 Modern UI/UX
+Responsive design (mobile + desktop)
+Clean and reusable components
+Built with Tailwind CSS + shadcn/ui
+⚡ Performance
+Server-Side Rendering (SSR)
+Hot Module Replacement (HMR)
+Fast builds with Vite
+🛠️ Tech Stack
+Technology	Description
+⚛️ React	UI library for building components
+🔀 React Router v7	Routing + data loading
+🎨 Tailwind CSS	Utility-first CSS framework
+🟦 TypeScript	Type-safe JavaScript
+⚡ Vite	Fast build tool
+🧠 Puter.js	Auth, storage & AI services
+🐻 Zustand	Lightweight state management
+📂 Project Structure
 ├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
+│   ├── client/      # Static frontend assets
+│   └── server/      # Server-side code
+├── app/             # Main application code
+├── public/          # Static files
+├── package.json
+⚙️ Installation & Setup
+✅ Prerequisites
 
-## Styling
+Make sure you have:
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+Node.js (>= 18)
+npm / yarn
+Git
+📥 Clone Repository
+git clone https://github.com/adrianhajdin/ai-resume-analyzer.git
+cd ai-resume-analyzer
+📦 Install Dependencies
+npm install
+▶️ Run Development Server
+npm run dev
 
----
+👉 App will run on:
+http://localhost:5173
 
-Built with ❤️ using React Router.
+🏗️ Build for Production
+npm run build
+🐳 Docker Deployment
+# Build Docker image
+docker build -t ai-resume-analyzer .
+
+# Run container
+docker run -p 3000:3000 ai-resume-analyzer
+🌐 Deployment Options
+
+You can deploy this app on:
+
+AWS ECS
+Google Cloud Run
+Azure Container Apps
+Railway
+Fly.io
+DigitalOcean
+📚 Learning Resources
+
+🎥 Full tutorial:
+https://www.youtube.com/watch?v=XUkNR-JfHwo
+
+📦 Assets & UI Kit:
+https://jsmastery.com/video-kit
+
+🚀 Future Improvements
+📊 Resume analytics dashboard
+📈 Performance insights
+🧠 Advanced AI feedback (LLM fine-tuning)
+📑 Multi-format resume support (PDF, DOCX parsing)
+🌍 Multi-language support
+🤝 Contributing
+
+Contributions are welcome!
+
+# Fork the repo
+# Create your branch
+git checkout -b feature/your-feature
+
+# Commit changes
+git commit -m "Added new feature"
+
+# Push
+git push origin feature/your-feature
+🧑‍💻 Author
+
+Built with ❤️ using modern React ecosystem.
+
+📄 License
+
+This project is licensed under the MIT License.
+
+⭐ Support
+
+If you like this project:
+
+👉 Give it a ⭐ on GitHub
+👉 Share with others

@@ -5,13 +5,15 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-} from 'react-router';
+} from 'react-router'; // ✅ IMPORTANT (NOT react-router-dom)
 
 import type { Route } from './+types/root';
 import './app.css';
 
-import { usePuterStore } from './lib/puter'; // ✅ FIXED (no .ts)
+import { usePuterStore } from './lib/puter';
 import { useEffect } from 'react';
+
+/* ================= LINKS ================= */
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -26,13 +28,15 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+/* ================= LAYOUT ================= */
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const { init } = usePuterStore();
 
   useEffect(() => {
     console.log('🔥 INIT PUTER');
     init(); // ✅ REQUIRED
-  }, []);
+  }, [init]);
 
   return (
     <html lang="en">
@@ -42,7 +46,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
 
-        {/* ✅ MOVE SCRIPT HERE */}
+        {/* Puter Script */}
         <script src="https://js.puter.com/v2/"></script>
       </head>
 
@@ -55,9 +59,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+/* ================= APP ================= */
+
 export default function App() {
   return <Outlet />;
 }
+
+/* ================= ERROR ================= */
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = 'Oops!';
@@ -77,10 +85,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   return (
     <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
+      <h1 className="text-2xl font-bold">{message}</h1>
       <p>{details}</p>
+
       {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
+        <pre className="w-full p-4 overflow-x-auto bg-gray-100 mt-4">
           <code>{stack}</code>
         </pre>
       )}
