@@ -1,12 +1,11 @@
-import { useState } from 'react';
-import type { FormEvent } from 'react';
-
+import { type FormEvent, useState } from 'react';
 import Navbar from '~/components/Navbar';
 import FileUploader from '~/components/FileUploader';
 import { usePuterStore } from '~/lib/puter';
 import { useNavigate } from 'react-router';
+import { convertPdfToImage } from '~/lib/pdf2img';
 import { generateUUID } from '~/lib/utils';
-import { prepareInstructions, AIResponseFormat } from '~/constants';
+import { prepareInstructions } from '../constants';
 
 const Upload = () => {
   const { fs, ai, kv } = usePuterStore();
@@ -16,13 +15,13 @@ const Upload = () => {
   const [statusText, setStatusText] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
-  // ✅ File select
+  // 📁 File select
   const handleFileSelect = (file: File | null) => {
     console.log('📂 Selected File:', file);
     setFile(file);
   };
 
-  // 🚀 MAIN FUNCTION (NO PDF conversion now)
+  // 🚀 Main function
   const handleAnalyze = async ({
     companyName,
     jobTitle,
@@ -37,20 +36,31 @@ const Upload = () => {
     try {
       setIsProcessing(true);
 
-      // 1️⃣ Upload file
-      setStatusText('Uploading file...');
+      // 1️⃣ Upload PDF
+      setStatusText('Uploading the file...');
       const uploadedFile = await fs.upload([file]);
+      if (!uploadedFile) throw new Error('Upload failed');
 
       console.log('📤 Uploaded File:', uploadedFile);
 
-      if (!uploadedFile) throw new Error('Upload failed');
+      // 2️⃣ Convert PDF → Image
+      setStatusText('Converting to image...');
+      const imageFile = await convertPdfToImage(file);
+      if (!imageFile.file) throw new Error('PDF conversion failed');
 
-      // 2️⃣ Save initial data
+      // 3️⃣ Upload Image
+      setStatusText('Uploading the image...');
+      const uploadedImage = await fs.upload([imageFile.file]);
+      if (!uploadedImage) throw new Error('Image upload failed');
+
+      // 4️⃣ Save initial data
+      setStatusText('Preparing data...');
       const uuid = generateUUID();
 
       const data = {
         id: uuid,
         resumePath: uploadedFile.path,
+        imagePath: uploadedImage.path,
         companyName,
         jobTitle,
         jobDescription,
@@ -59,63 +69,50 @@ const Upload = () => {
 
       await kv.set(`resume:${uuid}`, JSON.stringify(data));
 
-      // 3️⃣ AI Analysis
-      setStatusText('Analyzing with AI...');
-
+      // 5️⃣ AI Analysis
+      setStatusText('Analyzing...');
       const feedback = await ai.feedback(
         uploadedFile.path,
-        prepareInstructions({
-          jobTitle,
-          jobDescription,
-          AIResponseFormat, // ✅ IMPORTANT FIX
-        }),
+        prepareInstructions({ jobTitle, jobDescription }),
       );
-
-      console.log('🤖 AI RAW:', feedback);
 
       if (!feedback) throw new Error('AI failed');
 
+      console.log('🤖 AI RAW:', feedback);
+
+      // 6️⃣ Extract text
       const feedbackText =
         typeof feedback.message.content === 'string'
           ? feedback.message.content
           : feedback.message.content[0]?.text;
 
-      console.log('🧠 AI TEXT:', feedbackText);
-
       if (!feedbackText) throw new Error('Invalid AI response');
 
-      // 4️⃣ Parse JSON
-      try {
-        data.feedback = JSON.parse(feedbackText);
-      } catch {
-        console.error('❌ Invalid JSON:', feedbackText);
-        throw new Error('AI returned invalid JSON');
-      }
+      console.log('🧠 AI TEXT:', feedbackText);
 
-      // 5️⃣ Save final data
+      // 7️⃣ Parse JSON
+      data.feedback = JSON.parse(feedbackText);
+
       await kv.set(`resume:${uuid}`, JSON.stringify(data));
 
       console.log('✅ FINAL DATA:', data);
 
-      setStatusText('Done! Redirecting...');
-
-      // 6️⃣ Redirect
-      setTimeout(() => {
-        navigate(`/resume/${uuid}`);
-      }, 1500);
+      // 8️⃣ Redirect
+      setStatusText('Analysis complete!');
+      navigate(`/resume/${uuid}`);
     } catch (error: any) {
-      console.error('🔥 ERROR:', error);
+      console.error('❌ ERROR:', error);
       setStatusText(error.message);
       setIsProcessing(false);
     }
   };
 
-  // 🧾 Submit
+  // 🧾 Form submit
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!file) {
-      alert('Upload a file first');
+      alert('Please upload a resume');
       return;
     }
 
@@ -129,7 +126,6 @@ const Upload = () => {
       companyName,
       jobTitle,
       jobDescription,
-      file,
     });
 
     handleAnalyze({
@@ -140,6 +136,7 @@ const Upload = () => {
     });
   };
 
+  // 🎨 UI
   return (
     <main className="bg-[url('/images/bg-main.svg')] bg-cover min-h-screen">
       <Navbar />
@@ -153,28 +150,43 @@ const Upload = () => {
               <h2>{statusText}</h2>
               <img
                 src="/images/resume-scan.gif"
-                className="w-full max-w-md mx-auto"
+                className="w-full max-w-md mx-auto mt-6"
               />
             </>
           ) : (
             <>
-              <h2>Drop your resume for ATS score</h2>
+              <h2>Drop your resume for ATS score & improvement tips</h2>
 
               <form
                 onSubmit={handleSubmit}
                 className="flex flex-col gap-4 mt-8"
               >
-                <input name="company-name" placeholder="Google" />
-                <input name="job-title" placeholder="Frontend Developer" />
-                <textarea
-                  name="job-description"
-                  placeholder="Job description"
-                />
+                <div className="form-div">
+                  <label>Company Name</label>
+                  <input name="company-name" placeholder="Google" />
+                </div>
 
-                <FileUploader onFileSelect={handleFileSelect} />
+                <div className="form-div">
+                  <label>Job Title</label>
+                  <input name="job-title" placeholder="Frontend Developer" />
+                </div>
 
-                <button type="submit" className="primary-button">
-                  Analyze 🚀
+                <div className="form-div">
+                  <label>Job Description</label>
+                  <textarea
+                    rows={5}
+                    name="job-description"
+                    placeholder="Paste job description..."
+                  />
+                </div>
+
+                <div className="form-div">
+                  <label>Upload Resume</label>
+                  <FileUploader onFileSelect={handleFileSelect} />
+                </div>
+
+                <button className="primary-button" type="submit">
+                  Analyze Resume 🚀
                 </button>
               </form>
             </>
