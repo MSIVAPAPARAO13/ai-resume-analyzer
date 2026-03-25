@@ -4,6 +4,7 @@
 🧠 AI-powered Resume Evaluation Platform
 
 Analyze resumes, match with jobs, and get ATS scores with smart feedback.
+<img width="3600" height="1040" alt="image" src="https://github.com/user-attachments/assets/db309d52-4e88-410c-a3db-bf4bda4807b4" />
 
 </div>
 📌 Overview
