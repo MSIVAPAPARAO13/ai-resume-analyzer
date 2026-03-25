@@ -1,7 +1,9 @@
-/**
- * Convert bytes → human readable size
- * Example: 1024 → 1 KB
- */
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 export function formatSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
 
