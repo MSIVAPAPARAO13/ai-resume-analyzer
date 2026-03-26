@@ -1,6 +1,9 @@
 import type { Route } from './+types/home';
+import type { Resume } from '~/components/ResumeCard';
+
 import Navbar from '~/components/Navbar';
-import ResumeCard, { Resume } from '~/components/ResumeCard';
+import ResumeCard from '~/components/ResumeCard';
+
 import { usePuterStore } from '~/lib/puter';
 import { Link, useNavigate } from 'react-router';
 import { useEffect, useState } from 'react';
@@ -17,7 +20,7 @@ export function meta({}: Route.MetaArgs) {
 /* ================= COMPONENT ================= */
 
 export default function Home() {
-  const { auth, kv } = usePuterStore();
+  const { auth, kv, fs } = usePuterStore(); // ✅ ADD fs
   const navigate = useNavigate();
 
   const [resumes, setResumes] = useState<Resume[]>([]);
@@ -40,20 +43,33 @@ export default function Home() {
 
         const data = await kv.list('', true);
 
-        console.log('ALL KV:', data);
+        console.log('KV RAW:', data);
 
-        const parsed = data
-          ?.filter((item: any) => item.key.startsWith('resume:'))
-          .map((item: any) => {
-            try {
-              return JSON.parse(item.value);
-            } catch {
-              return null;
-            }
-          })
-          .filter(Boolean);
+        // 🔥 FIX: convert imagePath → usable URL
+        const parsed = await Promise.all(
+          data
+            ?.filter((item: any) => item.key.startsWith('resume:'))
+            .map(async (item: any) => {
+              try {
+                const res = JSON.parse(item.value);
 
-        setResumes(parsed || []);
+                // 🔥 READ IMAGE FROM STORAGE
+                const imageBlob = await fs.read(res.imagePath);
+
+                if (imageBlob) {
+                  res.imagePath = URL.createObjectURL(new Blob([imageBlob]));
+                }
+
+                return res;
+              } catch (err) {
+                console.error('Parse error:', err);
+                return null;
+              }
+            }),
+        );
+
+        const cleanData = parsed.filter(Boolean);
+        setResumes(cleanData);
       } catch (error) {
         console.error('Error loading resumes:', error);
       } finally {
@@ -62,7 +78,7 @@ export default function Home() {
     };
 
     loadResumes();
-  }, [kv]);
+  }, [kv, fs]);
 
   /* ================= UI ================= */
 
@@ -90,7 +106,7 @@ export default function Home() {
 
         {/* LOADING */}
         {loadingResumes && (
-          <div className="flex justify-center items-center">
+          <div className="flex justify-center">
             <img
               src="/images/resume-scan-2.gif"
               className="w-[200px]"
@@ -99,7 +115,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* RESUME LIST */}
+        {/* RESUME GRID */}
         {!loadingResumes && resumes.length > 0 && (
           <div className="grid grid-cols-3 gap-6 px-6">
             {resumes.map((resume) => (
@@ -108,13 +124,10 @@ export default function Home() {
           </div>
         )}
 
-        {/* EMPTY STATE */}
+        {/* EMPTY */}
         {!loadingResumes && resumes.length === 0 && (
-          <div className="flex flex-col items-center mt-10 gap-4">
-            <Link
-              to="/upload"
-              className="primary-button text-lg font-semibold px-6 py-2"
-            >
+          <div className="flex flex-col items-center mt-10">
+            <Link to="/upload" className="primary-button px-6 py-2">
               Upload Resume
             </Link>
           </div>
