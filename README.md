@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="docs/banner.png" alt="AI Resume Analyzer Banner" width="100%">
+ <img width="692" height="210" alt="image" src="https://github.com/user-attachments/assets/7daedb09-167b-483a-981c-bd9be3889208" />
+
 </p>
 
 <h1 align="center">
