@@ -1,133 +1,262 @@
-🚀 AI Resume Analyzer
-<div align="center">
+<p align="center">
+  <img src="docs/banner.png" alt="AI Resume Analyzer Banner" width="100%">
+</p>
 
-🧠 AI-powered Resume Evaluation Platform
+<h1 align="center">
+🚀 AI Resume Analyzer Pro
+</h1>
 
-Analyze resumes, match with jobs, and get ATS scores with smart feedback.
-<img width="3600" height="1040" alt="image" src="https://github.com/user-attachments/assets/db309d52-4e88-410c-a3db-bf4bda4807b4" />
+<p align="center">
+An AI-powered Resume Analyzer that helps job seekers optimize resumes with ATS scoring, AI feedback, resume analytics, and career insights.
+</p>
 
-</div>
-📌 Overview
+<p align="center">
 
-AI Resume Analyzer is a full-stack web application that allows users to:
+<img src="https://img.shields.io/badge/React-19-61DAFB?logo=react"/>
 
-Upload resumes 📄
-Analyze them using AI 🤖
-Get ATS (Applicant Tracking System) scores 📊
-Receive personalized feedback based on job descriptions 🎯
+<img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript"/>
 
-It is built using modern technologies like React Router, TypeScript, Tailwind CSS, and Puter.js, with a focus on performance, scalability, and clean UI.
+<img src="https://img.shields.io/badge/TailwindCSS-38BDF8?logo=tailwindcss"/>
 
-✨ Key Features
-🔐 Authentication
-Serverless authentication using Puter.js
-No backend setup required
-📂 Resume Management
-Upload and store multiple resumes
-Organized and secure storage
-🤖 AI Resume Analysis
-ATS score generation
-Job-specific feedback
-Smart evaluation based on job descriptions
-🎨 Modern UI/UX
-Responsive design (mobile + desktop)
-Clean and reusable components
-Built with Tailwind CSS + shadcn/ui
-⚡ Performance
-Server-Side Rendering (SSR)
-Hot Module Replacement (HMR)
-Fast builds with Vite
-🛠️ Tech Stack
-Technology	Description
-⚛️ React	UI library for building components
-🔀 React Router v7	Routing + data loading
-🎨 Tailwind CSS	Utility-first CSS framework
-🟦 TypeScript	Type-safe JavaScript
-⚡ Vite	Fast build tool
-🧠 Puter.js	Auth, storage & AI services
-🐻 Zustand	Lightweight state management
-📂 Project Structure
-├── build/
-│   ├── client/      # Static frontend assets
-│   └── server/      # Server-side code
-├── app/             # Main application code
-├── public/          # Static files
-├── package.json
-⚙️ Installation & Setup
-✅ Prerequisites
+<img src="https://img.shields.io/badge/Vite-646CFF?logo=vite"/>
 
-Make sure you have:
+<img src="https://img.shields.io/badge/Docker-2496ED?logo=docker"/>
 
-Node.js (>= 18)
-npm / yarn
-Git
-📥 Clone Repository
-git clone https://github.com/adrianhajdin/ai-resume-analyzer.git
+<img src="https://img.shields.io/badge/AWS-232F3E?logo=amazonaws"/>
+
+<img src="https://img.shields.io/badge/Groq-LLM-orange"/>
+
+<img src="https://img.shields.io/badge/License-MIT-green"/>
+
+</p>
+
+---
+
+# 📖 Overview
+
+AI Resume Analyzer Pro is a modern AI-powered web application that helps job seekers improve their resumes before applying for jobs.
+
+Users can upload resumes, compare them with job descriptions, receive ATS compatibility scores, visualize resume performance through interactive dashboards, and obtain AI-generated recommendations for improving interview success.
+
+The project focuses on combining **Artificial Intelligence**, **Cloud Deployment**, and **Modern Frontend Engineering** into a production-ready application.
+
+---
+
+# ✨ Features
+
+## 🤖 AI Resume Analysis
+
+- ATS Score Generation
+- Resume vs Job Description Matching
+- Missing Keywords Detection
+- AI Resume Feedback
+- Resume Strengths & Weaknesses
+- Career Suggestions
+- Interview Preparation
+
+---
+
+## 📊 Dashboard
+
+- ATS Score Trends
+- Resume Analytics
+- Skill Gap Analysis
+- Performance Charts
+- Resume History
+- Improvement Timeline
+
+---
+
+## 🔍 Smart Search
+
+- Search Previous Resumes
+- Search AI Conversations
+- Search Job Descriptions
+- Filter by Company
+- Filter by ATS Score
+
+---
+
+## 💬 AI Chat
+
+- Previous Chat History
+- Context-aware Conversations
+- Resume Assistant
+- Career Guidance
+
+---
+
+## 📂 Resume Management
+
+- Upload Multiple Resumes
+- Resume Version History
+- Cloud Storage
+- Resume Comparison
+
+---
+
+## 🔐 Security
+
+- Secure Authentication
+- Protected Routes
+- User Profiles
+
+---
+
+# 🏗 System Architecture
+
+```
+          React + TypeScript
+                 │
+                 ▼
+        Resume Upload Module
+                 │
+                 ▼
+          Puter.js Storage
+                 │
+                 ▼
+          Groq AI (LLM)
+                 │
+                 ▼
+      ATS Analysis Engine
+                 │
+                 ▼
+      Dashboard & Analytics
+```
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
+
+- React 19
+- TypeScript
+- Tailwind CSS
+- React Router v7
+- Zustand
+- Vite
+
+## AI
+
+- Groq API
+- Puter.js
+
+## Charts
+
+- Recharts
+
+## Deployment
+
+- Docker
+
+---
+
+# 📸 Screenshots
+
+## Dashboard
+
+<p align="center">
+<img src="docs/dashboard.png" width="900">
+</p>
+
+---
+
+## Resume Analysis
+
+<p align="center">
+<img src="docs/resume-analysis.png" width="900">
+</p>
+
+---
+
+## AI Feedback
+
+<p align="center">
+<img src="docs/feedback.png" width="900">
+</p>
+
+---
+
+# ⚙ Installation
+
+```bash
+git clone https://github.com/MSIVAPAPARAO13/ai-resume-analyzer.git
+
 cd ai-resume-analyzer
-📦 Install Dependencies
+
 npm install
-▶️ Run Development Server
+
 npm run dev
+```
 
-👉 App will run on:
+Application
+
+```
 http://localhost:5173
+```
 
-🏗️ Build for Production
-npm run build
-🐳 Docker Deployment
-# Build Docker image
+---
+
+# 🐳 Docker
+
+```bash
 docker build -t ai-resume-analyzer .
+```
 
-# Run container
+```bash
 docker run -p 3000:3000 ai-resume-analyzer
-🌐 Deployment Options
+```
 
-You can deploy this app on:
+---
 
-AWS ECS
-Google Cloud Run
-Azure Container Apps
-Railway
-Fly.io
-DigitalOcean
-📚 Learning Resources
+# 🚀 Deployment
 
-🎥 Full tutorial:
-https://www.youtube.com/watch?v=XUkNR-JfHwo
+Deploy using
 
-📦 Assets & UI Kit:
-https://jsmastery.com/video-kit
+- Docker
+- AWS
+- GitHub Actions
 
-🚀 Future Improvements
-📊 Resume analytics dashboard
-📈 Performance insights
-🧠 Advanced AI feedback (LLM fine-tuning)
-📑 Multi-format resume support (PDF, DOCX parsing)
-🌍 Multi-language support
-🤝 Contributing
+---
 
-Contributions are welcome!
+# 📈 Future Improvements
 
-# Fork the repo
-# Create your branch
-git checkout -b feature/your-feature
+- AI Cover Letter Generator
+- Resume Builder
+- LinkedIn Analyzer
+- GitHub Profile Analyzer
+- Recruiter Dashboard
+- AI Mock Interview
+- Multi-language Support
 
-# Commit changes
-git commit -m "Added new feature"
+---
 
-# Push
-git push origin feature/your-feature
-🧑‍💻 Author
+# 🤝 Contributing
 
-Built with ❤️ using modern React ecosystem.
+Contributions are welcome.
 
-📄 License
+Fork the repository.
 
-This project is licensed under the MIT License.
+Create a feature branch.
 
-⭐ Support
+Submit a Pull Request.
 
-If you like this project:
+---
 
-👉 Give it a ⭐ on GitHub
-👉 Share with others
+# 📄 License
+
+MIT License
+
+---
+
+# 👨‍💻 Author
+
+**Siva Paparao Medisetti**
+
+GitHub:
+https://github.com/MSIVAPAPARAO13
+
+---
+
+⭐ If you found this project helpful, consider giving it a star.
