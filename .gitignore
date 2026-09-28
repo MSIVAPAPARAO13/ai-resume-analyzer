@@ -1,7 +1,23 @@
 .DS_Store
 .env
-/node_modules/
+.env.local
+.venv/
+/.idea/
 
-# React Router
-/.react-router/
-/build/
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build & Compilation Output
+build/
+**/build/
+dist/
+**/dist/
+.react-router/
+**/.react-router/
+
+# Testing & Artifacts
+test-results/
+**/test-results/
+playwright-report/
+coverage/
