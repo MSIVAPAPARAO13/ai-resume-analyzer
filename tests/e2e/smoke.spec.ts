@@ -1,76 +1,73 @@
-import { expect, test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
-test.describe('Resumind Phase 1 E2E Smoke Tests', () => {
-  test('should load public authentication / welcome view without fatal errors', async ({
-    page,
-  }) => {
-    const consoleErrors: string[] = [];
-    page.on('console', (msg) => {
-      if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
-      }
-    });
+// Phase 2 E2E smoke tests — requires both API (port 4000) and web (port 5173) running
+// Run with: npx playwright test tests/e2e/
 
-    await page.goto('/auth', { waitUntil: 'domcontentloaded' });
+const BASE = 'http://localhost:5173';
+const TEST_EMAIL = `e2e-${Date.now()}@resumind-test.dev`;
+const TEST_PASS = 'Test@12345';
+const TEST_NAME = 'E2E Test User';
 
-    // Verify main card heading
-    await expect(
-      page.getByRole('heading', { name: 'Welcome', level: 1 }),
-    ).toBeVisible();
-    await expect(
-      page.getByText('Log In to Continue Your Job Journey'),
-    ).toBeVisible();
+test.describe('Phase 2: Authentication Flow', () => {
+  test('Register new account and reach dashboard', async ({ page }) => {
+    await page.goto(`${BASE}/register`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('h4')).toContainText('Create your account');
 
-    // Verify auth button is rendered
-    const authButton = page.locator('button.auth-button');
-    await expect(authButton).toBeVisible();
+    await page.fill('#name', TEST_NAME);
+    await page.fill('#email', TEST_EMAIL);
+    await page.fill('#password', TEST_PASS);
+    await page.fill('#confirmPassword', TEST_PASS);
+    await page.click('#register-submit');
 
-    // Capture screenshot
-    await page.screenshot({ path: 'test-results/preview_auth.png' });
-
-    // Verify no fatal uncaught exceptions
-    const fatalErrors = consoleErrors.filter(
-      (err) =>
-        !err.includes('Puter') &&
-        !err.includes('favicon') &&
-        !err.includes('404'),
-    );
-    expect(fatalErrors).toHaveLength(0);
+    // Should land on dashboard after registration
+    await page.waitForURL(`${BASE}/dashboard`, { timeout: 15000 });
+    await expect(page).toHaveURL(`${BASE}/dashboard`);
   });
 
-  test('should load resume upload route with all input fields', async ({
-    page,
-  }) => {
-    await page.goto('/upload', { waitUntil: 'domcontentloaded' });
+  test('Logout and redirect to login', async ({ page }) => {
+    // Login first
+    await page.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded' });
+    await page.fill('#email', TEST_EMAIL);
+    await page.fill('#password', TEST_PASS);
+    await page.click('#login-submit');
+    await page.waitForURL(`${BASE}/dashboard`, { timeout: 15000 });
 
-    // Verify page title and header
-    await expect(
-      page.getByRole('heading', {
-        name: 'Smart feedback for your dream job',
-        level: 1,
-      }),
-    ).toBeVisible();
-
-    // Verify form input controls
-    await expect(page.getByPlaceholder('Google')).toBeVisible();
-    await expect(page.getByPlaceholder('Frontend Developer')).toBeVisible();
-    await expect(
-      page.getByPlaceholder('Paste job description...'),
-    ).toBeVisible();
-
-    // Verify submit button
-    await expect(
-      page.getByRole('button', { name: /Analyze Resume/i }),
-    ).toBeVisible();
-
-    // Capture screenshot
-    await page.screenshot({ path: 'test-results/preview_upload.png' });
+    // Logout
+    await page.click('#user-menu');
+    await page.click('#logout-btn');
+    await page.waitForURL(`${BASE}/login`, { timeout: 10000 });
+    await expect(page).toHaveURL(`${BASE}/login`);
   });
 
-  test('should load homepage dashboard', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+  test('Protected dashboard redirects unauthenticated users', async ({ page }) => {
+    // Clear storage to ensure no tokens
+    await page.context().clearCookies();
+    await page.evaluate(() => localStorage.clear());
 
-    // Capture screenshot
-    await page.screenshot({ path: 'test-results/preview_home.png' });
+    await page.goto(`${BASE}/dashboard`, { waitUntil: 'domcontentloaded' });
+    await page.waitForURL(`${BASE}/login`, { timeout: 10000 });
+    await expect(page).toHaveURL(`${BASE}/login`);
+  });
+
+  test('Login, open Career Twin, add a skill', async ({ page }) => {
+    // Login
+    await page.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded' });
+    await page.fill('#email', TEST_EMAIL);
+    await page.fill('#password', TEST_PASS);
+    await page.click('#login-submit');
+    await page.waitForURL(`${BASE}/dashboard`, { timeout: 15000 });
+
+    // Go to Career Twin
+    await page.click('#goto-career');
+    await page.waitForURL(`${BASE}/career`, { timeout: 10000 });
+
+    // Add a skill
+    await page.click('button:has-text("⚡")');
+    await page.click('#add-skills');
+    await page.fill('#skill-name-input', 'TypeScript');
+    await page.click('button[type="submit"]:has-text("Save")');
+
+    // Verify skill appears
+    await expect(page.locator('text=TypeScript')).toBeVisible({ timeout: 10000 });
   });
 });

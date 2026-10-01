@@ -11,7 +11,11 @@ import type { Route } from './+types/root';
 import './app.css';
 
 import { usePuterStore } from './lib/puter';
+import { useAuthStore } from './stores/authStore';
 import { useEffect } from 'react';
+
+// Bootstrap CSS — loaded globally for Phase 2
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 /* ================= LINKS ================= */
 
@@ -32,11 +36,17 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { init } = usePuterStore();
+  const restore = useAuthStore((s) => s.restore);
 
   useEffect(() => {
     console.log('🔥 INIT PUTER');
     init(); // ✅ REQUIRED
   }, [init]);
+
+  useEffect(() => {
+    // Restore auth session from localStorage on app boot
+    restore();
+  }, [restore]);
 
   return (
     <html lang="en">
@@ -48,6 +58,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Puter Script */}
         <script src="https://js.puter.com/v2/"></script>
+        {/* Bootstrap JS */}
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+          crossOrigin="anonymous"
+        ></script>
       </head>
 
       <body>

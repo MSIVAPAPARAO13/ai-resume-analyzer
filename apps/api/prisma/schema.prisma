@@ -7,31 +7,196 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum UserPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+
 model User {
-  id            String         @id @default(uuid()) @db.Uuid
-  email         String         @unique
-  name          String?
-  avatarUrl     String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  careerProfile CareerProfile?
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String?  // Nullable: Puter-auth users may not have passwords
+  name         String?
+  avatarUrl    String?
+  role         UserRole @default(USER)
+  plan         UserPlan @default(FREE)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  careerProfile  CareerProfile?
+  refreshTokens  RefreshToken[]
 
   @@index([email])
   @@map("users")
 }
 
-model CareerProfile {
-  id           String   @id @default(uuid()) @db.Uuid
-  userId       String   @unique @db.Uuid
-  headline     String?
-  summary      String?  @db.Text
-  targetRole   String?
-  targetLevel  String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+// ─── Refresh Token ─────────────────────────────────────────────────────────────
 
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  userId    String   @db.Uuid
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// ─── Career Profile ────────────────────────────────────────────────────────────
+
+model CareerProfile {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @unique @db.Uuid
+  headline    String?
+  summary     String?  @db.Text
+  targetRole  String?
+  targetLevel String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experiences  Experience[]
+  education    Education[]
+  projects     Project[]
+  skills       Skill[]
+  certifications Certification[]
+  achievements Achievement[]
 
   @@index([userId])
   @@map("career_profiles")
+}
+
+// ─── Experience ───────────────────────────────────────────────────────────────
+
+model Experience {
+  id               String   @id @default(uuid()) @db.Uuid
+  careerProfileId  String   @db.Uuid
+  company          String
+  title            String
+  employmentType   String?  // Full-time, Part-time, Contract, Freelance, Internship
+  location         String?
+  startDate        DateTime
+  endDate          DateTime?
+  isCurrent        Boolean  @default(false)
+  description      String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  careerProfile CareerProfile @relation(fields: [careerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([careerProfileId])
+  @@map("experiences")
+}
+
+// ─── Education ────────────────────────────────────────────────────────────────
+
+model Education {
+  id              String   @id @default(uuid()) @db.Uuid
+  careerProfileId String   @db.Uuid
+  institution     String
+  degree          String?
+  fieldOfStudy    String?
+  startDate       DateTime
+  endDate         DateTime?
+  isCurrent       Boolean  @default(false)
+  grade           String?
+  description     String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  careerProfile CareerProfile @relation(fields: [careerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([careerProfileId])
+  @@map("education")
+}
+
+// ─── Project ──────────────────────────────────────────────────────────────────
+
+model Project {
+  id              String   @id @default(uuid()) @db.Uuid
+  careerProfileId String   @db.Uuid
+  name            String
+  description     String?  @db.Text
+  technologies    String[] // Array of tech names
+  projectUrl      String?
+  repoUrl         String?
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  careerProfile CareerProfile @relation(fields: [careerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([careerProfileId])
+  @@map("projects")
+}
+
+// ─── Skill ────────────────────────────────────────────────────────────────────
+
+model Skill {
+  id              String   @id @default(uuid()) @db.Uuid
+  careerProfileId String   @db.Uuid
+  name            String
+  category        String?  // Programming, Framework, Tool, Soft Skill, Language
+  proficiency     String?  // Beginner, Intermediate, Advanced, Expert
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  careerProfile CareerProfile @relation(fields: [careerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([careerProfileId])
+  @@map("skills")
+}
+
+// ─── Certification ────────────────────────────────────────────────────────────
+
+model Certification {
+  id              String   @id @default(uuid()) @db.Uuid
+  careerProfileId String   @db.Uuid
+  name            String
+  issuer          String?
+  issueDate       DateTime?
+  expiryDate      DateTime?
+  credentialId    String?
+  credentialUrl   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  careerProfile CareerProfile @relation(fields: [careerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([careerProfileId])
+  @@map("certifications")
+}
+
+// ─── Achievement ──────────────────────────────────────────────────────────────
+
+model Achievement {
+  id              String   @id @default(uuid()) @db.Uuid
+  careerProfileId String   @db.Uuid
+  title           String
+  description     String?  @db.Text
+  date            DateTime?
+  url             String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  careerProfile CareerProfile @relation(fields: [careerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([careerProfileId])
+  @@map("achievements")
 }

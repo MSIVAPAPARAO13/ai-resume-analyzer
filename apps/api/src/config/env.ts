@@ -13,6 +13,11 @@ const envSchema = z.object({
   REDIS_URL: z.string().optional(),
   FRONTEND_URL: z.string().default('http://localhost:5173'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  // JWT
+  JWT_ACCESS_SECRET: z.string().default('dev-access-secret-change-in-prod'),
+  JWT_REFRESH_SECRET: z.string().default('dev-refresh-secret-change-in-prod'),
+  JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
