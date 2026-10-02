@@ -2,7 +2,7 @@ import { type RouteConfig, index, route } from '@react-router/dev/routes';
 
 export default [
   // ─── Public ───────────────────────────────────────────────────────────────
-  index('routes/home.tsx'),          // "/" (existing home page)
+  index('routes/home.tsx'), // "/" (existing home page)
   route('/login', 'routes/login.tsx'),
   route('/register', 'routes/register.tsx'),
   route('/auth', 'routes/auth.tsx'), // existing Puter auth page
@@ -10,6 +10,9 @@ export default [
   // ─── Protected ────────────────────────────────────────────────────────────
   route('/dashboard', 'routes/dashboard.tsx'),
   route('/career', 'routes/career.tsx'),
+  route('/resumes', 'routes/resumes.tsx'),
+  route('/resumes/:id', 'routes/resume-detail.tsx'),
+  route('/resumes/:id/analysis', 'routes/resume-analysis.tsx'),
 
   // ─── Existing Puter-powered routes (preserved) ────────────────────────────
   route('/upload', 'routes/upload.tsx'),

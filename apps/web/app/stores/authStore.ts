@@ -78,7 +78,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    set({ user: null, accessToken: null, refreshToken: null, initialized: true });
+    set({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      initialized: true,
+    });
   },
 
   restore: async () => {
@@ -113,7 +118,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } catch {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        set({ user: null, accessToken: null, refreshToken: null, initialized: true });
+        set({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          initialized: true,
+        });
       }
     }
   },

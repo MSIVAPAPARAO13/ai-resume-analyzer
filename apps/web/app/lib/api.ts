@@ -19,7 +19,10 @@ apiClient.interceptors.request.use((config) => {
 
 // Auto-refresh on 401
 let isRefreshing = false;
-let failedQueue: Array<{ resolve: (v: string) => void; reject: (e: any) => void }> = [];
+let failedQueue: Array<{
+  resolve: (v: string) => void;
+  reject: (e: any) => void;
+}> = [];
 
 function processQueue(error: any, token: string | null) {
   failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(token!)));
@@ -54,7 +57,9 @@ apiClient.interceptors.response.use(
       }
 
       try {
-        const res = await axios.post(`${API_BASE}/api/v1/auth/refresh`, { refreshToken });
+        const res = await axios.post(`${API_BASE}/api/v1/auth/refresh`, {
+          refreshToken,
+        });
         const { accessToken, refreshToken: newRefreshToken } = res.data.data;
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', newRefreshToken);
@@ -99,35 +104,84 @@ export const authApi = {
 
 export const careerApi = {
   getProfile: () => apiClient.get('/profile').then((r) => r.data.data),
-  updateProfile: (data: any) => apiClient.put('/profile', data).then((r) => r.data.data),
+  updateProfile: (data: any) =>
+    apiClient.put('/profile', data).then((r) => r.data.data),
 
   getExperiences: () => apiClient.get('/experiences').then((r) => r.data.data),
-  createExperience: (data: any) => apiClient.post('/experiences', data).then((r) => r.data.data),
-  updateExperience: (id: string, data: any) => apiClient.put(`/experiences/${id}`, data).then((r) => r.data.data),
-  deleteExperience: (id: string) => apiClient.delete(`/experiences/${id}`).then((r) => r.data.data),
+  createExperience: (data: any) =>
+    apiClient.post('/experiences', data).then((r) => r.data.data),
+  updateExperience: (id: string, data: any) =>
+    apiClient.put(`/experiences/${id}`, data).then((r) => r.data.data),
+  deleteExperience: (id: string) =>
+    apiClient.delete(`/experiences/${id}`).then((r) => r.data.data),
 
   getEducation: () => apiClient.get('/education').then((r) => r.data.data),
-  createEducation: (data: any) => apiClient.post('/education', data).then((r) => r.data.data),
-  updateEducation: (id: string, data: any) => apiClient.put(`/education/${id}`, data).then((r) => r.data.data),
-  deleteEducation: (id: string) => apiClient.delete(`/education/${id}`).then((r) => r.data.data),
+  createEducation: (data: any) =>
+    apiClient.post('/education', data).then((r) => r.data.data),
+  updateEducation: (id: string, data: any) =>
+    apiClient.put(`/education/${id}`, data).then((r) => r.data.data),
+  deleteEducation: (id: string) =>
+    apiClient.delete(`/education/${id}`).then((r) => r.data.data),
 
   getProjects: () => apiClient.get('/projects').then((r) => r.data.data),
-  createProject: (data: any) => apiClient.post('/projects', data).then((r) => r.data.data),
-  updateProject: (id: string, data: any) => apiClient.put(`/projects/${id}`, data).then((r) => r.data.data),
-  deleteProject: (id: string) => apiClient.delete(`/projects/${id}`).then((r) => r.data.data),
+  createProject: (data: any) =>
+    apiClient.post('/projects', data).then((r) => r.data.data),
+  updateProject: (id: string, data: any) =>
+    apiClient.put(`/projects/${id}`, data).then((r) => r.data.data),
+  deleteProject: (id: string) =>
+    apiClient.delete(`/projects/${id}`).then((r) => r.data.data),
 
   getSkills: () => apiClient.get('/skills').then((r) => r.data.data),
-  createSkill: (data: any) => apiClient.post('/skills', data).then((r) => r.data.data),
-  updateSkill: (id: string, data: any) => apiClient.put(`/skills/${id}`, data).then((r) => r.data.data),
-  deleteSkill: (id: string) => apiClient.delete(`/skills/${id}`).then((r) => r.data.data),
+  createSkill: (data: any) =>
+    apiClient.post('/skills', data).then((r) => r.data.data),
+  updateSkill: (id: string, data: any) =>
+    apiClient.put(`/skills/${id}`, data).then((r) => r.data.data),
+  deleteSkill: (id: string) =>
+    apiClient.delete(`/skills/${id}`).then((r) => r.data.data),
 
-  getCertifications: () => apiClient.get('/certifications').then((r) => r.data.data),
-  createCertification: (data: any) => apiClient.post('/certifications', data).then((r) => r.data.data),
-  updateCertification: (id: string, data: any) => apiClient.put(`/certifications/${id}`, data).then((r) => r.data.data),
-  deleteCertification: (id: string) => apiClient.delete(`/certifications/${id}`).then((r) => r.data.data),
+  getCertifications: () =>
+    apiClient.get('/certifications').then((r) => r.data.data),
+  createCertification: (data: any) =>
+    apiClient.post('/certifications', data).then((r) => r.data.data),
+  updateCertification: (id: string, data: any) =>
+    apiClient.put(`/certifications/${id}`, data).then((r) => r.data.data),
+  deleteCertification: (id: string) =>
+    apiClient.delete(`/certifications/${id}`).then((r) => r.data.data),
 
-  getAchievements: () => apiClient.get('/achievements').then((r) => r.data.data),
-  createAchievement: (data: any) => apiClient.post('/achievements', data).then((r) => r.data.data),
-  updateAchievement: (id: string, data: any) => apiClient.put(`/achievements/${id}`, data).then((r) => r.data.data),
-  deleteAchievement: (id: string) => apiClient.delete(`/achievements/${id}`).then((r) => r.data.data),
+  getAchievements: () =>
+    apiClient.get('/achievements').then((r) => r.data.data),
+  createAchievement: (data: any) =>
+    apiClient.post('/achievements', data).then((r) => r.data.data),
+  updateAchievement: (id: string, data: any) =>
+    apiClient.put(`/achievements/${id}`, data).then((r) => r.data.data),
+  deleteAchievement: (id: string) =>
+    apiClient.delete(`/achievements/${id}`).then((r) => r.data.data),
+};
+
+// ─── Resume Intelligence API ──────────────────────────────────────────────────
+
+export const resumeApi = {
+  listResumes: () => apiClient.get('/resumes').then((r) => r.data.data),
+  getResume: (id: string) =>
+    apiClient.get(`/resumes/${id}`).then((r) => r.data.data),
+  uploadResume: (formData: FormData) =>
+    apiClient
+      .post('/resumes', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then((r) => r.data.data),
+  deleteResume: (id: string) =>
+    apiClient.delete(`/resumes/${id}`).then((r) => r.data.data),
+  analyzeResume: (id: string, versionId?: string) =>
+    apiClient
+      .post(`/resumes/${id}/analyze`, { versionId })
+      .then((r) => r.data.data),
+  getAnalysis: (id: string) =>
+    apiClient.get(`/resumes/${id}/analysis`).then((r) => r.data.data),
+  listVersions: (id: string) =>
+    apiClient.get(`/resumes/${id}/versions`).then((r) => r.data.data),
+  getVersion: (id: string, versionId: string) =>
+    apiClient
+      .get(`/resumes/${id}/versions/${versionId}`)
+      .then((r) => r.data.data),
 };

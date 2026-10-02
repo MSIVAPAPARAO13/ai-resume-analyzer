@@ -2,11 +2,28 @@ import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 
-const PLACEHOLDER_MODULES = [
-  { icon: '📄', label: 'Resume Builder', desc: 'Build ATS-optimized resumes', route: '/resume', phase: 3 },
-  { icon: '💼', label: 'Job Tracker', desc: 'Track applications & matches', route: '/jobs', phase: 4 },
-  { icon: '📝', label: 'Interview Prep', desc: 'AI-powered interview coach', route: '/interviews', phase: 5 },
-  { icon: '📊', label: 'Analytics', desc: 'Career insights & benchmarks', route: '/analytics', phase: 6 },
+const UPCOMING_MODULES = [
+  {
+    icon: '💼',
+    label: 'Job Tracker',
+    desc: 'Track applications & matches',
+    route: '/jobs',
+    phase: 4,
+  },
+  {
+    icon: '📝',
+    label: 'Interview Prep',
+    desc: 'AI-powered interview coach',
+    route: '/interviews',
+    phase: 5,
+  },
+  {
+    icon: '📊',
+    label: 'Analytics',
+    desc: 'Career insights & benchmarks',
+    route: '/analytics',
+    phase: 6,
+  },
 ];
 
 export default function DashboardPage() {
@@ -35,7 +52,12 @@ export default function DashboardPage() {
   }
 
   const initials = user.name
-    ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+    ? user.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
     : user.email[0].toUpperCase();
 
   return (
@@ -46,7 +68,16 @@ export default function DashboardPage() {
           Resumind
         </Link>
         <div className="d-flex align-items-center gap-3">
-          <Link to="/career" className="btn btn-outline-primary btn-sm">Career Twin</Link>
+          <Link
+            to="/resumes"
+            className="btn btn-outline-primary btn-sm"
+            id="goto-resumes"
+          >
+            Resumes ⚡
+          </Link>
+          <Link to="/career" className="btn btn-outline-secondary btn-sm">
+            Career Twin
+          </Link>
           <div className="dropdown">
             <button
               className="btn btn-dark border-secondary dropdown-toggle d-flex align-items-center gap-2"
@@ -60,11 +91,17 @@ export default function DashboardPage() {
               >
                 {initials}
               </div>
-              <span className="text-secondary small">{user.name || user.email}</span>
+              <span className="text-secondary small">
+                {user.name || user.email}
+              </span>
             </button>
             <ul className="dropdown-menu dropdown-menu-end bg-dark border-secondary">
               <li>
-                <button className="dropdown-item text-danger" onClick={handleLogout} id="logout-btn">
+                <button
+                  className="dropdown-item text-danger"
+                  onClick={handleLogout}
+                  id="logout-btn"
+                >
                   Sign out
                 </button>
               </li>
@@ -85,7 +122,12 @@ export default function DashboardPage() {
 
         {/* Stats */}
         <div className="row g-3 mb-5">
-          <StatCard label="Target Role" value="Not set" icon="🎯" link="/career" />
+          <StatCard
+            label="Target Role"
+            value="Not set"
+            icon="🎯"
+            link="/career"
+          />
           <StatCard label="Experiences" value="0" icon="💼" link="/career" />
           <StatCard label="Projects" value="0" icon="🚀" link="/career" />
           <StatCard label="Skills" value="0" icon="⚡" link="/career" />
@@ -97,20 +139,72 @@ export default function DashboardPage() {
             <div>
               <h5 className="fw-bold mb-1">Build your Career Twin</h5>
               <p className="text-secondary mb-0 small">
-                Your Career Twin is the verified source of truth for your career. Add your experience, education, projects, and skills.
+                Your Career Twin is the verified source of truth for your
+                career. Add your experience, education, projects, and skills.
               </p>
             </div>
-            <Link to="/career" className="btn btn-primary px-4" id="goto-career">
+            <Link
+              to="/career"
+              className="btn btn-primary px-4"
+              id="goto-career"
+            >
               Open Career Twin →
             </Link>
           </div>
         </div>
 
+        {/* Active Modules */}
+        <h6 className="text-secondary text-uppercase letter-spacing-1 mb-3 small">
+          Active Modules
+        </h6>
+        <div className="row g-3 mb-5">
+          <div className="col-12 col-md-6">
+            <Link to="/resumes" className="text-decoration-none">
+              <div className="card bg-dark border-primary border-opacity-50 h-100 hover-lift p-4">
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <div className="fs-2">📄</div>
+                  <span className="badge bg-primary">Phase 3 · Active</span>
+                </div>
+                <h5 className="fw-bold text-white mb-1">Resume Intelligence</h5>
+                <p className="text-secondary small mb-3">
+                  Upload resumes (PDF/DOCX), parse structured sections, generate
+                  explainable ATS scores, and compare with your Career Twin.
+                </p>
+                <span className="text-primary small fw-semibold">
+                  Open Resumes →
+                </span>
+              </div>
+            </Link>
+          </div>
+          <div className="col-12 col-md-6">
+            <Link to="/career" className="text-decoration-none">
+              <div className="card bg-dark border-secondary h-100 hover-lift p-4">
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <div className="fs-2">💼</div>
+                  <span className="badge bg-success bg-opacity-25 text-success">
+                    Phase 2 · Active
+                  </span>
+                </div>
+                <h5 className="fw-bold text-white mb-1">Career Twin</h5>
+                <p className="text-secondary small mb-3">
+                  Your verified source of truth for work experiences, skills,
+                  education, projects, certifications, and achievements.
+                </p>
+                <span className="text-primary small fw-semibold">
+                  Manage Career Twin →
+                </span>
+              </div>
+            </Link>
+          </div>
+        </div>
+
         {/* Future Modules */}
-        <h6 className="text-secondary text-uppercase letter-spacing-1 mb-3 small">Coming in future phases</h6>
+        <h6 className="text-secondary text-uppercase letter-spacing-1 mb-3 small">
+          Coming in future phases
+        </h6>
         <div className="row g-3">
-          {PLACEHOLDER_MODULES.map((m) => (
-            <div key={m.label} className="col-12 col-sm-6 col-lg-3">
+          {UPCOMING_MODULES.map((m) => (
+            <div key={m.label} className="col-12 col-sm-6 col-lg-4">
               <div className="card bg-dark border-secondary h-100 opacity-50">
                 <div className="card-body p-4">
                   <div className="fs-3 mb-2">{m.icon}</div>
@@ -127,7 +221,17 @@ export default function DashboardPage() {
   );
 }
 
-function StatCard({ label, value, icon, link }: { label: string; value: string; icon: string; link: string }) {
+function StatCard({
+  label,
+  value,
+  icon,
+  link,
+}: {
+  label: string;
+  value: string;
+  icon: string;
+  link: string;
+}) {
   return (
     <div className="col-6 col-lg-3">
       <Link to={link} className="text-decoration-none">
