@@ -32,13 +32,11 @@ describe('Auth & Career Twin End-to-End API Integration', () => {
 
   describe('1. Authentication Flow', () => {
     it('POST /api/v1/auth/register - successfully registers a new user', async () => {
-      const res = await request(app)
-        .post('/api/v1/auth/register')
-        .send({
-          email: testEmail,
-          password: testPassword,
-          name: 'Integration Test User',
-        });
+      const res = await request(app).post('/api/v1/auth/register').send({
+        email: testEmail,
+        password: testPassword,
+        name: 'Integration Test User',
+      });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -55,13 +53,11 @@ describe('Auth & Career Twin End-to-End API Integration', () => {
     });
 
     it('POST /api/v1/auth/register - rejects duplicate email with 409', async () => {
-      const res = await request(app)
-        .post('/api/v1/auth/register')
-        .send({
-          email: testEmail,
-          password: testPassword,
-          name: 'Duplicate User',
-        });
+      const res = await request(app).post('/api/v1/auth/register').send({
+        email: testEmail,
+        password: testPassword,
+        name: 'Duplicate User',
+      });
 
       expect(res.status).toBe(409);
       expect(res.body.success).toBe(false);
@@ -69,12 +65,10 @@ describe('Auth & Career Twin End-to-End API Integration', () => {
     });
 
     it('POST /api/v1/auth/login - rejects invalid password with 401', async () => {
-      const res = await request(app)
-        .post('/api/v1/auth/login')
-        .send({
-          email: testEmail,
-          password: 'WrongPassword999!',
-        });
+      const res = await request(app).post('/api/v1/auth/login').send({
+        email: testEmail,
+        password: 'WrongPassword999!',
+      });
 
       expect(res.status).toBe(401);
       expect(res.body.success).toBe(false);
@@ -82,12 +76,10 @@ describe('Auth & Career Twin End-to-End API Integration', () => {
     });
 
     it('POST /api/v1/auth/login - successfully logs in with correct password', async () => {
-      const res = await request(app)
-        .post('/api/v1/auth/login')
-        .send({
-          email: testEmail,
-          password: testPassword,
-        });
+      const res = await request(app).post('/api/v1/auth/login').send({
+        email: testEmail,
+        password: testPassword,
+      });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -129,13 +121,11 @@ describe('Auth & Career Twin End-to-End API Integration', () => {
   describe('2. Career Twin CRUD & User Isolation', () => {
     beforeAll(async () => {
       // Create a second user to test user isolation
-      const res = await request(app)
-        .post('/api/v1/auth/register')
-        .send({
-          email: otherUserEmail,
-          password: testPassword,
-          name: 'Other Isolation User',
-        });
+      const res = await request(app).post('/api/v1/auth/register').send({
+        email: otherUserEmail,
+        password: testPassword,
+        name: 'Other Isolation User',
+      });
       otherAccessToken = res.body.data.accessToken;
     });
 
@@ -162,7 +152,9 @@ describe('Auth & Career Twin End-to-End API Integration', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.profile.headline).toBe('Full-Stack TypeScript Specialist');
+      expect(res.body.data.profile.headline).toBe(
+        'Full-Stack TypeScript Specialist',
+      );
       expect(res.body.data.profile.targetRole).toBe('Senior Staff Engineer');
     });
 
@@ -196,7 +188,11 @@ describe('Auth & Career Twin End-to-End API Integration', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.experiences.length).toBeGreaterThanOrEqual(1);
-      expect(res.body.data.experiences.some((e: any) => e.id === createdExperienceId)).toBe(true);
+      expect(
+        res.body.data.experiences.some(
+          (e: any) => e.id === createdExperienceId,
+        ),
+      ).toBe(true);
     });
 
     it('PUT /api/v1/experiences/:id - updates experience', async () => {
@@ -253,7 +249,9 @@ describe('Auth & Career Twin End-to-End API Integration', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.skills.some((s: any) => s.id === createdSkillId)).toBe(true);
+      expect(
+        res.body.data.skills.some((s: any) => s.id === createdSkillId),
+      ).toBe(true);
     });
 
     it('DELETE /api/v1/experiences/:id - deletes experience', async () => {

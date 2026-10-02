@@ -39,7 +39,9 @@ test.describe('Phase 2: Authentication Flow', () => {
     await expect(page).toHaveURL(`${BASE}/login`);
   });
 
-  test('Protected dashboard redirects unauthenticated users', async ({ page }) => {
+  test('Protected dashboard redirects unauthenticated users', async ({
+    page,
+  }) => {
     // Clear storage to ensure no tokens
     await page.context().clearCookies();
     await page.evaluate(() => localStorage.clear());
@@ -68,6 +70,8 @@ test.describe('Phase 2: Authentication Flow', () => {
     await page.click('button[type="submit"]:has-text("Save")');
 
     // Verify skill appears
-    await expect(page.locator('text=TypeScript')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=TypeScript')).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

@@ -109,9 +109,7 @@ describe('GET /api/v1/auth/me - authentication guard', () => {
 
 describe('POST /api/v1/auth/refresh - validation', () => {
   it('should reject missing refreshToken', async () => {
-    const res = await request(app)
-      .post('/api/v1/auth/refresh')
-      .send({});
+    const res = await request(app).post('/api/v1/auth/refresh').send({});
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -121,9 +119,7 @@ describe('POST /api/v1/auth/refresh - validation', () => {
 
 describe('POST /api/v1/auth/logout - validation', () => {
   it('should reject missing refreshToken', async () => {
-    const res = await request(app)
-      .post('/api/v1/auth/logout')
-      .send({});
+    const res = await request(app).post('/api/v1/auth/logout').send({});
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
