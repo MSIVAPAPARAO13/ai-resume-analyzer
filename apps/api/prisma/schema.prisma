@@ -36,6 +36,7 @@ model User {
   careerProfile  CareerProfile?
   refreshTokens  RefreshToken[]
   resumes        Resume[]
+  jobs           Job[]
 
   @@index([email])
   @@map("users")
@@ -245,6 +246,7 @@ model ResumeVersion {
 
   resume        Resume          @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   analyses      ResumeAnalysis[]
+  jobMatches    JobMatch[]
 
   @@index([resumeId])
   @@map("resume_versions")
@@ -275,4 +277,114 @@ model ResumeAnalysis {
   @@index([resumeVersionId])
   @@map("resume_analyses")
 }
+
+// ─── Job Intelligence Enums ───────────────────────────────────────────────────
+
+enum JobStatus {
+  SAVED
+  ANALYZED
+  ARCHIVED
+}
+
+enum RequirementType {
+  SKILL
+  RESPONSIBILITY
+  EXPERIENCE
+  EDUCATION
+  KEYWORD
+}
+
+enum RequirementImportance {
+  REQUIRED
+  PREFERRED
+  NICE_TO_HAVE
+}
+
+// ─── Job ──────────────────────────────────────────────────────────────────────
+
+model Job {
+  id             String      @id @default(uuid()) @db.Uuid
+  userId         String      @db.Uuid
+  title          String
+  company        String
+  location       String?
+  employmentType String?     // Full-time, Contract, Remote, Hybrid
+  source         String?     @default("MANUAL")
+  sourceUrl      String?
+  description    String      @db.Text
+  status         JobStatus   @default(SAVED)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requirements   JobRequirement[]
+  analyses       JobAnalysis[]
+  matches        JobMatch[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@map("jobs")
+}
+
+// ─── Job Requirement ──────────────────────────────────────────────────────────
+
+model JobRequirement {
+  id         String                @id @default(uuid()) @db.Uuid
+  jobId      String                @db.Uuid
+  type       RequirementType
+  name       String
+  importance RequirementImportance @default(REQUIRED)
+  evidence   String?
+  createdAt  DateTime              @default(now())
+
+  job        Job                   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([jobId, type])
+  @@map("job_requirements")
+}
+
+// ─── Job Analysis ─────────────────────────────────────────────────────────────
+
+model JobAnalysis {
+  id                    String   @id @default(uuid()) @db.Uuid
+  jobId                 String   @db.Uuid
+  role                  String
+  level                 String?  // Intern, Entry, Junior, Mid, Senior, Lead, Executive
+  summary               String?  @db.Text
+  experienceRequirement String?
+  educationRequirement  String?
+  jobDna                Json     // Structured Job DNA: role, level, skills, responsibilities, keywords
+  createdAt             DateTime @default(now())
+
+  job                   Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@map("job_analyses")
+}
+
+// ─── Job Match ────────────────────────────────────────────────────────────────
+
+model JobMatch {
+  id                    String        @id @default(uuid()) @db.Uuid
+  jobId                 String        @db.Uuid
+  resumeVersionId       String        @db.Uuid
+  overallScore          Int
+  skillsScore           Int
+  experienceScore       Int
+  responsibilitiesScore Int
+  educationScore        Int
+  keywordScore          Int
+  careerTwinScore       Int
+  result                Json          // Complete match report: strongMatches, partialMatches, missing, recommendations
+  createdAt             DateTime      @default(now())
+
+  job                   Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  resumeVersion         ResumeVersion @relation(fields: [resumeVersionId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([resumeVersionId])
+  @@map("job_matches")
+}
+
 
