@@ -35,6 +35,7 @@ model User {
 
   careerProfile  CareerProfile?
   refreshTokens  RefreshToken[]
+  resumes        Resume[]
 
   @@index([email])
   @@map("users")
@@ -200,3 +201,78 @@ model Achievement {
   @@index([careerProfileId])
   @@map("achievements")
 }
+
+// ─── Resume Intelligence Enums ────────────────────────────────────────────────
+
+enum ResumeStatus {
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+}
+
+// ─── Resume ───────────────────────────────────────────────────────────────────
+
+model Resume {
+  id               String       @id @default(uuid()) @db.Uuid
+  userId           String       @db.Uuid
+  title            String
+  originalFileName String
+  fileType         String
+  fileSize         Int
+  storageKey       String
+  status           ResumeStatus @default(UPLOADED)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions         ResumeVersion[]
+  analyses         ResumeAnalysis[]
+
+  @@index([userId])
+  @@map("resumes")
+}
+
+// ─── Resume Version ───────────────────────────────────────────────────────────
+
+model ResumeVersion {
+  id            String    @id @default(uuid()) @db.Uuid
+  resumeId      String    @db.Uuid
+  versionNumber Int       @default(1)
+  extractedText String?   @db.Text
+  parsedData    Json?     // Validated structured sections: contact, summary, experience, etc.
+  createdAt     DateTime  @default(now())
+
+  resume        Resume          @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  analyses      ResumeAnalysis[]
+
+  @@index([resumeId])
+  @@map("resume_versions")
+}
+
+// ─── Resume Analysis ──────────────────────────────────────────────────────────
+
+model ResumeAnalysis {
+  id              String   @id @default(uuid()) @db.Uuid
+  resumeId        String   @db.Uuid
+  resumeVersionId String   @db.Uuid
+  overallScore    Int
+  atsScore        Int
+  contentScore    Int
+  skillsScore     Int
+  experienceScore Int
+  educationScore  Int
+  formattingScore Int
+  summaryScore    Int
+  keywordScore    Int
+  result          Json     // Complete breakdown: strengths, improvements, Career Twin comparison
+  createdAt       DateTime @default(now())
+
+  resume          Resume        @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  version         ResumeVersion @relation(fields: [resumeVersionId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@index([resumeVersionId])
+  @@map("resume_analyses")
+}
+

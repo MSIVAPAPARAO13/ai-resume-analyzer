@@ -23,3 +23,8 @@ test-results/
 **/test-results/
 playwright-report/
 coverage/
+
+# Uploaded Files
+uploads/
+**/uploads/
+
