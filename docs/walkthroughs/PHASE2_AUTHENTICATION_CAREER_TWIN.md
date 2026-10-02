@@ -2,13 +2,14 @@
 
 **Status:** Completed  
 **Branch:** `feature/phase-2-auth-career-twin`  
-**Date:** 2026-10-01  
+**Date:** 2026-10-01
 
 ---
 
 ## 1. Executive Summary
 
 Phase 2 of **Resumind** expands the foundational architecture established in Phase 1 by implementing:
+
 1. **Production-Ready Secure Authentication & Identity**:
    - Argon2id password hashing (RFC 9106 compliant)
    - Dual-token model: short-lived JWT access tokens (15m) + revocable refresh tokens (7d) stored in PostgreSQL
@@ -31,6 +32,7 @@ Phase 2 of **Resumind** expands the foundational architecture established in Pha
 ## 2. Database Schema & Migrations
 
 ### Prisma Schema (`apps/api/prisma/schema.prisma`)
+
 - **Enums**:
   - `UserRole`: `USER`, `ADMIN`
   - `UserPlan`: `FREE`, `PRO`, `ENTERPRISE`
@@ -46,10 +48,12 @@ Phase 2 of **Resumind** expands the foundational architecture established in Pha
   - `Achievement`: `careerProfileId` (FK), `title`, `description`, `date`, `url`
 
 ### Applied Migrations
+
 - Migration file: `apps/api/prisma/migrations/20261001172418_phase2_auth_career_twin/migration.sql`
 - Status: Applied to PostgreSQL `resumind_dev` schema `public` at `localhost:5432`
 
 ### Database Seeding (`apps/api/prisma/seed.ts`)
+
 - Seed user: `demo@resumind.dev`
 - Password: `Password123!` (Argon2id hashed)
 - Seeded entities:
@@ -65,37 +69,40 @@ Phase 2 of **Resumind** expands the foundational architecture established in Pha
 ## 3. API Endpoints Catalog
 
 ### Authentication APIs (`/api/v1/auth`)
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `POST` | `/api/v1/auth/register` | No (Rate-limited) | Register with email, password, name. Returns safe user + token pair. |
-| `POST` | `/api/v1/auth/login` | No (Rate-limited) | Authenticate user. Returns safe user + token pair. |
-| `POST` | `/api/v1/auth/refresh` | No | Exchange valid refresh token for a new access token & rotated refresh token. |
-| `POST` | `/api/v1/auth/logout` | No | Revokes refresh token in database. |
-| `GET` | `/api/v1/auth/me` | Yes (Bearer) | Returns authenticated user identity (no password hash). |
+
+| Method | Endpoint                | Auth Required     | Description                                                                  |
+| ------ | ----------------------- | ----------------- | ---------------------------------------------------------------------------- |
+| `POST` | `/api/v1/auth/register` | No (Rate-limited) | Register with email, password, name. Returns safe user + token pair.         |
+| `POST` | `/api/v1/auth/login`    | No (Rate-limited) | Authenticate user. Returns safe user + token pair.                           |
+| `POST` | `/api/v1/auth/refresh`  | No                | Exchange valid refresh token for a new access token & rotated refresh token. |
+| `POST` | `/api/v1/auth/logout`   | No                | Revokes refresh token in database.                                           |
+| `GET`  | `/api/v1/auth/me`       | Yes (Bearer)      | Returns authenticated user identity (no password hash).                      |
 
 ### Career Twin APIs (`/api/v1`)
-| Method | Endpoint | Auth Required | Description |
-|---|---|---|---|
-| `GET` | `/api/v1/profile` | Yes | Get current user's complete Career Twin with relations. |
-| `PUT` | `/api/v1/profile` | Yes | Update target role, headline, level, summary. |
-| `GET` / `POST` | `/api/v1/experiences` | Yes | List or create work experiences. |
-| `PUT` / `DELETE` | `/api/v1/experiences/:id` | Yes | Update or delete work experience (isolated to owner). |
-| `GET` / `POST` | `/api/v1/education` | Yes | List or create education records. |
-| `PUT` / `DELETE` | `/api/v1/education/:id` | Yes | Update or delete education record. |
-| `GET` / `POST` | `/api/v1/projects` | Yes | List or create project entries. |
-| `PUT` / `DELETE` | `/api/v1/projects/:id` | Yes | Update or delete project entry. |
-| `GET` / `POST` | `/api/v1/skills` | Yes | List or create skills. |
-| `PUT` / `DELETE` | `/api/v1/skills/:id` | Yes | Update or delete skill. |
-| `GET` / `POST` | `/api/v1/certifications` | Yes | List or create certifications. |
-| `PUT` / `DELETE` | `/api/v1/certifications/:id` | Yes | Update or delete certification. |
-| `GET` / `POST` | `/api/v1/achievements` | Yes | List or create achievements. |
-| `PUT` / `DELETE` | `/api/v1/achievements/:id` | Yes | Update or delete achievement. |
+
+| Method           | Endpoint                     | Auth Required | Description                                             |
+| ---------------- | ---------------------------- | ------------- | ------------------------------------------------------- |
+| `GET`            | `/api/v1/profile`            | Yes           | Get current user's complete Career Twin with relations. |
+| `PUT`            | `/api/v1/profile`            | Yes           | Update target role, headline, level, summary.           |
+| `GET` / `POST`   | `/api/v1/experiences`        | Yes           | List or create work experiences.                        |
+| `PUT` / `DELETE` | `/api/v1/experiences/:id`    | Yes           | Update or delete work experience (isolated to owner).   |
+| `GET` / `POST`   | `/api/v1/education`          | Yes           | List or create education records.                       |
+| `PUT` / `DELETE` | `/api/v1/education/:id`      | Yes           | Update or delete education record.                      |
+| `GET` / `POST`   | `/api/v1/projects`           | Yes           | List or create project entries.                         |
+| `PUT` / `DELETE` | `/api/v1/projects/:id`       | Yes           | Update or delete project entry.                         |
+| `GET` / `POST`   | `/api/v1/skills`             | Yes           | List or create skills.                                  |
+| `PUT` / `DELETE` | `/api/v1/skills/:id`         | Yes           | Update or delete skill.                                 |
+| `GET` / `POST`   | `/api/v1/certifications`     | Yes           | List or create certifications.                          |
+| `PUT` / `DELETE` | `/api/v1/certifications/:id` | Yes           | Update or delete certification.                         |
+| `GET` / `POST`   | `/api/v1/achievements`       | Yes           | List or create achievements.                            |
+| `PUT` / `DELETE` | `/api/v1/achievements/:id`   | Yes           | Update or delete achievement.                           |
 
 ---
 
 ## 4. Verification & Test Evidence
 
 ### 1. Docker Containers
+
 ```
 CONTAINER ID   IMAGE                STATUS                   PORTS                    NAMES
 6c3fdef849bc   postgres:16-alpine   Up 20 minutes (healthy)  0.0.0.0:5432->5432/tcp   resumind-postgres
@@ -103,6 +110,7 @@ CONTAINER ID   IMAGE                STATUS                   PORTS              
 ```
 
 ### 2. Live Health Check (`GET http://localhost:4000/api/v1/health`)
+
 ```json
 {
   "success": true,
@@ -119,6 +127,7 @@ CONTAINER ID   IMAGE                STATUS                   PORTS              
 ```
 
 ### 3. Live Login & Profile Verification
+
 - **Login Response:**
   ```json
   {
@@ -140,6 +149,7 @@ CONTAINER ID   IMAGE                STATUS                   PORTS              
   Successfully returned headline `"Senior Full Stack Engineer & Cloud Architect"`, 2 experiences, 1 education, 1 project, and 5 skills.
 
 ### 4. Automated Test Suites (`npm test`)
+
 ```
 RUN v3.2.7 C:/Users/msiva/WebstormProjects/ai-resume-analyzer/apps/api
 ✓ tests/integration/health.test.ts (19 tests)
@@ -156,6 +166,7 @@ TOTAL: 39 tests passed (100% pass rate)
 ```
 
 ### 5. Static Analysis & Build Verification
+
 - **TypeScript (`npm run typecheck`):** Clean exit code 0 across `@resumind/web` and `@resumind/api`.
 - **ESLint (`npm run lint`):** 0 errors, 0 warnings.
 - **Production Build (`npm run build`):**

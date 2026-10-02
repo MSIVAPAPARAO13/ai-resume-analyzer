@@ -10,27 +10,29 @@
 
 This report performs a thorough, ground-truth inspection of the Phase 1 Database and API foundation before proceeding to Phase 2. Every component has been audited directly against the filesystem, running processes, network ports, and test suites.
 
-| Verification Item | Status | Ground-Truth Finding |
-| :--- | :--- | :--- |
-| **Prisma Schema (`schema.prisma`)** | ✅ **VALID** | Syntax valid, defines `users` and `career_profiles` with 1:1 relation. |
-| **Prisma Migrations** | ⚠️ **PENDING** | No migrations folder (`apps/api/prisma/migrations` does not exist). |
-| **PostgreSQL Runtime** | ❌ **STOPPED** | Docker daemon is stopped, port 5432 not listening. |
-| **Database Tables (Live DB)** | ⚠️ **NOT APPLIED** | Tables not created in live DB due to PostgreSQL being offline. |
-| **Users Table Columns** | ✅ **VERIFIED (SCHEMA)** | 6 columns declared (`id`, `email`, `name`, `avatarUrl`, `createdAt`, `updatedAt`). |
-| **Career Profiles Columns** | ✅ **VERIFIED (SCHEMA)** | 8 columns declared (`id`, `userId`, `headline`, `summary`, `targetRole`, `targetLevel`, `createdAt`, `updatedAt`). |
-| **User → CareerProfile Relation** | ✅ **VERIFIED (SCHEMA)** | 1:1 relation with `onDelete: Cascade` and unique foreign key index. |
-| **Database Seed Script** | ✅ **VALID CODE** | `apps/api/prisma/seed.ts` creates demo user & nested career profile; pending live DB. |
-| **`GET /api/v1/health` Endpoint** | ✅ **OPERATIONAL** | Verified via Supertest/Vitest integration test (returns 200 OK + `X-Request-Id`). |
-| **Health Check Checks PostgreSQL?** | ❌ **NOT WIRED** | `checkDatabaseHealth()` exists in `config/database.ts` but is **not** called by `HealthService`. |
-| **Health Check Checks Redis?** | ❌ **NOT WIRED** | `checkRedisHealth()` exists in `config/redis.ts` but is **not** called by `HealthService`. |
-| **Active API Routes** | ✅ **VERIFIED** | Only 1 endpoint registered: `GET /api/v1/health` + 404 middleware. |
+| Verification Item                   | Status                   | Ground-Truth Finding                                                                                               |
+| :---------------------------------- | :----------------------- | :----------------------------------------------------------------------------------------------------------------- |
+| **Prisma Schema (`schema.prisma`)** | ✅ **VALID**             | Syntax valid, defines `users` and `career_profiles` with 1:1 relation.                                             |
+| **Prisma Migrations**               | ⚠️ **PENDING**           | No migrations folder (`apps/api/prisma/migrations` does not exist).                                                |
+| **PostgreSQL Runtime**              | ❌ **STOPPED**           | Docker daemon is stopped, port 5432 not listening.                                                                 |
+| **Database Tables (Live DB)**       | ⚠️ **NOT APPLIED**       | Tables not created in live DB due to PostgreSQL being offline.                                                     |
+| **Users Table Columns**             | ✅ **VERIFIED (SCHEMA)** | 6 columns declared (`id`, `email`, `name`, `avatarUrl`, `createdAt`, `updatedAt`).                                 |
+| **Career Profiles Columns**         | ✅ **VERIFIED (SCHEMA)** | 8 columns declared (`id`, `userId`, `headline`, `summary`, `targetRole`, `targetLevel`, `createdAt`, `updatedAt`). |
+| **User → CareerProfile Relation**   | ✅ **VERIFIED (SCHEMA)** | 1:1 relation with `onDelete: Cascade` and unique foreign key index.                                                |
+| **Database Seed Script**            | ✅ **VALID CODE**        | `apps/api/prisma/seed.ts` creates demo user & nested career profile; pending live DB.                              |
+| **`GET /api/v1/health` Endpoint**   | ✅ **OPERATIONAL**       | Verified via Supertest/Vitest integration test (returns 200 OK + `X-Request-Id`).                                  |
+| **Health Check Checks PostgreSQL?** | ❌ **NOT WIRED**         | `checkDatabaseHealth()` exists in `config/database.ts` but is **not** called by `HealthService`.                   |
+| **Health Check Checks Redis?**      | ❌ **NOT WIRED**         | `checkRedisHealth()` exists in `config/redis.ts` but is **not** called by `HealthService`.                         |
+| **Active API Routes**               | ✅ **VERIFIED**          | Only 1 endpoint registered: `GET /api/v1/health` + 404 middleware.                                                 |
 
 ---
 
 ## 2. Detailed Findings
 
 ### 2.1 Prisma Schema Inspection (`apps/api/prisma/schema.prisma`)
+
 The schema was validated using `npx prisma validate --schema=apps/api/prisma/schema.prisma` and exited with code 0:
+
 ```
 Environment variables loaded from .env
 Prisma schema loaded from apps\api\prisma\schema.prisma
@@ -38,6 +40,7 @@ The schema at apps\api\prisma\schema.prisma is valid 🚀
 ```
 
 #### Declared Models & Columns:
+
 1. **`User` (Table: `users`)**
    - `id`: `String` (`@id`, `@default(uuid())`, `@db.Uuid`)
    - `email`: `String` (`@unique`)
@@ -81,6 +84,7 @@ The schema at apps\api\prisma\schema.prisma is valid 🚀
 ### 2.3 Seed Script Verification (`apps/api/prisma/seed.ts`)
 
 The seed script is implemented using Prisma Client:
+
 - Targets user: `demo@resumind.dev`
 - Name: `Resumind Demo User`
 - Nested Career Profile:
@@ -96,10 +100,12 @@ The seed script is implemented using Prisma Client:
 ### 2.4 API Routes & Health Endpoint Inspection
 
 #### Registered API Routes in `apps/api/src/app.ts`:
+
 1. `GET /api/v1/health` — Handled by `HealthRouter` -> `HealthController.getHealth`
 2. `ALL *` — Handled by `notFoundHandler` (returns HTTP 404 with structured JSON error `{ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } }`)
 
 #### Health Endpoint Deep-Dive:
+
 - **Test Execution**: `apps/api/tests/integration/health.test.ts` passed 3/3 tests in Vitest.
 - **Actual Response Payload**:
   ```json
@@ -123,12 +129,12 @@ The seed script is implemented using Prisma Client:
 
 ## 3. Discrepancies Between Documentation & Implementation
 
-| Area | Documentation (PRD / Architecture) | Current Implementation | Action Needed for Phase 2 |
-| :--- | :--- | :--- | :--- |
-| **Health Probes** | `ARCHITECTURE.md` states `/health` reports DB & Redis connectivity status. | `HealthService.getHealthData()` returns static status without probing PostgreSQL or Redis. | Wire `checkDatabaseHealth()` and `checkRedisHealth()` into `HealthService.getHealthData()`. |
-| **Database Migrations** | Initial schema defined. | No migration files generated in `apps/api/prisma/migrations`. | Start Docker / PostgreSQL and run `npx prisma migrate dev --name init`. |
-| **User Model Credentials** | Phase 2 PRD requirements require `passwordHash`, `role`, and `plan`. | Phase 1 schema has `id`, `email`, `name`, `avatarUrl`. | In Phase 2, add `passwordHash`, `role`, `plan` fields to `User` model via a Prisma migration. |
-| **Container Runtime** | `docker-compose.yml` configured for Postgres & Redis. | Docker daemon is not active on host machine. | Start Docker Desktop before spinning up database containers. |
+| Area                       | Documentation (PRD / Architecture)                                         | Current Implementation                                                                     | Action Needed for Phase 2                                                                     |
+| :------------------------- | :------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
+| **Health Probes**          | `ARCHITECTURE.md` states `/health` reports DB & Redis connectivity status. | `HealthService.getHealthData()` returns static status without probing PostgreSQL or Redis. | Wire `checkDatabaseHealth()` and `checkRedisHealth()` into `HealthService.getHealthData()`.   |
+| **Database Migrations**    | Initial schema defined.                                                    | No migration files generated in `apps/api/prisma/migrations`.                              | Start Docker / PostgreSQL and run `npx prisma migrate dev --name init`.                       |
+| **User Model Credentials** | Phase 2 PRD requirements require `passwordHash`, `role`, and `plan`.       | Phase 1 schema has `id`, `email`, `name`, `avatarUrl`.                                     | In Phase 2, add `passwordHash`, `role`, `plan` fields to `User` model via a Prisma migration. |
+| **Container Runtime**      | `docker-compose.yml` configured for Postgres & Redis.                      | Docker daemon is not active on host machine.                                               | Start Docker Desktop before spinning up database containers.                                  |
 
 ---
 
