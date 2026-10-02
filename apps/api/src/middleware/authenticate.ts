@@ -10,7 +10,11 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-export function authenticate(req: Request, _res: Response, next: NextFunction): void {
+export function authenticate(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -24,6 +28,8 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
     (req as AuthenticatedRequest).user = payload;
     next();
   } catch {
-    next(new AppError('Access token is invalid or expired', 401, 'INVALID_TOKEN'));
+    next(
+      new AppError('Access token is invalid or expired', 401, 'INVALID_TOKEN'),
+    );
   }
 }

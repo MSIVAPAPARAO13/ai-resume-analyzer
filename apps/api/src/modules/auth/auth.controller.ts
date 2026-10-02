@@ -17,11 +17,17 @@ import { AppError } from '../../middleware/error-handler.js';
 
 export class AuthController {
   // POST /api/v1/auth/register
-  async register(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async register(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const parsed = registerSchema.safeParse(req.body);
       if (!parsed.success) {
-        return next(new AppError(parsed.error.errors[0].message, 400, 'VALIDATION_ERROR'));
+        return next(
+          new AppError(parsed.error.errors[0].message, 400, 'VALIDATION_ERROR'),
+        );
       }
 
       const user = await registerUser(parsed.data);
@@ -33,7 +39,13 @@ export class AuthController {
       });
     } catch (err) {
       if (err instanceof Error && err.message === 'EMAIL_TAKEN') {
-        return next(new AppError('An account with this email already exists', 409, 'EMAIL_TAKEN'));
+        return next(
+          new AppError(
+            'An account with this email already exists',
+            409,
+            'EMAIL_TAKEN',
+          ),
+        );
       }
       next(err);
     }
@@ -44,7 +56,9 @@ export class AuthController {
     try {
       const parsed = loginSchema.safeParse(req.body);
       if (!parsed.success) {
-        return next(new AppError(parsed.error.errors[0].message, 400, 'VALIDATION_ERROR'));
+        return next(
+          new AppError(parsed.error.errors[0].message, 400, 'VALIDATION_ERROR'),
+        );
       }
 
       const user = await loginUser(parsed.data);
@@ -56,18 +70,26 @@ export class AuthController {
       });
     } catch (err) {
       if (err instanceof Error && err.message === 'INVALID_CREDENTIALS') {
-        return next(new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS'));
+        return next(
+          new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS'),
+        );
       }
       next(err);
     }
   }
 
   // POST /api/v1/auth/refresh
-  async refresh(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async refresh(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const parsed = refreshSchema.safeParse(req.body);
       if (!parsed.success) {
-        return next(new AppError(parsed.error.errors[0].message, 400, 'VALIDATION_ERROR'));
+        return next(
+          new AppError(parsed.error.errors[0].message, 400, 'VALIDATION_ERROR'),
+        );
       }
 
       const result = await refreshAccessToken(parsed.data.refreshToken);
@@ -78,7 +100,13 @@ export class AuthController {
       });
     } catch (err) {
       if (err instanceof Error && err.message === 'INVALID_REFRESH_TOKEN') {
-        return next(new AppError('Refresh token is invalid or expired', 401, 'INVALID_REFRESH_TOKEN'));
+        return next(
+          new AppError(
+            'Refresh token is invalid or expired',
+            401,
+            'INVALID_REFRESH_TOKEN',
+          ),
+        );
       }
       next(err);
     }
@@ -89,7 +117,9 @@ export class AuthController {
     try {
       const parsed = logoutSchema.safeParse(req.body);
       if (!parsed.success) {
-        return next(new AppError(parsed.error.errors[0].message, 400, 'VALIDATION_ERROR'));
+        return next(
+          new AppError(parsed.error.errors[0].message, 400, 'VALIDATION_ERROR'),
+        );
       }
 
       await logoutUser(parsed.data.refreshToken);
@@ -108,7 +138,9 @@ export class AuthController {
     try {
       const userId = (req as any).user?.userId;
       if (!userId) {
-        return next(new AppError('Authentication required', 401, 'UNAUTHORIZED'));
+        return next(
+          new AppError('Authentication required', 401, 'UNAUTHORIZED'),
+        );
       }
 
       const user = await getUserById(userId);

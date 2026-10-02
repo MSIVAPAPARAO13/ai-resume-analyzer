@@ -1,7 +1,11 @@
 import * as argon2 from 'argon2';
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '../../config/database.js';
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../../utils/tokens.js';
+import {
+  signAccessToken,
+  signRefreshToken,
+  verifyRefreshToken,
+} from '../../utils/tokens.js';
 import { env } from '../../config/env.js';
 
 // ─── Password Hashing ─────────────────────────────────────────────────────────
@@ -15,7 +19,10 @@ export async function hashPassword(password: string): Promise<string> {
   });
 }
 
-export async function verifyPassword(hash: string, password: string): Promise<boolean> {
+export async function verifyPassword(
+  hash: string,
+  password: string,
+): Promise<boolean> {
   return argon2.verify(hash, password);
 }
 
@@ -112,7 +119,9 @@ export async function issueTokenPair(user: SafeUser) {
 
   const refreshExpiresAt = new Date();
   const refreshDays = parseInt(env.JWT_REFRESH_EXPIRES_IN); // "7d" -> 7
-  refreshExpiresAt.setDate(refreshExpiresAt.getDate() + (isNaN(refreshDays) ? 7 : refreshDays));
+  refreshExpiresAt.setDate(
+    refreshExpiresAt.getDate() + (isNaN(refreshDays) ? 7 : refreshDays),
+  );
 
   const refreshTokenStr = signRefreshToken({ tokenId, userId: user.id });
 
@@ -150,7 +159,11 @@ export async function refreshAccessToken(refreshTokenStr: string) {
     },
   });
 
-  if (!storedToken || storedToken.revokedAt || storedToken.expiresAt < new Date()) {
+  if (
+    !storedToken ||
+    storedToken.revokedAt ||
+    storedToken.expiresAt < new Date()
+  ) {
     throw new Error('INVALID_REFRESH_TOKEN');
   }
 
@@ -158,7 +171,10 @@ export async function refreshAccessToken(refreshTokenStr: string) {
   const refreshExpiresAt = new Date();
   refreshExpiresAt.setDate(refreshExpiresAt.getDate() + 7);
 
-  const newRefreshTokenStr = signRefreshToken({ tokenId: newTokenId, userId: storedToken.userId });
+  const newRefreshTokenStr = signRefreshToken({
+    tokenId: newTokenId,
+    userId: storedToken.userId,
+  });
 
   await (prisma as any).$transaction([
     (prisma as any).refreshToken.update({

@@ -47,7 +47,10 @@ export async function updateUserProfile(
 // ─── Experiences ──────────────────────────────────────────────────────────────
 
 export async function getExperiences(userId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) return [];
   return prisma.experience.findMany({
     where: { careerProfileId: profile.id },
@@ -68,9 +71,14 @@ export async function createExperience(
     description?: string;
   },
 ) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  return prisma.experience.create({ data: { careerProfileId: profile.id, ...data } });
+  return prisma.experience.create({
+    data: { careerProfileId: profile.id, ...data },
+  });
 }
 
 export async function updateExperience(
@@ -87,7 +95,10 @@ export async function updateExperience(
     description: string;
   }>,
 ) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
 
   const experience = await prisma.experience.findFirst({
@@ -99,7 +110,10 @@ export async function updateExperience(
 }
 
 export async function deleteExperience(userId: string, experienceId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
 
   const experience = await prisma.experience.findFirst({
@@ -113,7 +127,10 @@ export async function deleteExperience(userId: string, experienceId: string) {
 // ─── Education ────────────────────────────────────────────────────────────────
 
 export async function getEducation(userId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) return [];
   return prisma.education.findMany({
     where: { careerProfileId: profile.id },
@@ -134,23 +151,42 @@ export async function createEducation(
     description?: string;
   },
 ) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  return prisma.education.create({ data: { careerProfileId: profile.id, ...data } });
+  return prisma.education.create({
+    data: { careerProfileId: profile.id, ...data },
+  });
 }
 
-export async function updateEducation(userId: string, educationId: string, data: object) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+export async function updateEducation(
+  userId: string,
+  educationId: string,
+  data: object,
+) {
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  const edu = await prisma.education.findFirst({ where: { id: educationId, careerProfileId: profile.id } });
+  const edu = await prisma.education.findFirst({
+    where: { id: educationId, careerProfileId: profile.id },
+  });
   if (!edu) throw new Error('NOT_FOUND');
   return prisma.education.update({ where: { id: educationId }, data });
 }
 
 export async function deleteEducation(userId: string, educationId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  const edu = await prisma.education.findFirst({ where: { id: educationId, careerProfileId: profile.id } });
+  const edu = await prisma.education.findFirst({
+    where: { id: educationId, careerProfileId: profile.id },
+  });
   if (!edu) throw new Error('NOT_FOUND');
   return prisma.education.delete({ where: { id: educationId } });
 }
@@ -158,7 +194,10 @@ export async function deleteEducation(userId: string, educationId: string) {
 // ─── Projects ─────────────────────────────────────────────────────────────────
 
 export async function getProjects(userId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) return [];
   return prisma.project.findMany({
     where: { careerProfileId: profile.id },
@@ -178,23 +217,42 @@ export async function createProject(
     endDate?: Date;
   },
 ) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  return prisma.project.create({ data: { careerProfileId: profile.id, ...data } });
+  return prisma.project.create({
+    data: { careerProfileId: profile.id, ...data },
+  });
 }
 
-export async function updateProject(userId: string, projectId: string, data: object) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+export async function updateProject(
+  userId: string,
+  projectId: string,
+  data: object,
+) {
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  const proj = await prisma.project.findFirst({ where: { id: projectId, careerProfileId: profile.id } });
+  const proj = await prisma.project.findFirst({
+    where: { id: projectId, careerProfileId: profile.id },
+  });
   if (!proj) throw new Error('NOT_FOUND');
   return prisma.project.update({ where: { id: projectId }, data });
 }
 
 export async function deleteProject(userId: string, projectId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  const proj = await prisma.project.findFirst({ where: { id: projectId, careerProfileId: profile.id } });
+  const proj = await prisma.project.findFirst({
+    where: { id: projectId, careerProfileId: profile.id },
+  });
   if (!proj) throw new Error('NOT_FOUND');
   return prisma.project.delete({ where: { id: projectId } });
 }
@@ -202,7 +260,10 @@ export async function deleteProject(userId: string, projectId: string) {
 // ─── Skills ───────────────────────────────────────────────────────────────────
 
 export async function getSkills(userId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) return [];
   return prisma.skill.findMany({
     where: { careerProfileId: profile.id },
@@ -214,23 +275,42 @@ export async function createSkill(
   userId: string,
   data: { name: string; category?: string; proficiency?: string },
 ) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  return prisma.skill.create({ data: { careerProfileId: profile.id, ...data } });
+  return prisma.skill.create({
+    data: { careerProfileId: profile.id, ...data },
+  });
 }
 
-export async function updateSkill(userId: string, skillId: string, data: object) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+export async function updateSkill(
+  userId: string,
+  skillId: string,
+  data: object,
+) {
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  const skill = await prisma.skill.findFirst({ where: { id: skillId, careerProfileId: profile.id } });
+  const skill = await prisma.skill.findFirst({
+    where: { id: skillId, careerProfileId: profile.id },
+  });
   if (!skill) throw new Error('NOT_FOUND');
   return prisma.skill.update({ where: { id: skillId }, data });
 }
 
 export async function deleteSkill(userId: string, skillId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  const skill = await prisma.skill.findFirst({ where: { id: skillId, careerProfileId: profile.id } });
+  const skill = await prisma.skill.findFirst({
+    where: { id: skillId, careerProfileId: profile.id },
+  });
   if (!skill) throw new Error('NOT_FOUND');
   return prisma.skill.delete({ where: { id: skillId } });
 }
@@ -238,29 +318,54 @@ export async function deleteSkill(userId: string, skillId: string) {
 // ─── Certifications ───────────────────────────────────────────────────────────
 
 export async function getCertifications(userId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) return [];
-  return prisma.certification.findMany({ where: { careerProfileId: profile.id }, orderBy: { issueDate: 'desc' } });
+  return prisma.certification.findMany({
+    where: { careerProfileId: profile.id },
+    orderBy: { issueDate: 'desc' },
+  });
 }
 
 export async function createCertification(userId: string, data: object) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  return prisma.certification.create({ data: { careerProfileId: profile.id, ...(data as any) } });
+  return prisma.certification.create({
+    data: { careerProfileId: profile.id, ...(data as any) },
+  });
 }
 
-export async function updateCertification(userId: string, certId: string, data: object) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+export async function updateCertification(
+  userId: string,
+  certId: string,
+  data: object,
+) {
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  const cert = await prisma.certification.findFirst({ where: { id: certId, careerProfileId: profile.id } });
+  const cert = await prisma.certification.findFirst({
+    where: { id: certId, careerProfileId: profile.id },
+  });
   if (!cert) throw new Error('NOT_FOUND');
   return prisma.certification.update({ where: { id: certId }, data });
 }
 
 export async function deleteCertification(userId: string, certId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  const cert = await prisma.certification.findFirst({ where: { id: certId, careerProfileId: profile.id } });
+  const cert = await prisma.certification.findFirst({
+    where: { id: certId, careerProfileId: profile.id },
+  });
   if (!cert) throw new Error('NOT_FOUND');
   return prisma.certification.delete({ where: { id: certId } });
 }
@@ -268,29 +373,54 @@ export async function deleteCertification(userId: string, certId: string) {
 // ─── Achievements ─────────────────────────────────────────────────────────────
 
 export async function getAchievements(userId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) return [];
-  return prisma.achievement.findMany({ where: { careerProfileId: profile.id }, orderBy: { date: 'desc' } });
+  return prisma.achievement.findMany({
+    where: { careerProfileId: profile.id },
+    orderBy: { date: 'desc' },
+  });
 }
 
 export async function createAchievement(userId: string, data: object) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  return prisma.achievement.create({ data: { careerProfileId: profile.id, ...(data as any) } });
+  return prisma.achievement.create({
+    data: { careerProfileId: profile.id, ...(data as any) },
+  });
 }
 
-export async function updateAchievement(userId: string, achievementId: string, data: object) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+export async function updateAchievement(
+  userId: string,
+  achievementId: string,
+  data: object,
+) {
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  const ach = await prisma.achievement.findFirst({ where: { id: achievementId, careerProfileId: profile.id } });
+  const ach = await prisma.achievement.findFirst({
+    where: { id: achievementId, careerProfileId: profile.id },
+  });
   if (!ach) throw new Error('NOT_FOUND');
   return prisma.achievement.update({ where: { id: achievementId }, data });
 }
 
 export async function deleteAchievement(userId: string, achievementId: string) {
-  const profile = await prisma.careerProfile.findUnique({ where: { userId }, select: { id: true } });
+  const profile = await prisma.careerProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
   if (!profile) throw new Error('PROFILE_NOT_FOUND');
-  const ach = await prisma.achievement.findFirst({ where: { id: achievementId, careerProfileId: profile.id } });
+  const ach = await prisma.achievement.findFirst({
+    where: { id: achievementId, careerProfileId: profile.id },
+  });
   if (!ach) throw new Error('NOT_FOUND');
   return prisma.achievement.delete({ where: { id: achievementId } });
 }

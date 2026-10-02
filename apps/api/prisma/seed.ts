@@ -40,7 +40,8 @@ async function main() {
                 location: 'San Francisco, CA',
                 startDate: new Date('2022-03-01'),
                 isCurrent: true,
-                description: 'Leading microservices architecture and AI resume parsing pipelines.',
+                description:
+                  'Leading microservices architecture and AI resume parsing pipelines.',
               },
               {
                 company: 'Innovate Labs',
@@ -50,7 +51,8 @@ async function main() {
                 startDate: new Date('2019-06-01'),
                 endDate: new Date('2022-02-28'),
                 isCurrent: false,
-                description: 'Engineered high-throughput REST APIs and modern React applications.',
+                description:
+                  'Engineered high-throughput REST APIs and modern React applications.',
               },
             ],
           },
@@ -69,19 +71,38 @@ async function main() {
           },
           skills: {
             create: [
-              { name: 'TypeScript', category: 'Programming', proficiency: 'Expert' },
+              {
+                name: 'TypeScript',
+                category: 'Programming',
+                proficiency: 'Expert',
+              },
               { name: 'Node.js', category: 'Backend', proficiency: 'Expert' },
               { name: 'React', category: 'Frontend', proficiency: 'Advanced' },
-              { name: 'PostgreSQL', category: 'Database', proficiency: 'Advanced' },
-              { name: 'Docker', category: 'DevOps', proficiency: 'Intermediate' },
+              {
+                name: 'PostgreSQL',
+                category: 'Database',
+                proficiency: 'Advanced',
+              },
+              {
+                name: 'Docker',
+                category: 'DevOps',
+                proficiency: 'Intermediate',
+              },
             ],
           },
           projects: {
             create: [
               {
                 name: 'Resumind Career Twin',
-                description: 'AI-powered resume optimization platform with ATS analytics.',
-                technologies: ['TypeScript', 'Express', 'React', 'PostgreSQL', 'Prisma'],
+                description:
+                  'AI-powered resume optimization platform with ATS analytics.',
+                technologies: [
+                  'TypeScript',
+                  'Express',
+                  'React',
+                  'PostgreSQL',
+                  'Prisma',
+                ],
                 projectUrl: 'https://resumind.dev',
               },
             ],
