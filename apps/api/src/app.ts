@@ -11,6 +11,7 @@ import { healthRouter } from './modules/health/health.router.js';
 import { authRouter } from './modules/auth/auth.router.js';
 import { careerRouter } from './modules/career/career.router.js';
 import { resumeRouter } from './modules/resume/resume.router.js';
+import { jobRouter } from './modules/job/job.router.js';
 import { logger } from './utils/logger.js';
 
 export function createApp(): express.Application {
@@ -67,6 +68,7 @@ export function createApp(): express.Application {
   app.use('/api/v1/auth', authLimiter, authRouter);
   app.use('/api/v1', careerRouter);
   app.use('/api/v1', resumeRouter);
+  app.use('/api/v1/jobs', jobRouter);
 
   // 404 Handler
   app.use(notFoundHandler);
