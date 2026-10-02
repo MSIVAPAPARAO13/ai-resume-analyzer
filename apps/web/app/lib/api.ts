@@ -185,3 +185,32 @@ export const resumeApi = {
       .get(`/resumes/${id}/versions/${versionId}`)
       .then((r) => r.data.data),
 };
+
+// ─── Job Intelligence & Matching API ──────────────────────────────────────────
+
+export const jobApi = {
+  listJobs: () => apiClient.get('/jobs').then((r) => r.data.data),
+  getJob: (id: string) => apiClient.get(`/jobs/${id}`).then((r) => r.data.data),
+  createJob: (data: {
+    title: string;
+    company: string;
+    location?: string | null;
+    employmentType?: string | null;
+    sourceUrl?: string | null;
+    description: string;
+  }) => apiClient.post('/jobs', data).then((r) => r.data.data),
+  updateJob: (id: string, data: any) =>
+    apiClient.put(`/jobs/${id}`, data).then((r) => r.data.data),
+  deleteJob: (id: string) =>
+    apiClient.delete(`/jobs/${id}`).then((r) => r.data.data),
+  analyzeJob: (id: string) =>
+    apiClient.post(`/jobs/${id}/analyze`).then((r) => r.data.data),
+  getAnalysis: (id: string) =>
+    apiClient.get(`/jobs/${id}/analysis`).then((r) => r.data.data),
+  matchResume: (jobId: string, resumeId: string) =>
+    apiClient.post(`/jobs/${jobId}/match/${resumeId}`).then((r) => r.data.data),
+  getMatches: (jobId: string) =>
+    apiClient.get(`/jobs/${jobId}/matches`).then((r) => r.data.data),
+  getMatchById: (jobId: string, matchId: string) =>
+    apiClient.get(`/jobs/${jobId}/matches/${matchId}`).then((r) => r.data.data),
+};

@@ -69,8 +69,15 @@ export default function DashboardPage() {
         </Link>
         <div className="d-flex align-items-center gap-3">
           <Link
-            to="/resumes"
+            to="/jobs"
             className="btn btn-outline-primary btn-sm"
+            id="goto-jobs"
+          >
+            🎯 Jobs & Matching
+          </Link>
+          <Link
+            to="/resumes"
+            className="btn btn-outline-secondary btn-sm"
             id="goto-resumes"
           >
             Resumes ⚡
@@ -158,7 +165,28 @@ export default function DashboardPage() {
           Active Modules
         </h6>
         <div className="row g-3 mb-5">
-          <div className="col-12 col-md-6">
+          <div className="col-12 col-md-4">
+            <Link to="/jobs" className="text-decoration-none">
+              <div
+                className="card bg-dark border-primary h-100 hover-lift p-4 shadow-sm"
+                id="dashboard-jobs-card"
+              >
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <div className="fs-2">🎯</div>
+                  <span className="badge bg-primary">Phase 4 · Active</span>
+                </div>
+                <h5 className="fw-bold text-white mb-1">Job Intelligence</h5>
+                <p className="text-secondary small mb-3">
+                  Parse Job Descriptions into Job DNA, extract required skills,
+                  and calculate explainable resume match scores.
+                </p>
+                <span className="text-primary small fw-semibold">
+                  Open Jobs & Matching →
+                </span>
+              </div>
+            </Link>
+          </div>
+          <div className="col-12 col-md-4">
             <Link to="/resumes" className="text-decoration-none">
               <div className="card bg-dark border-primary border-opacity-50 h-100 hover-lift p-4">
                 <div className="d-flex align-items-center justify-content-between mb-2">
@@ -176,7 +204,7 @@ export default function DashboardPage() {
               </div>
             </Link>
           </div>
-          <div className="col-12 col-md-6">
+          <div className="col-12 col-md-4">
             <Link to="/career" className="text-decoration-none">
               <div className="card bg-dark border-secondary h-100 hover-lift p-4">
                 <div className="d-flex align-items-center justify-content-between mb-2">
