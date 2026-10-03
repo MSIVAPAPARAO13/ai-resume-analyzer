@@ -18,6 +18,12 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string().default('dev-refresh-secret-change-in-prod'),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+  // External Providers (Phase 5)
+  GEMINI_API_KEY: z.string().optional(),
+  ADZUNA_APP_ID: z.string().optional(),
+  ADZUNA_APP_KEY: z.string().optional(),
+  RUN_EXTERNAL_AI_TESTS: z.string().optional(),
+  RUN_EXTERNAL_PROVIDER_TESTS: z.string().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
