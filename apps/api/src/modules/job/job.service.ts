@@ -37,6 +37,64 @@ export class JobService {
     return job;
   }
 
+  async importJob(
+    userId: string,
+    input: {
+      title: string;
+      company: string;
+      location?: string | null;
+      employmentType?: string | null;
+      description: string;
+      sourceUrl?: string | null;
+      source?: string;
+    },
+  ) {
+    const title = input.title.trim();
+    const company = input.company.trim();
+    const source = input.source || 'ADZUNA';
+
+    // Avoid duplicate imports for same user, title, and company
+    const existing = await prisma.job.findFirst({
+      where: {
+        userId,
+        title,
+        company,
+        source,
+      },
+      include: {
+        analyses: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+    });
+
+    if (existing) {
+      return { job: existing, alreadyImported: true };
+    }
+
+    const job = await prisma.job.create({
+      data: {
+        userId,
+        title,
+        company,
+        location: input.location?.trim() || null,
+        employmentType: input.employmentType?.trim() || null,
+        source,
+        sourceUrl: input.sourceUrl?.trim() || null,
+        description: input.description.trim(),
+        status: 'SAVED',
+      },
+    });
+
+    // Auto-analyze Job DNA upon import
+    try {
+      await this.analyzeJob(userId, job.id);
+    } catch {
+      // Non-fatal if immediate analysis fails
+    }
+
+    const reloaded = await this.getJobById(userId, job.id);
+    return { job: reloaded, alreadyImported: false };
+  }
+
   async listJobs(userId: string) {
     const jobs = await prisma.job.findMany({
       where: { userId },

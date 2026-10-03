@@ -12,6 +12,7 @@ import { authRouter } from './modules/auth/auth.router.js';
 import { careerRouter } from './modules/career/career.router.js';
 import { resumeRouter } from './modules/resume/resume.router.js';
 import { jobRouter } from './modules/job/job.router.js';
+import { jobSearchRouter } from './modules/job/job-search.router.js';
 import { logger } from './utils/logger.js';
 
 export function createApp(): express.Application {
@@ -63,12 +64,29 @@ export function createApp(): express.Application {
     },
   });
 
+  // Rate Limiting for search & external requests (skipped in test mode)
+  const jobSearchLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: () => env.NODE_ENV === 'test',
+    message: {
+      success: false,
+      error: {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: 'Too many search requests, please try again later',
+      },
+    },
+  });
+
   // API v1 Routes
   app.use('/api/v1', healthRouter);
   app.use('/api/v1/auth', authLimiter, authRouter);
   app.use('/api/v1', careerRouter);
   app.use('/api/v1', resumeRouter);
   app.use('/api/v1/jobs', jobRouter);
+  app.use('/api/v1', jobSearchLimiter, jobSearchRouter);
 
   // 404 Handler
   app.use(notFoundHandler);
