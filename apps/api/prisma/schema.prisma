@@ -33,10 +33,12 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  careerProfile  CareerProfile?
-  refreshTokens  RefreshToken[]
-  resumes        Resume[]
-  jobs           Job[]
+  careerProfile     CareerProfile?
+  refreshTokens     RefreshToken[]
+  resumes           Resume[]
+  jobs              Job[]
+  tailoringSessions ResumeTailoringSession[]
+  aiUsages          AIUsage[]
 
   @@index([email])
   @@map("users")
@@ -244,9 +246,10 @@ model ResumeVersion {
   parsedData    Json?     // Validated structured sections: contact, summary, experience, etc.
   createdAt     DateTime  @default(now())
 
-  resume        Resume          @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-  analyses      ResumeAnalysis[]
-  jobMatches    JobMatch[]
+  resume            Resume                   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  analyses          ResumeAnalysis[]
+  jobMatches        JobMatch[]
+  tailoringSessions ResumeTailoringSession[]
 
   @@index([resumeId])
   @@map("resume_versions")
@@ -316,10 +319,11 @@ model Job {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  requirements   JobRequirement[]
-  analyses       JobAnalysis[]
-  matches        JobMatch[]
+  user              User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requirements      JobRequirement[]
+  analyses          JobAnalysis[]
+  matches           JobMatch[]
+  tailoringSessions ResumeTailoringSession[]
 
   @@index([userId])
   @@index([userId, status])
@@ -386,5 +390,105 @@ model JobMatch {
   @@index([resumeVersionId])
   @@map("job_matches")
 }
+
+// ─── Phase 5 AI Tailoring & Evidence Guard Enums ──────────────────────────────
+
+enum ResumeTailoringStatus {
+  GENERATED
+  REVIEWING
+  APPROVED
+  COMPLETED
+  CANCELLED
+}
+
+enum TailoringSuggestionType {
+  REWRITE
+  REORDER
+  ADD_EVIDENCE
+  REMOVE_REDUNDANCY
+  KEYWORD_ALIGNMENT
+  SUMMARY_UPDATE
+  PROJECT_EMPHASIS
+}
+
+enum EvidenceGuardStatus {
+  VERIFIED
+  NEEDS_REVIEW
+  UNSUPPORTED
+}
+
+enum SuggestionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// ─── AI Usage Tracking ────────────────────────────────────────────────────────
+
+model AIUsage {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @db.Uuid
+  provider        String   // GEMINI, MOCK, etc.
+  operation       String   // RESUME_TAILORING, EVIDENCE_ANALYSIS, etc.
+  model           String?
+  requestCount    Int      @default(1)
+  estimatedTokens Int?
+  status          String   @default("SUCCESS")
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@map("ai_usage")
+}
+
+// ─── Resume Tailoring Session ─────────────────────────────────────────────────
+
+model ResumeTailoringSession {
+  id              String                @id @default(uuid()) @db.Uuid
+  userId          String                @db.Uuid
+  resumeVersionId String                @db.Uuid
+  jobId           String                @db.Uuid
+  status          ResumeTailoringStatus @default(GENERATED)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeVersion   ResumeVersion         @relation(fields: [resumeVersionId], references: [id], onDelete: Cascade)
+  job             Job                   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  suggestions     ResumeTailoringSuggestion[]
+
+  @@index([userId])
+  @@index([resumeVersionId])
+  @@index([jobId])
+  @@index([userId, jobId])
+  @@map("resume_tailoring_sessions")
+}
+
+// ─── Resume Tailoring Suggestion ──────────────────────────────────────────────
+
+model ResumeTailoringSuggestion {
+  id                  String                  @id @default(uuid()) @db.Uuid
+  sessionId           String                  @db.Uuid
+  type                TailoringSuggestionType
+  originalText        String                  @db.Text
+  proposedText        String                  @db.Text
+  reason              String                  @db.Text
+  evidenceReferences  String[]
+  guardStatus         EvidenceGuardStatus     @default(NEEDS_REVIEW)
+  status              SuggestionStatus        @default(PENDING)
+  confidence          Float?                  @default(1.0)
+  requiresUserApproval Boolean                @default(true)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+
+  session             ResumeTailoringSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([sessionId, status])
+  @@map("resume_tailoring_suggestions")
+}
+
 
 
