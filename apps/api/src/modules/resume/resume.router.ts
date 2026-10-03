@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { resumeController } from './resume.controller.js';
+import { resumeTailoringController } from './tailoring/resume-tailoring.controller.js';
 import { authenticate } from '../../middleware/authenticate.js';
 import { AppError } from '../../middleware/error-handler.js';
 
@@ -54,4 +55,23 @@ resumeRouter.get('/resumes/:id/versions', resumeController.listVersions);
 resumeRouter.get(
   '/resumes/:id/versions/:versionId',
   resumeController.getVersion,
+);
+
+// Phase 5: AI Resume Tailoring
+resumeRouter.post(
+  '/resumes/:resumeId/tailor/:jobId',
+  resumeTailoringController.generate,
+);
+resumeRouter.get('/tailoring/:sessionId', resumeTailoringController.getSession);
+resumeRouter.post(
+  '/tailoring/:sessionId/suggestions/:suggestionId/accept',
+  resumeTailoringController.acceptSuggestion,
+);
+resumeRouter.post(
+  '/tailoring/:sessionId/suggestions/:suggestionId/reject',
+  resumeTailoringController.rejectSuggestion,
+);
+resumeRouter.post(
+  '/tailoring/:sessionId/complete',
+  resumeTailoringController.completeSession,
 );
