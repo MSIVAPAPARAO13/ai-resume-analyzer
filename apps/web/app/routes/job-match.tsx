@@ -114,6 +114,15 @@ export default function JobMatchPage() {
           <span className="text-white small fw-semibold">Match Scorecard</span>
         </div>
         <div className="d-flex align-items-center gap-3">
+          {match?.resumeVersion?.resumeId && (
+            <Link
+              to={`/resumes/${match.resumeVersion.resumeId}/tailor/${id}`}
+              className="btn btn-primary btn-sm fw-bold"
+              id="tailor-resume-btn"
+            >
+              ✨ Tailor Resume with AI
+            </Link>
+          )}
           <Link to={`/jobs/${id}`} className="btn btn-outline-secondary btn-sm">
             Match Another Resume
           </Link>

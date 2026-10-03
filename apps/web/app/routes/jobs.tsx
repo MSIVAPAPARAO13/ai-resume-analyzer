@@ -128,13 +128,22 @@ export default function JobsDashboardPage() {
               evaluate resume match alignment with explainable scores.
             </p>
           </div>
-          <Link
-            to="/jobs/new"
-            className="btn btn-primary d-flex align-items-center gap-2"
-            id="add-job-btn"
-          >
-            <span>+</span> Add Target Job
-          </Link>
+          <div className="d-flex gap-2">
+            <Link
+              to="/jobs/search"
+              className="btn btn-outline-info d-flex align-items-center gap-2"
+              id="discover-jobs-btn"
+            >
+              <span>🔍</span> Discover Real Jobs (Adzuna)
+            </Link>
+            <Link
+              to="/jobs/new"
+              className="btn btn-primary d-flex align-items-center gap-2"
+              id="add-job-btn"
+            >
+              <span>+</span> Add Target Job
+            </Link>
+          </div>
         </div>
 
         {/* Quick Stats Grid */}

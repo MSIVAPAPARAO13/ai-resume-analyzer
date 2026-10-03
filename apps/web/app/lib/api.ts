@@ -214,3 +214,60 @@ export const jobApi = {
   getMatchById: (jobId: string, matchId: string) =>
     apiClient.get(`/jobs/${jobId}/matches/${matchId}`).then((r) => r.data.data),
 };
+
+// ─── Phase 5: AI Resume Tailoring API ──────────────────────────────────────────
+
+export const tailoringApi = {
+  generateTailoring: (
+    resumeId: string,
+    jobId: string,
+    options?: { forceRefresh?: boolean; provider?: 'GEMINI' | 'MOCK' },
+  ) =>
+    apiClient
+      .post(`/resumes/${resumeId}/tailor/${jobId}`, options)
+      .then((r) => r.data.data),
+  getSession: (sessionId: string) =>
+    apiClient.get(`/tailoring/${sessionId}`).then((r) => r.data.data),
+  acceptSuggestion: (sessionId: string, suggestionId: string) =>
+    apiClient
+      .post(`/tailoring/${sessionId}/suggestions/${suggestionId}/accept`)
+      .then((r) => r.data.data),
+  rejectSuggestion: (sessionId: string, suggestionId: string) =>
+    apiClient
+      .post(`/tailoring/${sessionId}/suggestions/${suggestionId}/reject`)
+      .then((r) => r.data.data),
+  completeSession: (sessionId: string) =>
+    apiClient.post(`/tailoring/${sessionId}/complete`).then((r) => r.data.data),
+};
+
+// ─── Phase 5: Adzuna Job Discovery API ────────────────────────────────────────
+
+export const jobSearchApi = {
+  searchJobs: (params: {
+    q?: string;
+    location?: string;
+    page?: number;
+    resultsPerPage?: number;
+    category?: string;
+    salaryMin?: number;
+    fullTime?: boolean;
+    permanent?: boolean;
+    country?: string;
+  }) => apiClient.get('/job-search', { params }).then((r) => r.data.data),
+  importJob: (data: {
+    title: string;
+    company: string;
+    location?: string | null;
+    employmentType?: string | null;
+    sourceUrl?: string | null;
+    description: string;
+  }) => apiClient.post('/job-search/import', data).then((r) => r.data.data),
+  getSalaryEstimate: (params: {
+    title: string;
+    location?: string;
+    country?: string;
+  }) =>
+    apiClient
+      .get('/job-search/salary-estimate', { params })
+      .then((r) => r.data.data),
+};

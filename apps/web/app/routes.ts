@@ -15,9 +15,11 @@ export default [
   route('/resumes/:id/analysis', 'routes/resume-analysis.tsx'),
   route('/jobs', 'routes/jobs.tsx'),
   route('/jobs/new', 'routes/job-new.tsx'),
+  route('/jobs/search', 'routes/job-search.tsx'),
   route('/jobs/:id', 'routes/job-detail.tsx'),
   route('/jobs/:id/analysis', 'routes/job-analysis.tsx'),
   route('/jobs/:id/match/:matchId', 'routes/job-match.tsx'),
+  route('/resumes/:id/tailor/:jobId', 'routes/resume-tailor.tsx'),
 
   // ─── Existing Puter-powered routes (preserved) ────────────────────────────
   route('/upload', 'routes/upload.tsx'),
