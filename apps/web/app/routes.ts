@@ -21,6 +21,17 @@ export default [
   route('/jobs/:id/match/:matchId', 'routes/job-match.tsx'),
   route('/resumes/:id/tailor/:jobId', 'routes/resume-tailor.tsx'),
 
+  // ─── Phase 6: Application CRM ──────────────────────────────────────────────
+  route('/applications', 'routes/applications.tsx'),
+  route('/applications/new', 'routes/application-new.tsx'),
+  route('/applications/:id', 'routes/application-detail.tsx'),
+
+  // ─── Phase 6: GitHub Career Evidence ────────────────────────────────────────
+  route('/integrations', 'routes/integrations.tsx'),
+  route('/integrations/github', 'routes/integrations-github.tsx'),
+  route('/github/repositories', 'routes/github-repositories.tsx'),
+  route('/github/repositories/:id', 'routes/github-repository-detail.tsx'),
+
   // ─── Existing Puter-powered routes (preserved) ────────────────────────────
   route('/upload', 'routes/upload.tsx'),
   route('/resume/:id', 'routes/resume.tsx'),

@@ -112,7 +112,14 @@ export default function JobDetailPage() {
           <span className="text-secondary small">/</span>
           <span className="text-white small fw-semibold">{job?.title}</span>
         </div>
-        <div className="d-flex align-items-center gap-3">
+        <div className="d-flex align-items-center gap-2">
+          <Link
+            to={`/applications/new?jobId=${id}`}
+            className="btn btn-primary btn-sm"
+            id="apply-job-btn"
+          >
+            📋 Track Application
+          </Link>
           <Link
             to={`/jobs/${id}/analysis`}
             className="btn btn-outline-primary btn-sm"

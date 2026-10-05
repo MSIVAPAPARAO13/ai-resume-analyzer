@@ -271,3 +271,94 @@ export const jobSearchApi = {
       .get('/job-search/salary-estimate', { params })
       .then((r) => r.data.data),
 };
+
+// ─── Phase 6: Application CRM API ─────────────────────────────────────────────
+
+export const applicationApi = {
+  listApplications: (params?: { status?: string; search?: string }) =>
+    apiClient.get('/applications', { params }).then((r) => r.data.data),
+  getAnalytics: () =>
+    apiClient.get('/applications/analytics').then((r) => r.data.data),
+  getApplication: (id: string) =>
+    apiClient.get(`/applications/${id}`).then((r) => r.data.data),
+  createApplication: (data: {
+    jobId?: string | null;
+    resumeVersionId?: string | null;
+    tailoringSessionId?: string | null;
+    company: string;
+    role: string;
+    jobUrl?: string | null;
+    status?: string;
+    appliedAt?: string | null;
+    followUpAt?: string | null;
+    recruiterName?: string | null;
+    recruiterEmail?: string | null;
+    notes?: string | null;
+  }) => apiClient.post('/applications', data).then((r) => r.data.data),
+  updateApplication: (id: string, data: any) =>
+    apiClient.put(`/applications/${id}`, data).then((r) => r.data.data),
+  deleteApplication: (id: string) =>
+    apiClient.delete(`/applications/${id}`).then((r) => r.data.data),
+  updateStatus: (
+    id: string,
+    status: string,
+    notes?: string | null,
+    eventDate?: string | null,
+  ) =>
+    apiClient
+      .patch(`/applications/${id}/status`, { status, notes, eventDate })
+      .then((r) => r.data.data),
+  getEvents: (id: string) =>
+    apiClient.get(`/applications/${id}/events`).then((r) => r.data.data),
+  createEvent: (
+    id: string,
+    data: {
+      type: string;
+      description: string;
+      eventDate?: string | null;
+      metadata?: any;
+    },
+  ) =>
+    apiClient.post(`/applications/${id}/events`, data).then((r) => r.data.data),
+};
+
+// ─── Phase 6: GitHub Career Evidence API ──────────────────────────────────────
+
+export const githubApi = {
+  getConnectUrl: () =>
+    apiClient.get('/github/connect').then((r) => r.data.data),
+  getConnectionStatus: () =>
+    apiClient.get('/github/me').then((r) => r.data.data),
+  disconnect: () =>
+    apiClient.post('/github/disconnect').then((r) => r.data.data),
+  listRepositories: (refresh?: boolean) =>
+    apiClient
+      .get('/github/repositories', {
+        params: { refresh: refresh ? 'true' : undefined },
+      })
+      .then((r) => r.data.data),
+  getRepository: (id: string) =>
+    apiClient.get(`/github/repositories/${id}`).then((r) => r.data.data),
+  getLanguages: (id: string) =>
+    apiClient
+      .get(`/github/repositories/${id}/languages`)
+      .then((r) => r.data.data),
+  getReadme: (id: string) =>
+    apiClient.get(`/github/repositories/${id}/readme`).then((r) => r.data.data),
+  importProject: (
+    id: string,
+    data: {
+      name?: string;
+      description?: string;
+      technologies?: string[];
+      projectUrl?: string;
+      repoUrl?: string;
+      startDate?: string;
+      endDate?: string;
+    },
+  ) =>
+    apiClient
+      .post(`/github/repositories/${id}/import`, data)
+      .then((r) => r.data.data),
+  getEvidence: () => apiClient.get('/github/evidence').then((r) => r.data.data),
+};

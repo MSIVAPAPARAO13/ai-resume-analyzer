@@ -69,6 +69,13 @@ export default function DashboardPage() {
         </Link>
         <div className="d-flex align-items-center gap-3">
           <Link
+            to="/applications"
+            className="btn btn-outline-info btn-sm"
+            id="goto-applications"
+          >
+            📋 Applications
+          </Link>
+          <Link
             to="/jobs"
             className="btn btn-outline-primary btn-sm"
             id="goto-jobs"
@@ -84,6 +91,9 @@ export default function DashboardPage() {
           </Link>
           <Link to="/career" className="btn btn-outline-secondary btn-sm">
             Career Twin
+          </Link>
+          <Link to="/integrations" className="btn btn-outline-secondary btn-sm">
+            🐙 GitHub
           </Link>
           <div className="dropdown">
             <button
