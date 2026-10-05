@@ -31,6 +31,17 @@ const envSchema = z.object({
     .string()
     .default('http://localhost:4000/api/v1/github/callback'),
   GITHUB_ENCRYPTION_KEY: z.string().default('resumind-secret-key-32bytes-aes!'), // 32-character key for AES-256-GCM
+  // Google Calendar & OAuth (Phase 7)
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CALENDAR_REDIRECT_URI: z
+    .string()
+    .default('http://localhost:4000/api/v1/calendar/callback'),
+  // Resend Email (Phase 7)
+  RESEND_API_KEY: z.string().optional(),
+  // OpenRouter Fallback
+  OPENROUTER_API_KEY: z.string().optional(),
+  OPENROUTER_MODEL: z.string().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

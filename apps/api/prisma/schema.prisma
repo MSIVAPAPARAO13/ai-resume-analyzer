@@ -39,9 +39,12 @@ model User {
   jobs              Job[]
   tailoringSessions ResumeTailoringSession[]
   aiUsages          AIUsage[]
-  applications      Application[]
-  githubConnection  GitHubConnection?
+  applications       Application[]
+  githubConnection   GitHubConnection?
   githubRepositories GitHubRepository[]
+  interviewSessions  InterviewSession[]
+  calendarConnection CalendarConnection?
+  interviewReminders InterviewReminder[]
 
   @@index([email])
   @@map("users")
@@ -254,6 +257,7 @@ model ResumeVersion {
   jobMatches        JobMatch[]
   tailoringSessions ResumeTailoringSession[]
   applications      Application[]
+  interviewSessions InterviewSession[]
 
   @@index([resumeId])
   @@map("resume_versions")
@@ -329,6 +333,7 @@ model Job {
   matches           JobMatch[]
   tailoringSessions ResumeTailoringSession[]
   applications      Application[]
+  interviewSessions InterviewSession[]
 
   @@index([userId])
   @@index([userId, status])
@@ -462,8 +467,9 @@ model ResumeTailoringSession {
   user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   resumeVersion   ResumeVersion         @relation(fields: [resumeVersionId], references: [id], onDelete: Cascade)
   job             Job                   @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  suggestions     ResumeTailoringSuggestion[]
-  applications    Application[]
+  suggestions       ResumeTailoringSuggestion[]
+  applications      Application[]
+  interviewSessions InterviewSession[]
 
   @@index([userId])
   @@index([resumeVersionId])
@@ -545,6 +551,7 @@ model Application {
   resumeVersion      ResumeVersion?          @relation(fields: [resumeVersionId], references: [id], onDelete: SetNull)
   tailoringSession   ResumeTailoringSession? @relation(fields: [tailoringSessionId], references: [id], onDelete: SetNull)
   events             ApplicationEvent[]
+  interviewSessions  InterviewSession[]
 
   @@index([userId])
   @@index([userId, status])
@@ -616,5 +623,148 @@ model GitHubRepository {
   @@map("github_repositories")
 }
 
+// ─── Phase 7 Interview Intelligence Enums ─────────────────────────────────────
 
+enum InterviewMode {
+  PREPARATION
+  MOCK_INTERVIEW
+}
 
+enum InterviewStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum InterviewDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum InterviewQuestionCategory {
+  RESUME
+  CAREER_TWIN
+  PROJECT
+  TECHNICAL
+  JOB_SPECIFIC
+  BEHAVIORAL
+  SITUATIONAL
+  COMPANY_ROLE
+  EXPERIENCE
+}
+
+// ─── Phase 7 Interview Intelligence Models ────────────────────────────────────
+
+model InterviewSession {
+  id                 String              @id @default(uuid()) @db.Uuid
+  userId             String              @db.Uuid
+  applicationId      String?             @db.Uuid
+  jobId              String?             @db.Uuid
+  resumeVersionId    String?             @db.Uuid
+  tailoringSessionId String?             @db.Uuid
+  title              String
+  mode               InterviewMode       @default(PREPARATION)
+  status             InterviewStatus     @default(IN_PROGRESS)
+  difficulty         InterviewDifficulty @default(MEDIUM)
+  startedAt          DateTime            @default(now())
+  completedAt        DateTime?
+  overallScore       Float?
+  finalReport        Json?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  user               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  application        Application?            @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  job                Job?                    @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  resumeVersion      ResumeVersion?          @relation(fields: [resumeVersionId], references: [id], onDelete: SetNull)
+  tailoringSession   ResumeTailoringSession? @relation(fields: [tailoringSessionId], references: [id], onDelete: SetNull)
+  questions          InterviewQuestion[]
+  reminders          InterviewReminder[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([applicationId])
+  @@index([jobId])
+  @@map("interview_sessions")
+}
+
+model InterviewQuestion {
+  id                 String                    @id @default(uuid()) @db.Uuid
+  sessionId          String                    @db.Uuid
+  category           InterviewQuestionCategory
+  difficulty         InterviewDifficulty       @default(MEDIUM)
+  question           String                    @db.Text
+  whyAsked           String                    @db.Text
+  expectedSignals    String[]                  @default([])
+  evidenceReferences Json?
+  preparationTips    String[]                  @default([])
+  orderIndex         Int                       @default(0)
+  createdAt          DateTime                  @default(now())
+
+  session            InterviewSession          @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  answers            InterviewAnswer[]
+
+  @@index([sessionId])
+  @@index([sessionId, orderIndex])
+  @@map("interview_questions")
+}
+
+model InterviewAnswer {
+  id                     String            @id @default(uuid()) @db.Uuid
+  questionId             String            @db.Uuid
+  answerText             String            @db.Text
+  submittedAt            DateTime          @default(now())
+  score                  Float?
+  strengths              String[]          @default([])
+  weaknesses             String[]          @default([])
+  missingPoints          String[]          @default([])
+  improvementSuggestions String[]          @default([])
+  evidenceAlignment      String?           @db.Text
+  recommendedStructure   String?           @db.Text
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  question               InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@map("interview_answers")
+}
+
+model CalendarConnection {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @unique @db.Uuid
+  googleEmail           String?
+  accessTokenEncrypted  String    @db.Text
+  refreshTokenEncrypted String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("calendar_connections")
+}
+
+model InterviewReminder {
+  id                String           @id @default(uuid()) @db.Uuid
+  userId            String           @db.Uuid
+  sessionId         String           @db.Uuid
+  remindAt          DateTime
+  type              String           @default("24H")
+  emailNotification Boolean          @default(true)
+  calendarEventId   String?
+  sent              Boolean          @default(false)
+  sentAt            DateTime?
+  createdAt         DateTime         @default(now())
+
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session           InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([remindAt, sent])
+  @@map("interview_reminders")
+}
