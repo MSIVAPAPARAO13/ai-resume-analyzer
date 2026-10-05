@@ -13,6 +13,8 @@ import { careerRouter } from './modules/career/career.router.js';
 import { resumeRouter } from './modules/resume/resume.router.js';
 import { jobRouter } from './modules/job/job.router.js';
 import { jobSearchRouter } from './modules/job/job-search.router.js';
+import { applicationRouter } from './modules/application/application.router.js';
+import { githubRouter } from './modules/github/github.router.js';
 import { logger } from './utils/logger.js';
 
 export function createApp(): express.Application {
@@ -87,6 +89,8 @@ export function createApp(): express.Application {
   app.use('/api/v1', resumeRouter);
   app.use('/api/v1/jobs', jobRouter);
   app.use('/api/v1', jobSearchLimiter, jobSearchRouter);
+  app.use('/api/v1/applications', applicationRouter);
+  app.use('/api/v1/github', githubRouter);
 
   // 404 Handler
   app.use(notFoundHandler);
