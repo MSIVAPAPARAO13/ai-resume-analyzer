@@ -32,6 +32,18 @@ export default [
   route('/github/repositories', 'routes/github-repositories.tsx'),
   route('/github/repositories/:id', 'routes/github-repository-detail.tsx'),
 
+  // ─── Phase 7: Interview Intelligence ────────────────────────────────────────
+  route('/interviews', 'routes/interviews.tsx'),
+  route('/interviews/new', 'routes/interview-new.tsx'),
+  route('/interviews/:id', 'routes/interview-detail.tsx'),
+  route('/interviews/:id/questions', 'routes/interview-questions.tsx'),
+  route('/interviews/:id/mock', 'routes/interview-mock.tsx'),
+  route('/interviews/:id/report', 'routes/interview-report.tsx'),
+  route(
+    '/integrations/google-calendar',
+    'routes/integrations-google-calendar.tsx',
+  ),
+
   // ─── Existing Puter-powered routes (preserved) ────────────────────────────
   route('/upload', 'routes/upload.tsx'),
   route('/resume/:id', 'routes/resume.tsx'),

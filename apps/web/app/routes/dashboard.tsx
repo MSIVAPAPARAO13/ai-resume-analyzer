@@ -89,6 +89,13 @@ export default function DashboardPage() {
           >
             Resumes ⚡
           </Link>
+          <Link
+            to="/interviews"
+            className="btn btn-outline-warning btn-sm"
+            id="goto-interviews"
+          >
+            🎙️ Interviews
+          </Link>
           <Link to="/career" className="btn btn-outline-secondary btn-sm">
             Career Twin
           </Link>

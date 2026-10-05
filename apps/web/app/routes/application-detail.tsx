@@ -261,6 +261,15 @@ export default function ApplicationDetailPage() {
             ))}
           </select>
 
+          {/* Prepare for Interview button */}
+          <Link
+            to={`/interviews/new?applicationId=${application.id}&jobId=${application.job?.id || ''}&resumeVersionId=${application.resumeVersion?.id || ''}&company=${encodeURIComponent(application.company)}&role=${encodeURIComponent(application.role)}`}
+            className={`btn btn-sm ${application.status === 'INTERVIEW' ? 'btn-warning fw-bold' : 'btn-outline-warning'}`}
+            id="prepare-interview-btn"
+          >
+            🎙️ Prepare for Interview
+          </Link>
+
           <button
             onClick={handleDelete}
             className="btn btn-outline-danger btn-sm"

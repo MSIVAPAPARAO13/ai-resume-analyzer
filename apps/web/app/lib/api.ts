@@ -362,3 +362,96 @@ export const githubApi = {
       .then((r) => r.data.data),
   getEvidence: () => apiClient.get('/github/evidence').then((r) => r.data.data),
 };
+
+// ─── Phase 7: Interview Intelligence API ──────────────────────────────────────
+
+export const interviewApi = {
+  createSession: (data: {
+    title: string;
+    mode?: 'PREPARATION' | 'MOCK_INTERVIEW';
+    difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
+    applicationId?: string | null;
+    jobId?: string | null;
+    resumeVersionId?: string | null;
+    tailoringSessionId?: string | null;
+  }) => apiClient.post('/interviews', data).then((r) => r.data.data),
+
+  listSessions: () => apiClient.get('/interviews').then((r) => r.data.data),
+
+  getSession: (id: string) =>
+    apiClient.get(`/interviews/${id}`).then((r) => r.data.data),
+
+  updateSession: (id: string, data: any) =>
+    apiClient.patch(`/interviews/${id}`, data).then((r) => r.data.data),
+
+  deleteSession: (id: string) =>
+    apiClient.delete(`/interviews/${id}`).then((r) => r.data.data),
+
+  generateQuestions: (
+    id: string,
+    options?: {
+      questionCount?: number;
+      targetRole?: string;
+      targetCompany?: string;
+    },
+  ) =>
+    apiClient
+      .post(`/interviews/${id}/generate-questions`, options || {})
+      .then((r) => r.data.data),
+
+  listQuestions: (id: string) =>
+    apiClient.get(`/interviews/${id}/questions`).then((r) => r.data.data),
+
+  submitAnswer: (
+    id: string,
+    questionId: string,
+    data: { answerText: string; isDraft?: boolean },
+  ) =>
+    apiClient
+      .post(`/interviews/${id}/questions/${questionId}/answer`, data)
+      .then((r) => r.data.data),
+
+  listAnswers: (id: string, questionId: string) =>
+    apiClient
+      .get(`/interviews/${id}/questions/${questionId}/answers`)
+      .then((r) => r.data.data),
+
+  evaluateAnswer: (id: string, questionId: string, answerId?: string) =>
+    apiClient
+      .post(`/interviews/${id}/questions/${questionId}/evaluate`, { answerId })
+      .then((r) => r.data.data),
+
+  getPrepPlan: (id: string) =>
+    apiClient.get(`/interviews/${id}/prep-plan`).then((r) => r.data.data),
+
+  completeSession: (id: string) =>
+    apiClient.post(`/interviews/${id}/complete`).then((r) => r.data.data),
+
+  getFinalReport: (id: string) =>
+    apiClient.get(`/interviews/${id}/report`).then((r) => r.data.data),
+
+  scheduleCalendarEvent: (
+    id: string,
+    eventData: {
+      summary?: string;
+      description?: string;
+      startTime: string;
+      endTime: string;
+      timeZone?: string;
+      includeNotes?: boolean;
+    },
+  ) =>
+    apiClient
+      .post(`/interviews/${id}/calendar-event`, eventData)
+      .then((r) => r.data.data),
+};
+
+// ─── Phase 7: Calendar Integration API ────────────────────────────────────────
+
+export const calendarApi = {
+  getConnectUrl: () =>
+    apiClient.get('/calendar/connect').then((r) => r.data.data),
+  getStatus: () => apiClient.get('/calendar/status').then((r) => r.data.data),
+  disconnect: () =>
+    apiClient.post('/calendar/disconnect').then((r) => r.data.data),
+};
