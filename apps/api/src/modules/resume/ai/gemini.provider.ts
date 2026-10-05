@@ -14,6 +14,12 @@ import type {
   InterviewPreparationPlan,
   GenerateFinalReportParams,
   InterviewFinalReport,
+  GenerateLearningPlanParams,
+  LearningPlanGenerationResult,
+  GenerateSkillGapExplanationParams,
+  SkillGapExplanationResult,
+  GenerateCareerInsightsParams,
+  CareerInsightsResult,
 } from './ai.interface.js';
 import {
   TailoringGenerationResultSchema,
@@ -21,6 +27,8 @@ import {
   InterviewAnswerEvaluationSchema,
   InterviewPreparationPlanSchema,
   InterviewFinalReportSchema,
+  LearningPlanGenerationSchema,
+  CareerInsightsResultSchema,
 } from './ai.interface.js';
 import type { ParsedResumeData } from '../parser/section.parser.js';
 
@@ -515,6 +523,190 @@ Generate the comprehensive final interview readiness report in valid JSON.`;
       if (err instanceof AppError) throw err;
       throw new AppError(
         `Gemini report generation failed: ${err.message || 'Unknown provider error'}`,
+        502,
+      );
+    }
+  }
+
+  async generateLearningPlan(
+    params: GenerateLearningPlanParams,
+  ): Promise<LearningPlanGenerationResult> {
+    const ai = this.ensureClient();
+
+    const systemInstruction = `You are Resumind's Career Progression Engine.
+Create a personalized, evidence-building learning plan for target role: "${params.targetRole}".
+CRITICAL CONSTRAINTS:
+1. Never invent fake credentials or courses.
+2. Focus on "proof-of-work" and evidence tasks (code repositories, architecture documentation, sandbox modules).
+3. Every task must produce tangible, reviewable evidence.
+4. Output strict JSON matching the schema.
+
+JSON Schema:
+{
+  "title": "string",
+  "targetRole": "string",
+  "overview": "string",
+  "estimatedWeeks": number,
+  "goals": [
+    {
+      "skillName": "string",
+      "priority": "CRITICAL" | "HIGH" | "MEDIUM" | "LOW",
+      "currentLevel": "UNKNOWN" | "WEAK" | "MODERATE",
+      "targetLevel": "STRONG",
+      "rationale": "string",
+      "learningObjective": "string",
+      "tasks": [
+        {
+          "title": "string",
+          "description": "string",
+          "type": "PRACTICE" | "PROJECT" | "EVIDENCE" | "READING" | "REVIEW",
+          "estimatedHours": number,
+          "evidenceGoal": "string"
+        }
+      ]
+    }
+  ]
+}`;
+
+    const prompt = `TARGET ROLE: ${params.targetRole}
+LEVEL: ${params.targetLevel || 'Mid-Senior'}
+DURATION WEEKS: ${params.durationWeeks || 4}
+SKILL GAPS TO BRIDGE:
+${JSON.stringify(params.skillGaps, null, 2)}
+
+Produce a structured evidence-building learning curriculum.`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: this.modelName,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          temperature: 0.2,
+        },
+      });
+
+      const text = response.text;
+      if (!text) {
+        throw new AppError('Gemini returned an empty learning plan.', 502);
+      }
+
+      const parsed = JSON.parse(text);
+      return LearningPlanGenerationSchema.parse(parsed);
+    } catch (err: any) {
+      if (err instanceof AppError) throw err;
+      throw new AppError(
+        `Gemini learning plan generation failed: ${err.message || 'Unknown provider error'}`,
+        502,
+      );
+    }
+  }
+
+  async generateSkillGapExplanation(
+    params: GenerateSkillGapExplanationParams,
+  ): Promise<SkillGapExplanationResult> {
+    const ai = this.ensureClient();
+
+    const systemInstruction = `You are a career intelligence advisor. Explain a candidate's skill gap for "${params.skill}" relative to role "${params.targetRole}".
+Do not invent candidate background. Provide grounded, actionable advice. Output strict JSON:
+{
+  "skill": "string",
+  "explanation": "string",
+  "learningPathway": ["string"],
+  "evidenceBuildingAdvice": "string"
+}`;
+
+    const prompt = `SKILL: ${params.skill}
+TARGET ROLE: ${params.targetRole}
+IMPORTANCE: ${params.importance}
+EXISTING USER EVIDENCE: ${JSON.stringify(params.userEvidence)}`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: this.modelName,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          temperature: 0.2,
+        },
+      });
+
+      const text = response.text;
+      if (!text) {
+        throw new AppError('Gemini returned empty skill gap explanation.', 502);
+      }
+
+      return JSON.parse(text);
+    } catch (err: any) {
+      if (err instanceof AppError) throw err;
+      throw new AppError(
+        `Gemini skill gap explanation failed: ${err.message || 'Unknown provider error'}`,
+        502,
+      );
+    }
+  }
+
+  async generateCareerInsights(
+    params: GenerateCareerInsightsParams,
+  ): Promise<CareerInsightsResult> {
+    const ai = this.ensureClient();
+
+    const systemInstruction = `You are Resumind's Career Analytics Advisor.
+Generate 3 explainable, data-backed career insights based strictly on the candidate's metrics.
+CRITICAL RULES:
+1. Never invent fake market percentages or statistics.
+2. Every insight must clearly answer: What changed? Why does it matter? What should the user do next?
+3. Output strict JSON matching the schema:
+{
+  "insights": [
+    {
+      "title": "string",
+      "category": "SKILL_GAP" | "APPLICATION" | "INTERVIEW" | "RESUME" | "MARKET",
+      "impact": "HIGH" | "MEDIUM" | "LOW",
+      "whatChanged": "string",
+      "whyItMatters": "string",
+      "recommendedAction": "string",
+      "dataReference": "string"
+    }
+  ],
+  "overallAssessment": "string"
+}`;
+
+    const prompt = `METRICS:
+Target Role: ${params.targetRole || 'Software Engineering'}
+Level: ${params.targetLevel || 'Mid-Senior'}
+Career Readiness Score: ${params.readinessScore}/100
+Strong Verified Skills: ${params.strongSkillsCount}
+Prioritized Skill Gaps: ${params.gapSkillsCount}
+Applications: ${params.applicationCount}
+Interview Sessions: ${params.interviewCount}
+Average Job Match Score: ${params.avgMatchScore ?? 'N/A'}
+Weakest Interview Category: ${params.weakestInterviewCategory || 'None'}`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: this.modelName,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          temperature: 0.2,
+        },
+      });
+
+      const text = response.text;
+      if (!text) {
+        throw new AppError('Gemini returned empty career insights.', 502);
+      }
+
+      const parsed = JSON.parse(text);
+      return CareerInsightsResultSchema.parse(parsed);
+    } catch (err: any) {
+      if (err instanceof AppError) throw err;
+      throw new AppError(
+        `Gemini career insights failed: ${err.message || 'Unknown provider error'}`,
         502,
       );
     }

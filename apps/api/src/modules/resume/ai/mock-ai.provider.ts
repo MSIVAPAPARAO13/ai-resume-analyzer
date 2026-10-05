@@ -14,6 +14,13 @@ import type {
   GenerateFinalReportParams,
   InterviewFinalReport,
   TechnicalPrepItem,
+  GenerateLearningPlanParams,
+  LearningPlanGenerationResult,
+  GenerateSkillGapExplanationParams,
+  SkillGapExplanationResult,
+  GenerateCareerInsightsParams,
+  CareerInsightsResult,
+  SkillPriority,
 } from './ai.interface.js';
 import type { ParsedResumeData } from '../parser/section.parser.js';
 
@@ -721,6 +728,136 @@ export class MockAIProvider implements AIProvider {
         .filter((q) => (q.score ?? 100) < 70)
         .map((q) => q.question),
       summaryFeedback: `Candidate displays strong technical readiness for ${role} at ${companyName}. Focus remaining preparation on quantifying verified outcomes and addressing identified skill gaps with confident learning frameworks.`,
+    };
+  }
+
+  async generateLearningPlan(
+    params: GenerateLearningPlanParams,
+  ): Promise<LearningPlanGenerationResult> {
+    const { targetRole, skillGaps, durationWeeks } = params;
+
+    const effectiveGaps =
+      skillGaps && skillGaps.length > 0
+        ? skillGaps.slice(0, 5)
+        : [
+            {
+              skill: 'Docker',
+              priority: 'HIGH' as SkillPriority,
+              currentEvidence: 'Single keyword mention',
+              requiredEvidence: 'Verified containerized project',
+            },
+            {
+              skill: 'TypeScript',
+              priority: 'CRITICAL' as SkillPriority,
+              currentEvidence: 'Partial resume coverage',
+              requiredEvidence: 'Strong typed production modules',
+            },
+          ];
+
+    const goals = effectiveGaps.map((gap) => ({
+      skillName: gap.skill,
+      priority: (gap.priority as SkillPriority) || ('MEDIUM' as SkillPriority),
+      currentLevel: 'WEAK',
+      targetLevel: 'STRONG',
+      rationale: `Targeted capability required for ${targetRole}.`,
+      learningObjective: `Master practical implementation, best practices, and architecture using ${gap.skill}.`,
+      tasks: [
+        {
+          title: `Hands-on core architecture exercise with ${gap.skill}`,
+          description: `Build a minimal sandbox service to demonstrate idioms and patterns of ${gap.skill}.`,
+          type: 'PRACTICE' as const,
+          estimatedHours: 4,
+          evidenceGoal: `Working runnable module implementing ${gap.skill} patterns.`,
+        },
+        {
+          title: `Integrate ${gap.skill} into a demonstrable project`,
+          description: `Add robust integration and end-to-end coverage utilizing ${gap.skill}.`,
+          type: 'PROJECT' as const,
+          estimatedHours: 8,
+          evidenceGoal: `Documented feature addition in an active project.`,
+        },
+        {
+          title: `Publish repository & record Career Twin evidence for ${gap.skill}`,
+          description: `Document architecture decisions in README and review project for Career Twin import.`,
+          type: 'EVIDENCE' as const,
+          estimatedHours: 3,
+          evidenceGoal: `Public GitHub repository entry ready for user-approved Career Twin verification.`,
+        },
+      ],
+    }));
+
+    return {
+      title: `Evidence-Building Pathway: ${targetRole}`,
+      targetRole,
+      overview: `A structured learning and proof-of-work plan focusing on verified evidence acquisition for ${targetRole}.`,
+      estimatedWeeks: durationWeeks || 4,
+      goals,
+    };
+  }
+
+  async generateSkillGapExplanation(
+    params: GenerateSkillGapExplanationParams,
+  ): Promise<SkillGapExplanationResult> {
+    const { skill, targetRole, importance, userEvidence } = params;
+    const evidenceSummary =
+      userEvidence.length > 0
+        ? `Found ${userEvidence.length} partial reference(s): ${userEvidence.join(', ')}.`
+        : 'No verified project or work evidence found in Career Twin.';
+
+    return {
+      skill,
+      explanation: `${skill} is a ${importance.toLowerCase()} skill for ${targetRole}. ${evidenceSummary}`,
+      learningPathway: [
+        `Understand core abstractions and architectural idioms of ${skill}.`,
+        `Build a hands-on project solving a domain problem with ${skill}.`,
+        `Publish source code and import the verified project into your Career Twin.`,
+      ],
+      evidenceBuildingAdvice: `Build a clean, documented GitHub repository utilizing ${skill}. Do not merely claim experience—provide verifiable proof-of-work.`,
+    };
+  }
+
+  async generateCareerInsights(
+    params: GenerateCareerInsightsParams,
+  ): Promise<CareerInsightsResult> {
+    const roleName = params.targetRole || 'target engineering roles';
+    return {
+      insights: [
+        {
+          title: 'Evidence Strength Alignment',
+          category: 'SKILL_GAP',
+          impact: 'HIGH',
+          whatChanged: `Verified ${params.strongSkillsCount} core competencies against ${roleName}.`,
+          whyItMatters:
+            'Employers prioritize candidates with demonstrable project and repository evidence.',
+          recommendedAction:
+            'Focus your next learning cycle on building tangible repositories for remaining gaps.',
+          dataReference: `${params.strongSkillsCount} verified skills, ${params.gapSkillsCount} gaps`,
+        },
+        {
+          title: 'Application CRM Velocity',
+          category: 'APPLICATION',
+          impact: 'MEDIUM',
+          whatChanged: `Tracked ${params.applicationCount} active applications in your CRM pipeline.`,
+          whyItMatters:
+            'Consistently tracking statuses and following up significantly improves interview progression.',
+          recommendedAction:
+            'Set calendar reminders for applications older than 5 days without updates.',
+          dataReference: `${params.applicationCount} total applications`,
+        },
+        {
+          title: 'Interview Preparation Readiness',
+          category: 'INTERVIEW',
+          impact: 'HIGH',
+          whatChanged: `Completed ${params.interviewCount} preparation sessions.`,
+          whyItMatters:
+            'Practicing structured STAR answers ensures you confidently justify all resume evidence in live interviews.',
+          recommendedAction: params.weakestInterviewCategory
+            ? `Dedicate extra practice to your weakest interview category: ${params.weakestInterviewCategory}.`
+            : 'Continue mock interview sessions with timer enabled.',
+          dataReference: `${params.interviewCount} sessions completed`,
+        },
+      ],
+      overallAssessment: `Your career readiness is rated at ${params.readinessScore}/100. Bridging key evidence gaps and continuing interview practice will directly advance your candidacy for ${roleName}.`,
     };
   }
 }

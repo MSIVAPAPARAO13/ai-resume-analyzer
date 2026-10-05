@@ -288,4 +288,174 @@ export interface AIProvider {
   generateInterviewFinalReport(
     params: GenerateFinalReportParams,
   ): Promise<InterviewFinalReport>;
+  generateLearningPlan(
+    params: GenerateLearningPlanParams,
+  ): Promise<LearningPlanGenerationResult>;
+  generateSkillGapExplanation(
+    params: GenerateSkillGapExplanationParams,
+  ): Promise<SkillGapExplanationResult>;
+  generateCareerInsights(
+    params: GenerateCareerInsightsParams,
+  ): Promise<CareerInsightsResult>;
+}
+
+// ==========================================
+// Phase 8: Career Analytics & Learning Schemas
+// ==========================================
+
+export const SkillPrioritySchema = z.enum([
+  'CRITICAL',
+  'HIGH',
+  'MEDIUM',
+  'LOW',
+]);
+export type SkillPriority = z.infer<typeof SkillPrioritySchema>;
+
+export const SkillGapItemSchema = z.object({
+  skill: z.string(),
+  canonicalSkill: z.string(),
+  category: z.string(),
+  importance: z.enum(['REQUIRED', 'PREFERRED', 'NICE_TO_HAVE']),
+  priority: SkillPrioritySchema,
+  status: z.enum(['STRONG', 'PARTIAL', 'MISSING']),
+  currentEvidence: z.string(),
+  requiredEvidence: z.string(),
+  affectedTargetRoles: z.array(z.string()).default([]),
+  whyItMatters: z.string(),
+  recommendedAction: z.string(),
+});
+export type SkillGapItem = z.infer<typeof SkillGapItemSchema>;
+
+export const SkillGapAnalysisSchema = z.object({
+  gaps: z.array(SkillGapItemSchema),
+  criticalCount: z.number().default(0),
+  highCount: z.number().default(0),
+  mediumCount: z.number().default(0),
+  lowCount: z.number().default(0),
+  summary: z.string(),
+});
+export type SkillGapAnalysisResult = z.infer<typeof SkillGapAnalysisSchema>;
+
+export const CareerInsightSchema = z.object({
+  title: z.string(),
+  category: z.enum([
+    'SKILL_GAP',
+    'APPLICATION',
+    'INTERVIEW',
+    'RESUME',
+    'MARKET',
+  ]),
+  impact: z.enum(['HIGH', 'MEDIUM', 'LOW']),
+  whatChanged: z.string(),
+  whyItMatters: z.string(),
+  recommendedAction: z.string(),
+  dataReference: z.string().optional(),
+});
+export type CareerInsight = z.infer<typeof CareerInsightSchema>;
+
+export const CareerInsightsResultSchema = z.object({
+  insights: z.array(CareerInsightSchema),
+  overallAssessment: z.string(),
+});
+export type CareerInsightsResult = z.infer<typeof CareerInsightsResultSchema>;
+
+export const LearningTaskDefinitionSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  type: z.enum(['PRACTICE', 'PROJECT', 'EVIDENCE', 'READING', 'REVIEW']),
+  estimatedHours: z.number().optional(),
+  evidenceGoal: z
+    .string()
+    .describe(
+      'Exact evidence to build, e.g. GitHub repo, config file, test suite',
+    ),
+});
+export type LearningTaskDefinition = z.infer<
+  typeof LearningTaskDefinitionSchema
+>;
+
+export const LearningGoalDefinitionSchema = z.object({
+  skillName: z.string(),
+  priority: SkillPrioritySchema,
+  currentLevel: z.string().default('UNKNOWN'),
+  targetLevel: z.string().default('STRONG'),
+  rationale: z.string(),
+  learningObjective: z.string(),
+  tasks: z.array(LearningTaskDefinitionSchema),
+});
+export type LearningGoalDefinition = z.infer<
+  typeof LearningGoalDefinitionSchema
+>;
+
+export const LearningPlanGenerationSchema = z.object({
+  title: z.string(),
+  targetRole: z.string(),
+  overview: z.string(),
+  estimatedWeeks: z.number().default(4),
+  goals: z.array(LearningGoalDefinitionSchema),
+});
+export type LearningPlanGenerationResult = z.infer<
+  typeof LearningPlanGenerationSchema
+>;
+
+export const CareerReadinessBreakdownSchema = z.object({
+  overallScore: z.number().min(0).max(100),
+  skillAlignment: z.number().min(0).max(100),
+  resumeReadiness: z.number().min(0).max(100),
+  evidenceStrength: z.number().min(0).max(100),
+  interviewReadiness: z.number().min(0).max(100),
+  careerTwinCompleteness: z.number().min(0).max(100),
+  explanations: z.object({
+    skillAlignment: z.string(),
+    resumeReadiness: z.string(),
+    evidenceStrength: z.string(),
+    interviewReadiness: z.string(),
+    careerTwinCompleteness: z.string(),
+  }),
+  topRecommendations: z.array(z.string()).default([]),
+});
+export type CareerReadinessBreakdown = z.infer<
+  typeof CareerReadinessBreakdownSchema
+>;
+
+export interface GenerateLearningPlanParams {
+  targetRole: string;
+  targetLevel?: string | null;
+  skillGaps: Array<{
+    skill: string;
+    priority: string;
+    currentEvidence: string;
+    requiredEvidence: string;
+  }>;
+  existingSkills?: string[];
+  durationWeeks?: number;
+}
+
+export interface GenerateSkillGapExplanationParams {
+  skill: string;
+  targetRole: string;
+  importance: string;
+  userEvidence: string[];
+}
+
+export const SkillGapExplanationResultSchema = z.object({
+  skill: z.string(),
+  explanation: z.string(),
+  learningPathway: z.array(z.string()),
+  evidenceBuildingAdvice: z.string(),
+});
+export type SkillGapExplanationResult = z.infer<
+  typeof SkillGapExplanationResultSchema
+>;
+
+export interface GenerateCareerInsightsParams {
+  targetRole?: string | null;
+  targetLevel?: string | null;
+  readinessScore: number;
+  strongSkillsCount: number;
+  gapSkillsCount: number;
+  applicationCount: number;
+  interviewCount: number;
+  avgMatchScore?: number;
+  weakestInterviewCategory?: string | null;
 }
