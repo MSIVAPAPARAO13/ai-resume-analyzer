@@ -7,6 +7,7 @@ export interface GuardedSuggestion extends TailoringSuggestion {
   guardStatus: EvidenceGuardStatus;
   guardExplanation: string;
   detectedUnsupportedClaims: string[];
+  externalGitHubEvidence?: string[];
 }
 
 export interface EvidenceGuardResult {
@@ -150,9 +151,30 @@ export class EvidenceGuardService {
     careerTwin: any,
     parsedResume: ParsedResumeData,
     _jobDna?: any,
+    githubEvidence?: any[],
   ): EvidenceGuardResult {
     const index = this.buildEvidenceIndex(careerTwin, parsedResume);
     const guarded: GuardedSuggestion[] = [];
+
+    // Index external GitHub evidence
+    const githubTechSet = new Set<string>();
+    if (Array.isArray(githubEvidence)) {
+      for (const ev of githubEvidence) {
+        if (ev.detectedTechnologies) {
+          for (const t of ev.detectedTechnologies) {
+            githubTechSet.add(String(t).toLowerCase().trim());
+          }
+        }
+        if (ev.topics) {
+          for (const top of ev.topics) {
+            githubTechSet.add(String(top).toLowerCase().trim());
+          }
+        }
+        if (ev.language) {
+          githubTechSet.add(String(ev.language).toLowerCase().trim());
+        }
+      }
+    }
 
     let verifiedCount = 0;
     let needsReviewCount = 0;
@@ -160,6 +182,7 @@ export class EvidenceGuardService {
 
     for (const sug of suggestions) {
       const unsupportedClaims: string[] = [];
+      const externalGitHubDetected: string[] = [];
       const originalText = sug.original || '';
       const proposedText = sug.proposed || '';
 
@@ -222,9 +245,16 @@ export class EvidenceGuardService {
           const inSkills = index.skills.has(tech);
           const inCorpus = index.corpus.includes(tech);
           if (!inSkills && !inCorpus) {
-            unsupportedClaims.push(
-              `Unverified technology: "${tech.toUpperCase()}"`,
-            );
+            if (githubTechSet.has(tech)) {
+              externalGitHubDetected.push(tech.toUpperCase());
+              unsupportedClaims.push(
+                `External GitHub evidence detected: "${tech.toUpperCase()}". Review before adding to Career Twin.`,
+              );
+            } else {
+              unsupportedClaims.push(
+                `Unverified technology: "${tech.toUpperCase()}"`,
+              );
+            }
           }
         }
       }
@@ -235,7 +265,11 @@ export class EvidenceGuardService {
 
       if (unsupportedClaims.length > 0) {
         guardStatus = 'UNSUPPORTED';
-        guardExplanation = `This suggestion could not be verified from your Career Twin or resume evidence (${unsupportedClaims.join(', ')}). Add supporting experience if it is accurate.`;
+        if (externalGitHubDetected.length > 0) {
+          guardExplanation = `External GitHub evidence detected (${externalGitHubDetected.join(', ')}). Review before adding to Career Twin.`;
+        } else {
+          guardExplanation = `This suggestion could not be verified from your Career Twin or resume evidence (${unsupportedClaims.join(', ')}). Add supporting experience if it is accurate.`;
+        }
         unsupportedCount++;
       } else if (
         sug.evidenceReferences &&
@@ -258,6 +292,10 @@ export class EvidenceGuardService {
         guardStatus,
         guardExplanation,
         detectedUnsupportedClaims: unsupportedClaims,
+        externalGitHubEvidence:
+          externalGitHubDetected.length > 0
+            ? externalGitHubDetected
+            : undefined,
       });
     }
 

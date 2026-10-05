@@ -170,12 +170,23 @@ export class ResumeTailoringService {
       throw err;
     }
 
+    // Fetch GitHub external evidence if available
+    let githubEvidence: any[] = [];
+    try {
+      githubEvidence = await prisma.gitHubRepository.findMany({
+        where: { userId },
+      });
+    } catch {
+      // ignore
+    }
+
     // 7. Run suggestions through Evidence Guard
     const guardedResult = evidenceGuardService.evaluateSuggestions(
       aiResult.suggestions,
       careerTwin,
       parsedResume,
       jobDna,
+      githubEvidence,
     );
 
     // 8. Create ResumeTailoringSession in database
