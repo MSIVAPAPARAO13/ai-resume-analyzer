@@ -17,6 +17,11 @@ import { applicationRouter } from './modules/application/application.router.js';
 import { githubRouter } from './modules/github/github.router.js';
 import { interviewRouter } from './modules/interview/interview.router.js';
 import { calendarRouter } from './modules/calendar/calendar.router.js';
+import { analyticsRouter } from './modules/analytics/analytics.router.js';
+import {
+  learningRouter,
+  learningEntityRouter,
+} from './modules/learning/learning.router.js';
 import { logger } from './utils/logger.js';
 
 export function createApp(): express.Application {
@@ -93,6 +98,9 @@ export function createApp(): express.Application {
   app.use('/api/v1/applications', applicationRouter);
   app.use('/api/v1/jobs', jobRouter);
   app.use('/api/v1', jobSearchLimiter, jobSearchRouter);
+  app.use('/api/v1/analytics', analyticsRouter);
+  app.use('/api/v1/learning-plans', learningRouter);
+  app.use('/api/v1', learningEntityRouter);
   app.use('/api/v1', careerRouter);
   app.use('/api/v1', resumeRouter);
 
