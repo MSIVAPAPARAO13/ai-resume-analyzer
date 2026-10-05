@@ -69,8 +69,22 @@ export default function DashboardPage() {
         </Link>
         <div className="d-flex align-items-center gap-3">
           <Link
-            to="/applications"
+            to="/analytics"
             className="btn btn-outline-info btn-sm"
+            id="goto-analytics"
+          >
+            📊 Analytics
+          </Link>
+          <Link
+            to="/learning"
+            className="btn btn-outline-success btn-sm"
+            id="goto-learning"
+          >
+            🎯 Learning
+          </Link>
+          <Link
+            to="/applications"
+            className="btn btn-outline-secondary btn-sm"
             id="goto-applications"
           >
             📋 Applications
@@ -237,6 +251,31 @@ export default function DashboardPage() {
                 </p>
                 <span className="text-primary small fw-semibold">
                   Manage Career Twin →
+                </span>
+              </div>
+            </Link>
+          </div>
+          <div className="col-12 col-md-4">
+            <Link to="/analytics" className="text-decoration-none">
+              <div
+                className="card bg-dark border-info h-100 hover-lift p-4 shadow-sm"
+                id="dashboard-analytics-card"
+              >
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <div className="fs-2">📊</div>
+                  <span className="badge bg-info text-dark">
+                    Phase 8 · Active
+                  </span>
+                </div>
+                <h5 className="fw-bold text-white mb-1">
+                  Career Analytics & Learning
+                </h5>
+                <p className="text-secondary small mb-3">
+                  Explainable career readiness score, skill intelligence, gap
+                  analysis, and evidence-building roadmaps.
+                </p>
+                <span className="text-info small fw-semibold">
+                  Open Career Analytics →
                 </span>
               </div>
             </Link>

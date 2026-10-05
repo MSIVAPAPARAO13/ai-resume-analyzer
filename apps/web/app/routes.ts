@@ -44,6 +44,17 @@ export default [
     'routes/integrations-google-calendar.tsx',
   ),
 
+  // ─── Phase 8: Career Analytics & Learning Plan ─────────────────────────────
+  route('/analytics', 'routes/analytics.tsx'),
+  route('/analytics/skills', 'routes/analytics-skills.tsx'),
+  route('/analytics/roles', 'routes/analytics-roles.tsx'),
+  route('/analytics/applications', 'routes/analytics-applications.tsx'),
+  route('/analytics/interviews', 'routes/analytics-interviews.tsx'),
+  route('/analytics/evidence', 'routes/analytics-evidence.tsx'),
+  route('/learning', 'routes/learning.tsx'),
+  route('/learning/new', 'routes/learning-new.tsx'),
+  route('/learning/:id', 'routes/learning-detail.tsx'),
+
   // ─── Existing Puter-powered routes (preserved) ────────────────────────────
   route('/upload', 'routes/upload.tsx'),
   route('/resume/:id', 'routes/resume.tsx'),

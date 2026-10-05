@@ -455,3 +455,72 @@ export const calendarApi = {
   disconnect: () =>
     apiClient.post('/calendar/disconnect').then((r) => r.data.data),
 };
+
+// ─── Phase 8: Career Analytics API ───────────────────────────────────────────
+
+export const analyticsApi = {
+  getOverview: () =>
+    apiClient.get('/analytics/overview').then((r) => r.data.data),
+  getSkills: () => apiClient.get('/analytics/skills').then((r) => r.data.data),
+  getSkillGaps: () =>
+    apiClient.get('/analytics/skills/gaps').then((r) => r.data.data),
+  getSkillDetail: (skill: string) =>
+    apiClient
+      .get(`/analytics/skills/${encodeURIComponent(skill)}`)
+      .then((r) => r.data.data),
+  getRoles: () => apiClient.get('/analytics/roles').then((r) => r.data.data),
+  getJobs: () => apiClient.get('/analytics/jobs').then((r) => r.data.data),
+  getApplications: () =>
+    apiClient.get('/analytics/applications').then((r) => r.data.data),
+  getInterviews: () =>
+    apiClient.get('/analytics/interviews').then((r) => r.data.data),
+  getResumes: () =>
+    apiClient.get('/analytics/resumes').then((r) => r.data.data),
+  getEvidence: () =>
+    apiClient.get('/analytics/evidence').then((r) => r.data.data),
+  getProgress: () =>
+    apiClient.get('/analytics/progress').then((r) => r.data.data),
+  createSnapshot: () =>
+    apiClient.post('/analytics/snapshots').then((r) => r.data.data),
+};
+
+// ─── Phase 8: Learning Plan API ──────────────────────────────────────────────
+
+export const learningApi = {
+  listPlans: () => apiClient.get('/learning-plans').then((r) => r.data.data),
+  createPlan: (data: {
+    title: string;
+    targetRole?: string;
+    description?: string;
+    targetDate?: string;
+  }) => apiClient.post('/learning-plans', data).then((r) => r.data.data),
+  getPlan: (id: string) =>
+    apiClient.get(`/learning-plans/${id}`).then((r) => r.data.data),
+  updatePlan: (id: string, data: any) =>
+    apiClient.patch(`/learning-plans/${id}`, data).then((r) => r.data.data),
+  deletePlan: (id: string) =>
+    apiClient.delete(`/learning-plans/${id}`).then((r) => r.data.data),
+  generatePlan: (id: string) =>
+    apiClient.post(`/learning-plans/${id}/generate`).then((r) => r.data.data),
+  getGoals: (id: string) =>
+    apiClient.get(`/learning-plans/${id}/goals`).then((r) => r.data.data),
+  addGoal: (id: string, data: any) =>
+    apiClient
+      .post(`/learning-plans/${id}/goals`, data)
+      .then((r) => r.data.data),
+  updateGoal: (goalId: string, data: any) =>
+    apiClient.patch(`/learning-goals/${goalId}`, data).then((r) => r.data.data),
+  addTask: (data: {
+    goalId: string;
+    title: string;
+    description?: string;
+    type?: string;
+    dueDate?: string;
+  }) => apiClient.post('/learning-tasks', data).then((r) => r.data.data),
+  updateTask: (taskId: string, data: any) =>
+    apiClient.patch(`/learning-tasks/${taskId}`, data).then((r) => r.data.data),
+  deleteTask: (taskId: string) =>
+    apiClient.delete(`/learning-tasks/${taskId}`).then((r) => r.data.data),
+  completePlan: (id: string) =>
+    apiClient.post(`/learning-plans/${id}/complete`).then((r) => r.data.data),
+};
