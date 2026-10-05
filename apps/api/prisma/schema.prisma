@@ -39,6 +39,9 @@ model User {
   jobs              Job[]
   tailoringSessions ResumeTailoringSession[]
   aiUsages          AIUsage[]
+  applications      Application[]
+  githubConnection  GitHubConnection?
+  githubRepositories GitHubRepository[]
 
   @@index([email])
   @@map("users")
@@ -250,6 +253,7 @@ model ResumeVersion {
   analyses          ResumeAnalysis[]
   jobMatches        JobMatch[]
   tailoringSessions ResumeTailoringSession[]
+  applications      Application[]
 
   @@index([resumeId])
   @@map("resume_versions")
@@ -324,6 +328,7 @@ model Job {
   analyses          JobAnalysis[]
   matches           JobMatch[]
   tailoringSessions ResumeTailoringSession[]
+  applications      Application[]
 
   @@index([userId])
   @@index([userId, status])
@@ -458,6 +463,7 @@ model ResumeTailoringSession {
   resumeVersion   ResumeVersion         @relation(fields: [resumeVersionId], references: [id], onDelete: Cascade)
   job             Job                   @relation(fields: [jobId], references: [id], onDelete: Cascade)
   suggestions     ResumeTailoringSuggestion[]
+  applications    Application[]
 
   @@index([userId])
   @@index([resumeVersionId])
@@ -488,6 +494,126 @@ model ResumeTailoringSuggestion {
   @@index([sessionId])
   @@index([sessionId, status])
   @@map("resume_tailoring_suggestions")
+}
+
+// ─── Phase 6 Application CRM & GitHub Enums ───────────────────────────────────
+
+enum ApplicationStatus {
+  SAVED
+  APPLIED
+  ASSESSMENT
+  INTERVIEW
+  OFFER
+  REJECTED
+  WITHDRAWN
+}
+
+enum ApplicationEventType {
+  CREATED
+  APPLIED
+  ASSESSMENT
+  INTERVIEW
+  FOLLOW_UP
+  OFFER
+  REJECTED
+  WITHDRAWN
+  NOTE
+}
+
+// ─── Application CRM Models ───────────────────────────────────────────────────
+
+model Application {
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @db.Uuid
+  jobId              String?            @db.Uuid
+  resumeVersionId    String?            @db.Uuid
+  tailoringSessionId String?            @db.Uuid
+  company            String
+  role               String
+  jobUrl             String?
+  status             ApplicationStatus  @default(SAVED)
+  appliedAt          DateTime?
+  followUpAt         DateTime?
+  recruiterName      String?
+  recruiterEmail     String?
+  notes              String?            @db.Text
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job                Job?                    @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  resumeVersion      ResumeVersion?          @relation(fields: [resumeVersionId], references: [id], onDelete: SetNull)
+  tailoringSession   ResumeTailoringSession? @relation(fields: [tailoringSessionId], references: [id], onDelete: SetNull)
+  events             ApplicationEvent[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([jobId])
+  @@index([resumeVersionId])
+  @@map("applications")
+}
+
+model ApplicationEvent {
+  id            String               @id @default(uuid()) @db.Uuid
+  applicationId String               @db.Uuid
+  type          ApplicationEventType
+  description   String               @db.Text
+  eventDate     DateTime             @default(now())
+  metadata      Json?
+  createdAt     DateTime             @default(now())
+
+  application   Application          @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@index([applicationId, eventDate])
+  @@map("application_events")
+}
+
+// ─── GitHub Career Evidence Models ───────────────────────────────────────────
+
+model GitHubConnection {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @unique @db.Uuid
+  githubUserId          String
+  username              String
+  avatarUrl             String?
+  accessTokenEncrypted  String    @db.Text
+  refreshTokenEncrypted String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("github_connections")
+}
+
+model GitHubRepository {
+  id                 String    @id @default(uuid()) @db.Uuid
+  userId             String    @db.Uuid
+  githubRepositoryId String
+  name               String
+  fullName           String
+  description        String?   @db.Text
+  htmlUrl            String
+  defaultBranch      String?
+  language           String?
+  languages          Json?
+  stars              Int       @default(0)
+  forks              Int       @default(0)
+  isPrivate          Boolean   @default(false)
+  topics             String[]  @default([])
+  lastPushedAt       DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, githubRepositoryId])
+  @@index([userId])
+  @@map("github_repositories")
 }
 
 
