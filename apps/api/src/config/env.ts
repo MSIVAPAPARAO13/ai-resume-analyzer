@@ -24,6 +24,13 @@ const envSchema = z.object({
   ADZUNA_APP_KEY: z.string().optional(),
   RUN_EXTERNAL_AI_TESTS: z.string().optional(),
   RUN_EXTERNAL_PROVIDER_TESTS: z.string().optional(),
+  // GitHub & Token Encryption (Phase 6)
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+  GITHUB_CALLBACK_URL: z
+    .string()
+    .default('http://localhost:4000/api/v1/github/callback'),
+  GITHUB_ENCRYPTION_KEY: z.string().default('resumind-secret-key-32bytes-aes!'), // 32-character key for AES-256-GCM
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
