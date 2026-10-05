@@ -45,6 +45,8 @@ model User {
   interviewSessions  InterviewSession[]
   calendarConnection CalendarConnection?
   interviewReminders InterviewReminder[]
+  learningPlans      LearningPlan[]
+  careerSnapshots    CareerSnapshot[]
 
   @@index([email])
   @@map("users")
@@ -768,3 +770,113 @@ model InterviewReminder {
   @@index([remindAt, sent])
   @@map("interview_reminders")
 }
+
+// ─── Phase 8 Career Analytics & Learning Plan Enums ──────────────────────────
+
+enum LearningPlanStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  PAUSED
+  ARCHIVED
+}
+
+enum SkillPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum GoalTaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+// ─── Phase 8 Career Analytics & Learning Plan Models ─────────────────────────
+
+model LearningPlan {
+  id          String             @id @default(uuid()) @db.Uuid
+  userId      String             @db.Uuid
+  title       String
+  targetRole  String?
+  status      LearningPlanStatus @default(ACTIVE)
+  startDate   DateTime?          @default(now())
+  targetDate  DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goals       LearningGoal[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@map("learning_plans")
+}
+
+model LearningGoal {
+  id           String         @id @default(uuid()) @db.Uuid
+  planId       String         @db.Uuid
+  skillName    String
+  priority     SkillPriority  @default(MEDIUM)
+  currentLevel String?        @default("UNKNOWN")
+  targetLevel  String?        @default("STRONG")
+  status       GoalTaskStatus @default(TODO)
+  rationale    String?        @db.Text
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  plan         LearningPlan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  tasks        LearningTask[]
+
+  @@index([planId])
+  @@index([skillName])
+  @@map("learning_goals")
+}
+
+model LearningTask {
+  id                String         @id @default(uuid()) @db.Uuid
+  goalId            String         @db.Uuid
+  title             String
+  description       String?        @db.Text
+  type              String?        @default("PRACTICE")
+  status            GoalTaskStatus @default(TODO)
+  dueDate           DateTime?
+  completedAt       DateTime?
+  evidenceReference Json?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  goal              LearningGoal   @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@index([goalId])
+  @@map("learning_tasks")
+}
+
+model CareerSnapshot {
+  id                  String   @id @default(uuid()) @db.Uuid
+  userId              String   @db.Uuid
+  readinessScore      Float
+  skillScore          Float?
+  resumeScore         Float?
+  evidenceScore       Float?
+  interviewScore      Float?
+  completenessScore   Float?
+  skillsCount         Int?     @default(0)
+  verifiedSkillsCount Int?     @default(0)
+  gapsCount           Int?     @default(0)
+  activeApplications  Int?     @default(0)
+  completedInterviews Int?     @default(0)
+  learningProgress    Float?   @default(0)
+  metrics             Json?
+  createdAt           DateTime @default(now())
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@map("career_snapshots")
+}
+
