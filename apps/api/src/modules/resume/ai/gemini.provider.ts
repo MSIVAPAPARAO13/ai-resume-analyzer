@@ -6,8 +6,22 @@ import type {
   AIAnalysisResult,
   TailoringPromptParams,
   TailoringGenerationResult,
+  GenerateInterviewQuestionsParams,
+  InterviewQuestionGenerationResult,
+  EvaluateAnswerParams,
+  InterviewAnswerEvaluation,
+  GeneratePrepPlanParams,
+  InterviewPreparationPlan,
+  GenerateFinalReportParams,
+  InterviewFinalReport,
 } from './ai.interface.js';
-import { TailoringGenerationResultSchema } from './ai.interface.js';
+import {
+  TailoringGenerationResultSchema,
+  InterviewQuestionGenerationResultSchema,
+  InterviewAnswerEvaluationSchema,
+  InterviewPreparationPlanSchema,
+  InterviewFinalReportSchema,
+} from './ai.interface.js';
 import type { ParsedResumeData } from '../parser/section.parser.js';
 
 export class GeminiProvider implements AIProvider {
@@ -190,6 +204,317 @@ Generate tailored suggestions strictly grounded in the candidate evidence.`;
       if (err instanceof AppError) throw err;
       throw new AppError(
         `Gemini tailoring generation failed: ${err.message || 'Unknown provider error'}`,
+        502,
+      );
+    }
+  }
+
+  async generateInterviewQuestions(
+    params: GenerateInterviewQuestionsParams,
+  ): Promise<InterviewQuestionGenerationResult> {
+    const ai = this.ensureClient();
+
+    const systemInstruction = `You are Resumind's expert technical and behavioral interview preparation engine.
+Your goal is to generate a personalized, balanced set of interview questions for a candidate preparing for a specific role.
+
+STRICT ANTI-HALLUCINATION RULES:
+1. NEVER invent employers, projects, metrics, certifications, degrees, or tools not present in the candidate's evidence.
+2. If a target job requirement is missing from the candidate's evidence:
+   - DO NOT pretend the candidate knows it.
+   - Ask how they would ramp up, learn, or transfer existing principles to that technology (e.g. "How would you approach learning/using X for this role?").
+3. Attach explicit evidenceReferences with source, type, and label for each question where relevant.
+4. Categories must be one of: RESUME, CAREER_TWIN, PROJECT, TECHNICAL, JOB_SPECIFIC, BEHAVIORAL, SITUATIONAL, COMPANY_ROLE, EXPERIENCE.
+5. Difficulties must be one of: EASY, MEDIUM, HARD.
+6. Provide whyAsked, expectedSignals (array of strings), and preparationTips (array of strings) for every single question.
+
+Return strictly valid JSON adhering to:
+{
+  "questions": [
+    {
+      "category": string,
+      "difficulty": string,
+      "question": string,
+      "whyAsked": string,
+      "expectedSignals": ["string"],
+      "evidenceReferences": [
+        {
+          "source": "VERIFIED_USER_DATA" | "RESUME" | "CAREER_TWIN" | "GITHUB" | "JOB_DESCRIPTION" | "NEEDS_REVIEW" | "UNSUPPORTED",
+          "type": string,
+          "label": string,
+          "referenceId": "string" optional,
+          "quote": "string" optional
+        }
+      ],
+      "preparationTips": ["string"]
+    }
+  ],
+  "overallTheme": "string",
+  "focusAreas": ["string"]
+}`;
+
+    const prompt = `TARGET ROLE: ${params.role}
+COMPANY: ${params.company || 'Not specified'}
+MODE: ${params.mode}
+DIFFICULTY: ${params.difficulty}
+TARGET QUESTION COUNT: ${params.questionCount || 10}
+
+JOB DNA:
+${params.jobDna ? JSON.stringify(params.jobDna, null, 2) : 'None provided'}
+
+MATCH DATA (GAPS & STRONG SKILLS):
+${params.matchData ? JSON.stringify(params.matchData, null, 2) : 'None provided'}
+
+CANDIDATE RESUME EVIDENCE:
+${params.resumeData ? JSON.stringify(params.resumeData, null, 2) : 'None provided'}
+
+CAREER TWIN EVIDENCE:
+${params.careerTwin ? JSON.stringify(params.careerTwin, null, 2) : 'None provided'}
+
+Generate the requested balanced interview questions in valid JSON.`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: this.modelName,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          temperature: 0.2,
+        },
+      });
+
+      const text = response.text;
+      if (!text) {
+        throw new AppError('Gemini returned an empty response.', 502);
+      }
+
+      const parsed = JSON.parse(text);
+      return InterviewQuestionGenerationResultSchema.parse(parsed);
+    } catch (err: any) {
+      if (err instanceof AppError) throw err;
+      throw new AppError(
+        `Gemini question generation failed: ${err.message || 'Unknown provider error'}`,
+        502,
+      );
+    }
+  }
+
+  async evaluateInterviewAnswer(
+    params: EvaluateAnswerParams,
+  ): Promise<InterviewAnswerEvaluation> {
+    const ai = this.ensureClient();
+
+    const systemInstruction = `You are Resumind's expert AI interview evaluator and communication coach.
+Analyze the candidate's answer to the given interview question.
+
+IMPORTANT EVALUATION PRINCIPLES:
+1. You are NOT a factual authority. Do NOT claim the answer is objectively factually correct.
+2. Evaluate based on: relevance, completeness, clarity, technical depth, and structure.
+3. For behavioral questions, evaluate STAR method (Situation, Task, Action, Result).
+4. NEVER invent results or numbers. If the candidate lacks measurable metrics, advise them to add one if they have verified data.
+5. Provide actionable strengths, weaknesses, missing points, and improvement suggestions.
+
+Return strictly valid JSON adhering to:
+{
+  "score": number between 0 and 100,
+  "strengths": ["string"],
+  "weaknesses": ["string"],
+  "missingPoints": ["string"],
+  "improvementSuggestions": ["string"],
+  "recommendedStructure": "string",
+  "evidenceAlignment": "string",
+  "dimensions": {
+    "relevance": number (0-100),
+    "completeness": number (0-100),
+    "clarity": number (0-100),
+    "technicalDepth": number (0-100),
+    "evidenceAlignmentScore": number (0-100)
+  }
+}`;
+
+    const prompt = `QUESTION:
+${params.question}
+
+CATEGORY: ${params.category}
+DIFFICULTY: ${params.difficulty}
+WHY ASKED: ${params.whyAsked || 'N/A'}
+EXPECTED SIGNALS: ${JSON.stringify(params.expectedSignals || [])}
+
+CANDIDATE ANSWER:
+${params.answerText}
+
+CANDIDATE BACKGROUND / EVIDENCE CONTEXT:
+${params.candidateEvidenceSummary || 'Standard verified background'}
+
+Evaluate the candidate's answer thoroughly in valid JSON.`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: this.modelName,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          temperature: 0.2,
+        },
+      });
+
+      const text = response.text;
+      if (!text) {
+        throw new AppError('Gemini returned an empty response.', 502);
+      }
+
+      const parsed = JSON.parse(text);
+      return InterviewAnswerEvaluationSchema.parse(parsed);
+    } catch (err: any) {
+      if (err instanceof AppError) throw err;
+      throw new AppError(
+        `Gemini answer evaluation failed: ${err.message || 'Unknown provider error'}`,
+        502,
+      );
+    }
+  }
+
+  async generateInterviewPreparationPlan(
+    params: GeneratePrepPlanParams,
+  ): Promise<InterviewPreparationPlan> {
+    const ai = this.ensureClient();
+
+    const systemInstruction = `You are Resumind's expert technical career coach.
+Create a structured day-by-day interview preparation plan and technical readiness checklist.
+
+RULES:
+1. Ground the plan strictly in the provided Job DNA, skill gaps, and verified candidate evidence.
+2. For the technical checklist, classify each skill as STRONG (verified in candidate evidence), REVIEW (partial match), or GAP (missing from evidence).
+3. Do not invent candidate proficiencies.
+
+Return strictly valid JSON adhering to:
+{
+  "durationDays": number,
+  "dailyPlans": [
+    {
+      "day": number,
+      "title": "string",
+      "focus": "string",
+      "tasks": ["string"],
+      "targetCategories": ["RESUME" | "CAREER_TWIN" | "PROJECT" | "TECHNICAL" | "JOB_SPECIFIC" | "BEHAVIORAL" | "SITUATIONAL" | "COMPANY_ROLE" | "EXPERIENCE"]
+    }
+  ],
+  "technicalChecklist": [
+    {
+      "skill": "string",
+      "classification": "STRONG" | "REVIEW" | "GAP",
+      "jobRequirement": "string",
+      "candidateEvidence": "string",
+      "recommendedTopics": ["string"]
+    }
+  ],
+  "keyStrategyNotes": ["string"]
+}`;
+
+    const prompt = `ROLE: ${params.role}
+COMPANY: ${params.company || 'Not specified'}
+PLAN DURATION: ${params.durationDays || 5} days
+
+JOB DNA:
+${params.jobDna ? JSON.stringify(params.jobDna, null, 2) : 'None provided'}
+
+MATCH DATA:
+${params.matchData ? JSON.stringify(params.matchData, null, 2) : 'None provided'}
+
+CANDIDATE EVIDENCE:
+${params.careerTwin ? JSON.stringify(params.careerTwin, null, 2) : 'None provided'}
+
+Generate the preparation plan in valid JSON.`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: this.modelName,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          temperature: 0.2,
+        },
+      });
+
+      const text = response.text;
+      if (!text) {
+        throw new AppError('Gemini returned an empty response.', 502);
+      }
+
+      const parsed = JSON.parse(text);
+      return InterviewPreparationPlanSchema.parse(parsed);
+    } catch (err: any) {
+      if (err instanceof AppError) throw err;
+      throw new AppError(
+        `Gemini prep plan generation failed: ${err.message || 'Unknown provider error'}`,
+        502,
+      );
+    }
+  }
+
+  async generateInterviewFinalReport(
+    params: GenerateFinalReportParams,
+  ): Promise<InterviewFinalReport> {
+    const ai = this.ensureClient();
+
+    const systemInstruction = `You are Resumind's interview evaluation engine.
+Synthesize the overall performance across all answered questions into a comprehensive interview readiness report.
+
+RULES:
+1. Do NOT present scores as objective hiring probabilities. Use wording such as "Interview Preparation Score".
+2. Provide readiness scores (0-100) across technical, behavioral, resume, job-specific, and project readiness.
+3. Highlight genuine strongest areas, weakest areas, and evidence gaps.
+4. Recommend actionable topics to review before the live interview.
+
+Return strictly valid JSON adhering to:
+{
+  "overallPreparationScore": number (0-100),
+  "technicalReadiness": number (0-100),
+  "behavioralReadiness": number (0-100),
+  "resumeReadiness": number (0-100),
+  "jobSpecificReadiness": number (0-100),
+  "projectReadiness": number (0-100),
+  "strongestAreas": ["string"],
+  "weakestAreas": ["string"],
+  "evidenceGaps": ["string"],
+  "recommendedTopics": ["string"],
+  "questionsToRevisit": ["string"],
+  "summaryFeedback": "string"
+}`;
+
+    const prompt = `SESSION: ${params.sessionTitle}
+TARGET ROLE: ${params.role}
+COMPANY: ${params.company || 'Not specified'}
+
+QUESTIONS AND EVALUATIONS:
+${JSON.stringify(params.questionsWithAnswers, null, 2)}
+
+Generate the comprehensive final interview readiness report in valid JSON.`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: this.modelName,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          temperature: 0.2,
+        },
+      });
+
+      const text = response.text;
+      if (!text) {
+        throw new AppError('Gemini returned an empty response.', 502);
+      }
+
+      const parsed = JSON.parse(text);
+      return InterviewFinalReportSchema.parse(parsed);
+    } catch (err: any) {
+      if (err instanceof AppError) throw err;
+      throw new AppError(
+        `Gemini report generation failed: ${err.message || 'Unknown provider error'}`,
         502,
       );
     }
