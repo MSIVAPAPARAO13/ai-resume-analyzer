@@ -3,6 +3,7 @@
 ## Executive Summary
 
 Phase 6 introduces two interconnected pillars to Resumind:
+
 1. **Application CRM**: An end-to-end job application lifecycle management system featuring Kanban status boards, chronological audit event timelines, resume version linking, follow-up scheduling, and descriptive CRM analytics.
 2. **GitHub Career Evidence**: A secure, provider-abstracted integration connecting GitHub developer activity directly into the Career Twin and Evidence Guard without exposing tokens or automatically overwriting verified claims.
 
@@ -88,18 +89,22 @@ model ApplicationEvent {
 ```
 
 ### 1.2 Status Lifecycle & Audit Timeline
+
 - **Explicit Transitions**: Supported statuses follow `SAVED` $\to$ `APPLIED` $\to$ `ASSESSMENT` $\to$ `INTERVIEW` $\to$ `OFFER` / `REJECTED` / `WITHDRAWN`.
 - **Automatic Event Recording**: When an application is created or its status changed via `PATCH /api/v1/applications/:id/status`, a corresponding `ApplicationEvent` is automatically appended to ensure audit integrity.
 - **Custom Event Logging**: Users can log milestones and meeting notes (`NOTE`, `INTERVIEW`, `ASSESSMENT`, `FOLLOW_UP`) directly to the timeline via `POST /api/v1/applications/:id/events`.
 - **Follow-up Reminders**: Explicit date selection (`followUpAt`) highlighted prominently in both the Kanban cards and application detail hero view.
 
 ### 1.3 Historical Resume Version & Tailoring Linkage
+
 - Preserves the exact `resumeVersionId` submitted with each application.
 - If generated through an AI Tailoring session, optionally references `tailoringSessionId`.
 - Eliminates ambiguity over which resume snapshot was shared with prospective employers.
 
 ### 1.4 Descriptive Application Analytics
+
 Computes transparent CRM funnel metrics via `GET /api/v1/applications/analytics`:
+
 - **Total Applications** and per-stage breakdown.
 - **Application $\to$ Interview Rate**: $\frac{\text{Interviews}}{\text{Applications}} \times 100\%$.
 - **Offer Rate**: $\frac{\text{Offers}}{\text{Applications}} \times 100\%$.
@@ -113,12 +118,15 @@ Computes transparent CRM funnel metrics via `GET /api/v1/applications/analytics`
 ### 2.1 Provider Abstraction & Security
 
 Resumind implements an extensible provider interface (`apps/api/src/modules/github/github.interface.ts`):
+
 - `GitHubProvider` handles real GitHub REST API v3 operations.
 - `MockGitHubProvider` provides offline, deterministic testing with mock repositories, language distributions, and README metadata.
 - **Fine-grained User Authorization**: Follows standard OAuth 2.0 Web Flow with signed HMAC SHA-256 state parameters to prevent CSRF attacks.
 
 ### 2.2 Token Protection & AES-256-GCM Encryption
+
 To prevent token leakage:
+
 - Tokens are encrypted server-side using **AES-256-GCM** authenticated encryption (`iv:authTag:ciphertext`).
 - Stored securely in `github_connections` table.
 - **Zero Frontend Leakage**: Access tokens, refresh tokens, and encryption keys are strictly omitted from API responses, serialized state, and application logs.
@@ -144,12 +152,15 @@ model GitHubConnection {
 ```
 
 ### 2.3 Evidence Guard Integration & Distinction
+
 GitHub metadata is isolated as an **`EXTERNAL_SOURCE`** until explicitly reviewed and approved by the user:
+
 - `Source: GitHub` $\longrightarrow$ `EXTERNAL_SOURCE` (requires user verification before claiming).
 - `Source: Career Twin` $\longrightarrow$ `VERIFIED_USER_DATA`.
 - Prevents unvetted README claims from silently altering resume tailoring suggestions or match qualifications.
 
 ### 2.4 User-Approved Career Twin Import Flow
+
 1. User reviews repository metadata, detected languages, and extracted technologies.
 2. User can edit the project title, description, and technologies inside a review modal.
 3. Upon confirmation, a verified `Project` record is persisted to the user's `CareerProfile`.
@@ -159,31 +170,33 @@ GitHub metadata is isolated as an **`EXTERNAL_SOURCE`** until explicitly reviewe
 ## 3. API Endpoints
 
 ### 3.1 Application CRM (`/api/v1/applications`)
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/v1/applications` | Create application (from job, Adzuna, or manual) |
-| `GET` | `/api/v1/applications` | List user applications with filters & search |
-| `GET` | `/api/v1/applications/analytics` | Retrieve CRM funnel metrics & version usage |
-| `GET` | `/api/v1/applications/:id` | Get application details, job, resume, and timeline |
-| `PUT` | `/api/v1/applications/:id` | Update application details & notes |
-| `PATCH` | `/api/v1/applications/:id/status` | Update status & record automatic timeline event |
-| `DELETE` | `/api/v1/applications/:id` | Delete application & cascade events |
-| `GET` | `/api/v1/applications/:id/events` | List chronological timeline events |
-| `POST` | `/api/v1/applications/:id/events` | Add manual event or milestone |
+
+| Method   | Endpoint                          | Description                                        |
+| -------- | --------------------------------- | -------------------------------------------------- |
+| `POST`   | `/api/v1/applications`            | Create application (from job, Adzuna, or manual)   |
+| `GET`    | `/api/v1/applications`            | List user applications with filters & search       |
+| `GET`    | `/api/v1/applications/analytics`  | Retrieve CRM funnel metrics & version usage        |
+| `GET`    | `/api/v1/applications/:id`        | Get application details, job, resume, and timeline |
+| `PUT`    | `/api/v1/applications/:id`        | Update application details & notes                 |
+| `PATCH`  | `/api/v1/applications/:id/status` | Update status & record automatic timeline event    |
+| `DELETE` | `/api/v1/applications/:id`        | Delete application & cascade events                |
+| `GET`    | `/api/v1/applications/:id/events` | List chronological timeline events                 |
+| `POST`   | `/api/v1/applications/:id/events` | Add manual event or milestone                      |
 
 ### 3.2 GitHub Integration (`/api/v1/github`)
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/v1/github/connect` | Generate GitHub authorization URL with signed HMAC state |
-| `GET` | `/api/v1/github/callback` | Exchange OAuth code, encrypt token, & sync metadata |
-| `POST` | `/api/v1/github/disconnect` | Disconnect GitHub account and purge stored tokens |
-| `GET` | `/api/v1/github/me` | Check connection status, username, & repository count |
-| `GET` | `/api/v1/github/repositories` | List synced repositories with filtering & pagination |
-| `POST` | `/api/v1/github/repositories/sync`| Manually refresh repository cache from GitHub API |
-| `GET` | `/api/v1/github/repositories/:id` | Get repository details |
-| `GET` | `/api/v1/github/repositories/:id/languages` | Get language byte distribution |
-| `GET` | `/api/v1/github/repositories/:id/readme` | Fetch sanitized README & detected technologies |
-| `POST` | `/api/v1/github/repositories/:id/import` | User-approved project import into Career Twin |
+
+| Method | Endpoint                                    | Description                                              |
+| ------ | ------------------------------------------- | -------------------------------------------------------- |
+| `GET`  | `/api/v1/github/connect`                    | Generate GitHub authorization URL with signed HMAC state |
+| `GET`  | `/api/v1/github/callback`                   | Exchange OAuth code, encrypt token, & sync metadata      |
+| `POST` | `/api/v1/github/disconnect`                 | Disconnect GitHub account and purge stored tokens        |
+| `GET`  | `/api/v1/github/me`                         | Check connection status, username, & repository count    |
+| `GET`  | `/api/v1/github/repositories`               | List synced repositories with filtering & pagination     |
+| `POST` | `/api/v1/github/repositories/sync`          | Manually refresh repository cache from GitHub API        |
+| `GET`  | `/api/v1/github/repositories/:id`           | Get repository details                                   |
+| `GET`  | `/api/v1/github/repositories/:id/languages` | Get language byte distribution                           |
+| `GET`  | `/api/v1/github/repositories/:id/readme`    | Fetch sanitized README & detected technologies           |
+| `POST` | `/api/v1/github/repositories/:id/import`    | User-approved project import into Career Twin            |
 
 ---
 
@@ -204,6 +217,7 @@ GITHUB_ENCRYPTION_KEY=32_character_hex_encryption_key_here
 ## 5. Verification & Test Results
 
 ### 5.1 Test Suites Summary
+
 - **Backend Integration Tests**:
   - `phase6-crm-github.test.ts`: **23/23 tests PASSED**.
   - All test files across API: **8 passed, 127 tests passed, 0 failures**.
@@ -223,6 +237,7 @@ GITHUB_ENCRYPTION_KEY=32_character_hex_encryption_key_here
 ## 6. Strict Phase Boundary & Out of Scope for Phase 6
 
 As mandated:
+
 - **No Google Calendar or Email Notifications**: Reminders are strictly date-based storage.
 - **No Interview Scheduling**: Scheduled for Phase 7 (Interview Intelligence & Interview Preparation).
 - **No Additional AI / Job Providers**: Gemini, MockAI, and Adzuna are preserved.

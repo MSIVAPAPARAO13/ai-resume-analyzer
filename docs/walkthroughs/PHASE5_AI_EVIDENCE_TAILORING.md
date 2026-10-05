@@ -2,7 +2,7 @@
 
 **Canonical Repository**: [https://github.com/MSIVAPAPARAO13/ai-resume-analyzer](https://github.com/MSIVAPAPARAO13/ai-resume-analyzer)  
 **Branch**: `feature/phase-5-ai-evidence-tailoring`  
-**Status**: Verified Complete  
+**Status**: Verified Complete
 
 ---
 
@@ -11,6 +11,7 @@
 Phase 5 introduces grounded AI intelligence and live job discovery into Resumind while strictly upholding anti-hallucination and security guarantees.
 
 Four interconnected capabilities have been engineered and verified:
+
 1. **Gemini AI Provider**: Official modern Google GenAI SDK (`@google/genai`) integration with structured JSON output and schema validation, preserving `MockAIProvider` for deterministic testing.
 2. **Evidence Guard**: An anti-hallucination audit gate that cross-references AI suggestions against candidate Career Twin and resume evidence, classifying claims into `VERIFIED`, `NEEDS_REVIEW`, and `UNSUPPORTED`.
 3. **AI Resume Tailoring Studio**: Job-specific resume tailoring with transparent diffs, per-suggestion Accept/Reject controls, and version creation preserving original baselines.
@@ -56,6 +57,7 @@ RUN_EXTERNAL_PROVIDER_TESTS=false
 ```
 
 ### 2.2 Security Guarantees & Audit
+
 - **Zero Frontend Leakage**: Neither `GEMINI_API_KEY` nor `ADZUNA_APP_ID`/`ADZUNA_APP_KEY` are prefixed with `VITE_` or exposed to the client bundle.
 - **Git Ignore**: Verified that `.env`, `.env.*`, `**/.env`, and `uploads/` are completely excluded by `.gitignore`.
 - **Zero Raw Provider Responses**: All responses from Gemini and Adzuna pass through normalization filters before returning to the frontend.
@@ -84,6 +86,7 @@ export interface AIProvider {
 ```
 
 ### 3.2 Provider Implementations
+
 - **`MockAIProvider`** (`apps/api/src/modules/resume/ai/mock-ai.provider.ts`):
   - Deterministic provider used for continuous integration, Playwright, and offline test environments.
   - Matches candidate skills and experience against Job DNA to produce structured suggestions without network calls.
@@ -100,30 +103,34 @@ export interface AIProvider {
 ## 4. Evidence Guard & Anti-Hallucination Gate
 
 ### 4.1 Anti-Hallucination Rules
+
 Gemini and AI suggestions are **strictly forbidden** from inventing:
+
 - Employers or educational institutions.
 - Job titles or degrees.
 - Technologies, frameworks, or libraries absent from candidate evidence.
-- Metrics, percentages, revenue figures, or latency reductions (e.g. transforming *"Improved API performance"* into *"Improved API performance by 40%"* without user-supplied metrics is flagged as `UNSUPPORTED`).
+- Metrics, percentages, revenue figures, or latency reductions (e.g. transforming _"Improved API performance"_ into _"Improved API performance by 40%"_ without user-supplied metrics is flagged as `UNSUPPORTED`).
 
 ### 4.2 Evidence Guard Classification (`EvidenceGuardService`)
 
 Located in `apps/api/src/modules/resume/tailoring/evidence-guard.service.ts`:
 
-| Classification | Meaning | UI Presentation |
-| :--- | :--- | :--- |
-| **`VERIFIED`** | Explicitly supported by Career Twin projects, skills, or resume bullets. | Green badge with verified shield icon. |
-| **`NEEDS_REVIEW`** | Stylistic rephrasing or general claim requiring user confirmation. | Amber badge with review alert icon. |
-| **`UNSUPPORTED`** | Contains ungrounded metrics or unverified technologies. | Red badge with neutral, non-accusatory guidance. |
+| Classification     | Meaning                                                                  | UI Presentation                                  |
+| :----------------- | :----------------------------------------------------------------------- | :----------------------------------------------- |
+| **`VERIFIED`**     | Explicitly supported by Career Twin projects, skills, or resume bullets. | Green badge with verified shield icon.           |
+| **`NEEDS_REVIEW`** | Stylistic rephrasing or general claim requiring user confirmation.       | Amber badge with review alert icon.              |
+| **`UNSUPPORTED`**  | Contains ungrounded metrics or unverified technologies.                  | Red badge with neutral, non-accusatory guidance. |
 
 **Neutral Guidance Phrasing**:
-> *"This suggestion could not be verified from your Career Twin or resume evidence. Add supporting experience if it is accurate."*
+
+> _"This suggestion could not be verified from your Career Twin or resume evidence. Add supporting experience if it is accurate."_
 
 ---
 
 ## 5. Resume Tailoring Workflow & Versioning
 
 ### 5.1 Tailoring Lifecycle
+
 1. **Initiate Session**: `POST /api/v1/resumes/:resumeId/tailor/:jobId`
    - Checks ownership of Resume and Job.
    - Extracts Job DNA and Candidate Career Twin.
@@ -141,6 +148,7 @@ Located in `apps/api/src/modules/resume/tailoring/evidence-guard.service.ts`:
    - Original baseline version remains untouched.
 
 ### 5.2 Database Models Added (`apps/api/prisma/schema.prisma`)
+
 - `ResumeTailoringSession`: Tracks `userId`, `resumeVersionId`, `jobId`, `status` (`GENERATED`, `REVIEWING`, `APPROVED`, `COMPLETED`, `CANCELLED`).
 - `ResumeTailoringSuggestion`: Tracks `type`, `originalText`, `proposedText`, `reason`, `evidenceReferences`, `guardStatus`, `status` (`PENDING`, `ACCEPTED`, `REJECTED`).
 - `AIUsage`: Tracks `userId`, `provider`, `operation`, `model`, `requestCount`, and timestamp for cost control and quota monitoring.
@@ -150,12 +158,15 @@ Located in `apps/api/src/modules/resume/tailoring/evidence-guard.service.ts`:
 ## 6. Adzuna Job Discovery & Import
 
 ### 6.1 Provider Hierarchy (`apps/api/src/modules/job/providers/`)
+
 - `JobProvider`: Common interface defining job ingestion.
 - `ManualJobProvider`: Manual JD input (Phase 4).
 - `AdzunaProvider`: Real-time market job search and normalization (Phase 5).
 
 ### 6.2 Response Normalization
+
 Adzuna API responses are stripped of raw parameters and normalized into `JobSearchResult`:
+
 ```ts
 export interface JobSearchResult {
   id: string; // e.g. "adzuna-123456"
@@ -171,6 +182,7 @@ export interface JobSearchResult {
 ```
 
 ### 6.3 One-Click Import
+
 - Endpoint: `POST /api/v1/job-search/import`
 - Creates a `Job` record in Resumind with `source: 'ADZUNA'`.
 - Automatically triggers Job DNA analysis for instant resume matching.
@@ -189,38 +201,39 @@ export interface JobSearchResult {
 
 ## 8. API Reference
 
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :---: |
-| `POST` | `/api/v1/resumes/:resumeId/tailor/:jobId` | Generate or resume AI tailoring session | Yes |
-| `GET` | `/api/v1/tailoring/:sessionId` | Get tailoring session and suggestions | Yes |
-| `POST` | `/api/v1/tailoring/:sessionId/suggestions/:id/accept` | Accept a tailoring suggestion | Yes |
-| `POST` | `/api/v1/tailoring/:sessionId/suggestions/:id/reject` | Reject a tailoring suggestion | Yes |
-| `POST` | `/api/v1/tailoring/:sessionId/complete` | Apply accepted changes and create new resume version | Yes |
-| `GET` | `/api/v1/job-search` | Search real-time jobs via Adzuna | Yes |
-| `POST` | `/api/v1/job-search/import` | Import Adzuna job into Resumind | Yes |
-| `GET` | `/api/v1/job-search/salary-estimate` | Retrieve salary estimate for role/location | Yes |
+| Method | Endpoint                                              | Description                                          | Auth Required |
+| :----- | :---------------------------------------------------- | :--------------------------------------------------- | :-----------: |
+| `POST` | `/api/v1/resumes/:resumeId/tailor/:jobId`             | Generate or resume AI tailoring session              |      Yes      |
+| `GET`  | `/api/v1/tailoring/:sessionId`                        | Get tailoring session and suggestions                |      Yes      |
+| `POST` | `/api/v1/tailoring/:sessionId/suggestions/:id/accept` | Accept a tailoring suggestion                        |      Yes      |
+| `POST` | `/api/v1/tailoring/:sessionId/suggestions/:id/reject` | Reject a tailoring suggestion                        |      Yes      |
+| `POST` | `/api/v1/tailoring/:sessionId/complete`               | Apply accepted changes and create new resume version |      Yes      |
+| `GET`  | `/api/v1/job-search`                                  | Search real-time jobs via Adzuna                     |      Yes      |
+| `POST` | `/api/v1/job-search/import`                           | Import Adzuna job into Resumind                      |      Yes      |
+| `GET`  | `/api/v1/job-search/salary-estimate`                  | Retrieve salary estimate for role/location           |      Yes      |
 
 ---
 
 ## 9. Verification & Quality Assurance Results
 
-| Check | Tool | Result |
-| :--- | :--- | :--- |
-| **Backend TypeScript Check** | `npm run typecheck --workspace=@resumind/api` | ✅ 0 errors |
-| **Frontend TypeScript Check** | `npm run typecheck --workspace=@resumind/web` | ✅ 0 errors |
-| **ESLint** | `npm run lint` | ✅ 0 errors, 0 warnings |
-| **Code Formatting** | `npm run format:check` | ✅ 100% formatted |
-| **Unit Tests** | `vitest run tests/unit` | ✅ 20/20 passed |
-| **Phase 5 Integration Tests** | `vitest run tests/integration/phase5-tailoring-adzuna.test.ts` | ✅ 17/17 passed |
-| **Client & SSR Build** | `npm run build --workspace=@resumind/web` | ✅ Built in 37s |
-| **API Server Build** | `npm run build --workspace=@resumind/api` | ✅ Built in 3s |
-| **Prisma Schema Validation** | `npx prisma validate` | ✅ Valid |
+| Check                         | Tool                                                           | Result                  |
+| :---------------------------- | :------------------------------------------------------------- | :---------------------- |
+| **Backend TypeScript Check**  | `npm run typecheck --workspace=@resumind/api`                  | ✅ 0 errors             |
+| **Frontend TypeScript Check** | `npm run typecheck --workspace=@resumind/web`                  | ✅ 0 errors             |
+| **ESLint**                    | `npm run lint`                                                 | ✅ 0 errors, 0 warnings |
+| **Code Formatting**           | `npm run format:check`                                         | ✅ 100% formatted       |
+| **Unit Tests**                | `vitest run tests/unit`                                        | ✅ 20/20 passed         |
+| **Phase 5 Integration Tests** | `vitest run tests/integration/phase5-tailoring-adzuna.test.ts` | ✅ 17/17 passed         |
+| **Client & SSR Build**        | `npm run build --workspace=@resumind/web`                      | ✅ Built in 37s         |
+| **API Server Build**          | `npm run build --workspace=@resumind/api`                      | ✅ Built in 3s          |
+| **Prisma Schema Validation**  | `npx prisma validate`                                          | ✅ Valid                |
 
 ---
 
 ## 10. Scope Boundaries
 
 The following features were intentionally excluded per Phase 5 boundaries:
+
 - Application CRM / Kanban job pipeline
 - Interview scheduling & Google Calendar sync
 - Email notifications & Resend integration
