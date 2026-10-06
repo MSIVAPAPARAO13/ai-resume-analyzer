@@ -22,8 +22,33 @@ interface Resume {
 /* ================= META ================= */
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Home | Resume Analyzer' },
-    { name: 'description', content: 'Track resumes and ATS scores' },
+    { title: 'Resumind — AI Career Intelligence & Resume Analyzer' },
+    {
+      name: 'description',
+      content:
+        'Transform your career with AI resume tailoring, job matching, interview preparation, and skill gap tracking.',
+    },
+    { name: 'robots', content: 'index, follow' },
+    {
+      property: 'og:title',
+      content: 'Resumind — AI Career Intelligence & Resume Analyzer',
+    },
+    {
+      property: 'og:description',
+      content:
+        'Transform your career with AI resume tailoring, job matching, interview preparation, and skill gap tracking.',
+    },
+    { property: 'og:type', content: 'website' },
+    { name: 'twitter:card', content: 'summary' },
+    {
+      name: 'twitter:title',
+      content: 'Resumind — AI Career Intelligence & Resume Analyzer',
+    },
+    {
+      name: 'twitter:description',
+      content:
+        'Transform your career with AI resume tailoring, job matching, interview preparation, and skill gap tracking.',
+    },
   ];
 }
 

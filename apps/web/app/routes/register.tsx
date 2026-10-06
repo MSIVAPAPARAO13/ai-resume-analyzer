@@ -2,6 +2,25 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 
+export function meta() {
+  return [
+    { title: 'Create Account | Resumind' },
+    {
+      name: 'description',
+      content:
+        'Create your Resumind account to analyze resumes and accelerate your career.',
+    },
+    { name: 'robots', content: 'index, follow' },
+    { property: 'og:title', content: 'Create Account | Resumind' },
+    {
+      property: 'og:description',
+      content:
+        'Create your Resumind account to analyze resumes and accelerate your career.',
+    },
+    { property: 'og:type', content: 'website' },
+  ];
+}
+
 export default function RegisterPage() {
   const { register, user, loading, initialized } = useAuthStore();
   const navigate = useNavigate();

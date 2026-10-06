@@ -39,8 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const restore = useAuthStore((s) => s.restore);
 
   useEffect(() => {
-    console.log('🔥 INIT PUTER');
-    init(); // ✅ REQUIRED
+    init(); // ✅ REQUIRED — initializes Puter session
   }, [init]);
 
   useEffect(() => {
@@ -53,6 +52,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Robots: all pages default; individual routes override via meta() */}
+        <meta name="robots" content="noindex, nofollow" />
         <Meta />
         <Links />
 
@@ -83,31 +84,93 @@ export default function App() {
 /* ================= ERROR ================= */
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = 'Oops!';
-  let details = 'An unexpected error occurred.';
+  let message = 'Something went wrong';
+  let details = 'An unexpected error occurred. Please try again.';
+  let _statusCode = 500;
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? '404' : 'Error';
-    details =
-      error.status === 404
-        ? 'The requested page could not be found.'
-        : error.statusText || details;
+    _statusCode = error.status;
+    if (error.status === 404) {
+      message = '404 — Page not found';
+      details = 'The page you are looking for does not exist.';
+    } else {
+      message = `Error ${error.status}`;
+      details = error.statusText || details;
+    }
   } else if (import.meta.env.DEV && error instanceof Error) {
+    message = 'Unexpected error';
     details = error.message;
     stack = error.stack;
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1 className="text-2xl font-bold">{message}</h1>
-      <p>{details}</p>
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{message} | Resumind</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          crossOrigin="anonymous"
+        />
+      </head>
+      <body className="bg-dark text-white">
+        <div className="min-vh-100 d-flex align-items-center justify-content-center">
+          <div className="text-center p-4" style={{ maxWidth: 500 }}>
+            <div className="mb-4">
+              <div
+                className="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 mb-3"
+                style={{ width: 72, height: 72 }}
+                role="img"
+                aria-label="Error icon"
+              >
+                <svg
+                  width="36"
+                  height="36"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                    stroke="#dc3545"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <h1 className="h4 fw-bold text-white mb-2">{message}</h1>
+              <p className="text-secondary mb-4">{details}</p>
+            </div>
 
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto bg-gray-100 mt-4">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+            {stack && import.meta.env.DEV && (
+              <pre
+                className="text-start p-3 rounded bg-dark border border-secondary text-danger small overflow-auto mb-4"
+                style={{ maxHeight: 200 }}
+              >
+                {stack}
+              </pre>
+            )}
+
+            <div className="d-flex gap-2 justify-content-center">
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => window.location.reload()}
+              >
+                Try Again
+              </button>
+              <a href="/dashboard" className="btn btn-primary btn-sm">
+                Go to Dashboard
+              </a>
+            </div>
+          </div>
+        </div>
+      </body>
+    </html>
   );
 }

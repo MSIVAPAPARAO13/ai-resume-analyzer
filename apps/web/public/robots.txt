@@ -1,0 +1,29 @@
+# Resumind Robots.txt
+# Allows public marketing pages; disallows private application routes.
+
+User-agent: *
+
+# Allow public pages
+Allow: /$
+Allow: /login$
+Allow: /register$
+
+# Disallow all authenticated application routes
+Disallow: /dashboard
+Disallow: /career
+Disallow: /resumes
+Disallow: /jobs
+Disallow: /applications
+Disallow: /interviews
+Disallow: /analytics
+Disallow: /learning
+Disallow: /integrations
+Disallow: /github
+Disallow: /upload
+Disallow: /resume/
+Disallow: /edit/
+Disallow: /wipe
+Disallow: /auth
+
+# Sitemap location
+Sitemap: https://resumind.app/sitemap.xml
