@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 import { learningApi } from '../lib/api.js';
+import AppNavbar from '../components/AppNavbar.js';
 
 export default function LearningPlansPage() {
   const { user, initialized } = useAuthStore();
@@ -51,27 +52,30 @@ export default function LearningPlansPage() {
 
   return (
     <div className="min-vh-100 bg-dark text-white pb-5">
-      <nav className="navbar navbar-dark bg-dark border-bottom border-secondary px-4 sticky-top">
-        <div className="d-flex align-items-center gap-3">
-          <Link to="/analytics" className="btn btn-outline-secondary btn-sm">
-            ← Analytics
-          </Link>
-          <span className="navbar-brand fw-bold text-success mb-0">
-            🎯 Evidence-Building Learning Plans
-          </span>
-        </div>
-        <div className="d-flex align-items-center gap-2">
-          <Link
-            to="/learning/new"
-            className="btn btn-success btn-sm fw-semibold"
-            id="new-learning-plan-btn"
-          >
-            + New Learning Plan
-          </Link>
-        </div>
-      </nav>
+      <AppNavbar />
 
       <div className="container py-4">
+        {/* Header & Action */}
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <div>
+            <h1 className="h3 fw-bold mb-1">
+              Evidence-Building Learning Plans
+            </h1>
+            <p className="text-secondary small mb-0">
+              Transform skill gaps into structured learning goals with
+              actionable tasks and verifiable artifacts.
+            </p>
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <Link
+              to="/learning/new"
+              className="btn btn-success btn-sm fw-semibold"
+              id="new-learning-plan-btn"
+            >
+              + New Learning Plan
+            </Link>
+          </div>
+        </div>
         {error && (
           <div className="alert alert-danger" role="alert">
             {error}
