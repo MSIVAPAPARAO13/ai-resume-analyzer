@@ -98,13 +98,36 @@ export class GitHubProvider implements IGitHubProvider {
       ? endpoint
       : `https://api.github.com${endpoint}`;
 
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: 'application/vnd.github+json',
-        'User-Agent': 'Resumind-App',
-      },
-    });
+    // 10-second timeout to prevent hangs on GitHub outages
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000);
+
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/vnd.github+json',
+          'User-Agent': 'Resumind-App',
+        },
+        signal: controller.signal,
+      });
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        throw new AppError(
+          'GitHub API request timed out',
+          504,
+          'GITHUB_TIMEOUT',
+        );
+      }
+      throw new AppError(
+        `GitHub API request failed: ${err.message || 'Network error'}`,
+        502,
+        'GITHUB_NETWORK_ERROR',
+      );
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     const rateLimitRemaining = res.headers.get('x-ratelimit-remaining');
     const rateLimitReset = res.headers.get('x-ratelimit-reset');

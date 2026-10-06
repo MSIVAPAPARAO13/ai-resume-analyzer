@@ -27,39 +27,121 @@ import { logger } from './utils/logger.js';
 export function createApp(): express.Application {
   const app = express();
 
-  // Security Headers
-  app.use(helmet());
+  // ─── Security Headers ────────────────────────────────────────────────────────
+  // Hardened Helmet configuration with CSP compatible with Bootstrap + Vite
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: [
+            "'self'",
+            "'unsafe-inline'", // Required for Bootstrap inline scripts & React
+            'https://cdn.jsdelivr.net',
+            'https://js.puter.com',
+            'https://fonts.googleapis.com',
+          ],
+          styleSrc: [
+            "'self'",
+            "'unsafe-inline'", // Required for Bootstrap inline styles
+            'https://fonts.googleapis.com',
+            'https://cdn.jsdelivr.net',
+          ],
+          fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+          imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
+          connectSrc: [
+            "'self'",
+            env.FRONTEND_URL,
+            env.CORS_ORIGIN,
+            'https://fonts.googleapis.com',
+          ],
+          frameSrc: ["'none'"],
+          objectSrc: ["'none'"],
+          upgradeInsecureRequests: env.NODE_ENV === 'production' ? [] : null,
+        },
+      },
+      // X-Frame-Options: DENY — prevent clickjacking
+      frameguard: { action: 'deny' },
+      // X-Content-Type-Options: nosniff
+      noSniff: true,
+      // Referrer-Policy: strict-origin-when-cross-origin
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      // HSTS — only add in production (HTTPS); during dev it breaks localhost
+      strictTransportSecurity:
+        env.NODE_ENV === 'production'
+          ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+          : false,
+      // Permissions-Policy to restrict dangerous browser features
+      permittedCrossDomainPolicies: { permittedPolicies: 'none' },
+      crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' }, // Allow OAuth popups
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
 
-  // CORS Configuration
+  // Permissions-Policy header (not directly in Helmet 8 — add manually)
+  app.use((_req, res, next) => {
+    res.setHeader(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+    );
+    next();
+  });
+
+  // ─── CORS ────────────────────────────────────────────────────────────────────
+  // Production MUST use explicit origin, not '*'.
+  // In dev/test we allow the configured CORS_ORIGIN or localhost fallback.
+  const allowedOrigins = env.CORS_ORIGIN
+    ? env.CORS_ORIGIN.split(',').map((o) => o.trim())
+    : ['http://localhost:5173'];
+
   app.use(
     cors({
-      origin: env.CORS_ORIGIN || '*',
+      origin: (origin, callback) => {
+        // Allow server-to-server (no origin) requests only in non-production
+        if (!origin) {
+          if (env.NODE_ENV !== 'production') return callback(null, true);
+          return callback(new Error('Origin required in production'), false);
+        }
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        return callback(new Error(`CORS: Origin ${origin} not allowed`), false);
+      },
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
       credentials: true,
     }),
   );
 
-  // Request Correlation ID
+  // ─── Request Correlation ID ──────────────────────────────────────────────────
   app.use(requestIdMiddleware);
 
-  // Structured Request Logging (skip in test mode to keep test output clean)
+  // ─── Structured Request Logging ─────────────────────────────────────────────
+  // Skip in test mode to keep output clean
   if (env.NODE_ENV !== 'test') {
     app.use(
       pinoHttp({
         logger,
         genReqId: (req) => (req.headers['x-request-id'] as string) || req.id,
+        // Redact sensitive fields from logs
+        redact: [
+          'req.headers.authorization',
+          'req.body.password',
+          'req.body.refreshToken',
+        ],
       }),
     );
   }
 
-  // Body Parsing
+  // ─── Body Parsing ────────────────────────────────────────────────────────────
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // Rate Limiting for auth endpoints (skipped in test mode)
+  // ─── Rate Limiting ───────────────────────────────────────────────────────────
+
+  // Auth endpoints: strict 20 req / 15 min
   const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000,
     max: 20,
     standardHeaders: true,
     legacyHeaders: false,
@@ -73,7 +155,7 @@ export function createApp(): express.Application {
     },
   });
 
-  // Rate Limiting for search & external requests (skipped in test mode)
+  // Job search & external requests: 60 req / 15 min
   const jobSearchLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 60,
@@ -89,7 +171,26 @@ export function createApp(): express.Application {
     },
   });
 
-  // API v1 Routes
+  // General API: 300 req / 15 min (generous for normal use)
+  const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: () => env.NODE_ENV === 'test',
+    message: {
+      success: false,
+      error: {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: 'Too many requests, please slow down',
+      },
+    },
+  });
+
+  // Apply general rate limit to all API routes
+  app.use('/api/v1', generalLimiter);
+
+  // ─── API v1 Routes ───────────────────────────────────────────────────────────
   app.use('/api/v1', healthRouter);
   app.use('/api/v1/auth', authLimiter, authRouter);
   app.use('/api/v1/calendar', calendarRouter);
@@ -104,10 +205,8 @@ export function createApp(): express.Application {
   app.use('/api/v1', careerRouter);
   app.use('/api/v1', resumeRouter);
 
-  // 404 Handler
+  // ─── Error Handlers ──────────────────────────────────────────────────────────
   app.use(notFoundHandler);
-
-  // Centralized Error Handler
   app.use(errorHandler);
 
   return app;

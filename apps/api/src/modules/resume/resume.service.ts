@@ -5,6 +5,10 @@ import { scoringEngine } from './scoring/scoring.engine.js';
 import { comparisonEngine } from './scoring/comparison.engine.js';
 import { aiProvider } from './ai/mock-ai.provider.js';
 import type { ParsedResumeData } from './parser/section.parser.js';
+import {
+  validateFileSignature,
+  sanitizeFilename,
+} from '../../middleware/file-validation.js';
 
 export class ResumeService {
   /**
@@ -90,7 +94,7 @@ export class ResumeService {
     },
     customTitle?: string,
   ) {
-    // 1. Validate file format
+    // 1. Validate file format (extension + MIME)
     const lowerName = file.originalname.toLowerCase();
     const isPdf =
       file.mimetype === 'application/pdf' || lowerName.endsWith('.pdf');
@@ -104,20 +108,26 @@ export class ResumeService {
       throw new Error('INVALID_FILE_TYPE');
     }
 
+    // 1b. Magic-byte (file signature) validation — do not trust MIME/extension alone
+    validateFileSignature(file.buffer, file.mimetype, file.originalname);
+
+    // 1c. Sanitize the original filename to prevent path traversal
+    const safeOriginalName = sanitizeFilename(file.originalname);
+
     // 2. Validate file size (max 10MB)
     const MAX_SIZE = 10 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
       throw new Error('FILE_TOO_LARGE');
     }
 
-    // 3. Store file securely
+    // 3. Store file securely (using sanitized filename)
     const { storageKey, size } = await storageProvider.upload(
       file.buffer,
-      file.originalname,
+      safeOriginalName,
       file.mimetype,
     );
 
-    const title = customTitle || file.originalname.replace(/\.[^/.]+$/, '');
+    const title = customTitle || safeOriginalName.replace(/\.[^/.]+$/, '');
 
     // 4. Create initial Resume record
     const resume = await (prisma as any).resume.create({

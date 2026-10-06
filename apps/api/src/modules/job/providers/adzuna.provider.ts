@@ -64,11 +64,21 @@ export class AdzunaProvider implements JobProvider {
     if (query.permanent) url.searchParams.set('permanent', '1');
 
     try {
-      const response = await fetch(url.toString(), {
-        headers: {
-          Accept: 'application/json',
-        },
-      });
+      // 15-second timeout to prevent Adzuna outages from hanging the API
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+      let response: Response;
+      try {
+        response = await fetch(url.toString(), {
+          headers: {
+            Accept: 'application/json',
+          },
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
@@ -107,6 +117,12 @@ export class AdzunaProvider implements JobProvider {
       };
     } catch (err: any) {
       if (err instanceof AppError) throw err;
+      if (err.name === 'AbortError') {
+        throw new AppError(
+          'Adzuna API request timed out. Please try again.',
+          504,
+        );
+      }
       throw new AppError(
         `Adzuna search failed: ${err.message || 'Network error'}`,
         502,

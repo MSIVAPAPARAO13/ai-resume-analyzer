@@ -61,13 +61,31 @@ export class GoogleCalendarProvider implements ICalendarProvider {
       grant_type: 'authorization_code',
     });
 
-    const response = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: params.toString(),
-    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+
+    let response: Response;
+    try {
+      response = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString(),
+        signal: controller.signal,
+      });
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        throw new AppError(
+          'Google OAuth token request timed out after 10s',
+          504,
+          'GATEWAY_TIMEOUT',
+        );
+      }
+      throw err;
+    } finally {
+      clearTimeout(timer);
+    }
 
     if (!response.ok) {
       const errText = await response.text();
@@ -104,17 +122,35 @@ export class GoogleCalendarProvider implements ICalendarProvider {
       attendees: event.attendees?.map((email) => ({ email })),
     };
 
-    const response = await fetch(
-      'https://www.googleapis.com/calendar/v3/calendars/primary/events',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+
+    let response: Response;
+    try {
+      response = await fetch(
+        'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+          signal: controller.signal,
         },
-        body: JSON.stringify(body),
-      },
-    );
+      );
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        throw new AppError(
+          'Google Calendar event creation timed out after 10s',
+          504,
+          'GATEWAY_TIMEOUT',
+        );
+      }
+      throw err;
+    } finally {
+      clearTimeout(timer);
+    }
 
     if (!response.ok) {
       const errText = await response.text();
@@ -136,15 +172,22 @@ export class GoogleCalendarProvider implements ICalendarProvider {
 
   async revokeToken(token: string): Promise<void> {
     try {
-      await fetch(
-        `https://oauth2.googleapis.com/revoke?token=${encodeURIComponent(token)}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 5000);
+      try {
+        await fetch(
+          `https://oauth2.googleapis.com/revoke?token=${encodeURIComponent(token)}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            signal: controller.signal,
           },
-        },
-      );
+        );
+      } finally {
+        clearTimeout(timer);
+      }
     } catch {
       // Safe ignore revocation errors
     }

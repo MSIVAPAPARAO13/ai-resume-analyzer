@@ -9,6 +9,7 @@ import { ManualJobProvider } from './providers/manual-job.provider.js';
 import { DeterministicJobDescriptionParser } from './parser/job-description.parser.js';
 import { ResumeJobMatchingEngine } from './matching/resume-job-matching.engine.js';
 import { CareerTwinContext } from './matching/matching.interface.js';
+import { assertSafeUrl } from '../../middleware/ssrf-guard.js';
 
 export class JobService {
   private manualProvider = new ManualJobProvider();
@@ -18,6 +19,11 @@ export class JobService {
   // ─── 1. Job CRUD ─────────────────────────────────────────────────────────────
 
   async createJob(userId: string, input: CreateJobInput) {
+    // SSRF guard: validate sourceUrl if provided
+    if (input.sourceUrl && input.sourceUrl.trim()) {
+      assertSafeUrl(input.sourceUrl, 'Job source URL');
+    }
+
     const rawPayload = await this.manualProvider.fetchJob(input);
 
     const job = await prisma.job.create({
@@ -95,10 +101,21 @@ export class JobService {
     return { job: reloaded, alreadyImported: false };
   }
 
-  async listJobs(userId: string) {
+  async listJobs(
+    userId: string,
+    options?: { page?: number; pageSize?: number },
+  ) {
+    const page = options?.page ? Math.max(1, options.page) : undefined;
+    const pageSize = options?.pageSize
+      ? Math.min(100, Math.max(1, options.pageSize))
+      : undefined;
+    const skip = page && pageSize ? (page - 1) * pageSize : undefined;
+
     const jobs = await prisma.job.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
+      skip,
+      take: pageSize,
       include: {
         analyses: {
           orderBy: { createdAt: 'desc' },
