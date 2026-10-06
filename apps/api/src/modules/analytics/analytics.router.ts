@@ -40,6 +40,6 @@ analyticsRouter.get('/evidence', (req, res, next) =>
 analyticsRouter.get('/progress', (req, res, next) =>
   analyticsController.getProgress(req, res, next),
 );
-analyticsRouter.post('/snapshot', (req, res, next) =>
+analyticsRouter.post(['/snapshot', '/snapshots'], (req, res, next) =>
   analyticsController.createSnapshot(req, res, next),
 );
