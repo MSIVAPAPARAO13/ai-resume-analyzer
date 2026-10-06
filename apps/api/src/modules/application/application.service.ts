@@ -164,7 +164,12 @@ export class ApplicationService {
    */
   async getApplications(
     userId: string,
-    filters?: { status?: ApplicationStatus; search?: string },
+    filters?: {
+      status?: ApplicationStatus;
+      search?: string;
+      page?: number;
+      pageSize?: number;
+    },
   ) {
     const where: Prisma.ApplicationWhereInput = { userId };
 
@@ -179,9 +184,17 @@ export class ApplicationService {
       ];
     }
 
+    const page = filters?.page ? Math.max(1, filters.page) : undefined;
+    const pageSize = filters?.pageSize
+      ? Math.min(100, Math.max(1, filters.pageSize))
+      : undefined;
+    const skip = page && pageSize ? (page - 1) * pageSize : undefined;
+
     const applications = await prisma.application.findMany({
       where,
       orderBy: { updatedAt: 'desc' },
+      skip,
+      take: pageSize,
       include: {
         job: {
           select: {

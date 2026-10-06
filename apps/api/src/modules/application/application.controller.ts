@@ -38,10 +38,12 @@ export class ApplicationController {
   async getApplications(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = getUserId(req);
-      const { status, search } = req.query;
+      const { status, search, page, pageSize } = req.query;
       const applications = await applicationService.getApplications(userId, {
         status: status as any,
         search: typeof search === 'string' ? search : undefined,
+        page: page ? parseInt(page as string, 10) : undefined,
+        pageSize: pageSize ? parseInt(pageSize as string, 10) : undefined,
       });
       return res.json({
         success: true,

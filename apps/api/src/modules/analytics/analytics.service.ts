@@ -1,4 +1,5 @@
 import { prisma } from '../../config/database.js';
+import { getRedisClient } from '../../config/redis.js';
 import { aiProvider } from '../resume/ai/mock-ai.provider.js';
 import {
   SkillNormalizer,
@@ -503,6 +504,20 @@ export class AnalyticsService {
    * Feature 1: Comprehensive Career Analytics Overview
    */
   async getOverview(userId: string) {
+    const cacheKey = `user:${userId}:analytics:overview`;
+    const redis = getRedisClient();
+
+    if (redis) {
+      try {
+        const cached = await redis.get(cacheKey);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+      } catch {
+        // Fallback gracefully on cache read error
+      }
+    }
+
     const readiness = await this.calculateCareerReadiness(userId);
     const userSkills = await this.gatherUserSkills(userId);
     const gapAnalysis = await this.getSkillGaps(userId);
@@ -577,7 +592,7 @@ export class AnalyticsService {
       ];
     }
 
-    return {
+    const result = {
       readiness,
       skillsSummary: {
         totalSkills: userSkills.length,
@@ -608,6 +623,17 @@ export class AnalyticsService {
       targetRole: careerProfile?.targetRole || 'Not specified',
       targetLevel: careerProfile?.targetLevel || 'Not specified',
     };
+
+    const redisClient = getRedisClient();
+    if (redisClient) {
+      try {
+        await redisClient.set(cacheKey, JSON.stringify(result), 'EX', 300);
+      } catch {
+        // Non-fatal if cache write fails
+      }
+    }
+
+    return result;
   }
 
   /**

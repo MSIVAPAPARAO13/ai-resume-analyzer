@@ -30,7 +30,13 @@ export class JobController {
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).user?.userId || (req as any).user?.id;
-      const jobs = await this.jobService.listJobs(userId);
+      const page = req.query.page
+        ? parseInt(req.query.page as string, 10)
+        : undefined;
+      const pageSize = req.query.pageSize
+        ? parseInt(req.query.pageSize as string, 10)
+        : undefined;
+      const jobs = await this.jobService.listJobs(userId, { page, pageSize });
 
       res.status(200).json({
         success: true,
