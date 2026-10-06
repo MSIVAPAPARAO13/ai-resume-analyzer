@@ -5,6 +5,7 @@
 Phase 7 builds a personalized, evidence-grounded interview preparation and simulation engine for Resumind. It links the user's **Career Twin**, **Selected Resume Version**, **Job DNA**, **Resume ↔ Job Match**, **Evidence Guard**, **Tailoring Provenance**, and **Application CRM Context** to deliver actionable, role-specific interview readiness.
 
 ### Key Guarantees
+
 - **Strict Evidence Guard Grounding**: The AI never invents work experience, employers, metrics, credentials, or technologies. Questions referencing user background cite exact Career Twin or Resume evidence references. Missing requirements are framed as discovery/learning questions without pretending the candidate already possesses unverified skills.
 - **STAR-Method Evaluation**: AI-assisted answer evaluation scores candidate responses across relevance, completeness, clarity, technical depth, and evidence alignment without declaring itself an objective hiring authority.
 - **Interactive Mock Interview Simulation**: Step-by-step interview experience tracking live session progress, timer, per-question draft/submit/evaluate actions, and synthesizing a comprehensive final readiness report.
@@ -51,7 +52,9 @@ Phase 7 builds a personalized, evidence-grounded interview preparation and simul
 ## Database Models & Schema Extensions
 
 ### 1. `InterviewSession`
+
 Belongs to a single `User`. Optionally links to `Application`, `Job`, `ResumeVersion`, and `ResumeTailoringSession`.
+
 - `id`: UUID (Primary Key)
 - `userId`: Foreign key to `User` (Cascade delete)
 - `applicationId`: Optional FK to `Application` (SetNull on delete)
@@ -68,7 +71,9 @@ Belongs to a single `User`. Optionally links to `Application`, `Job`, `ResumeVer
 - `metadata`: Json nullable
 
 ### 2. `InterviewQuestion`
+
 Belongs to an `InterviewSession`.
+
 - `id`: UUID (Primary Key)
 - `sessionId`: Foreign key to `InterviewSession` (Cascade delete)
 - `category`: Enum (`RESUME`, `CAREER_TWIN`, `PROJECT`, `TECHNICAL`, `JOB_SPECIFIC`, `BEHAVIORAL`, `SITUATIONAL`, `COMPANY_ROLE`, `EXPERIENCE`)
@@ -81,7 +86,9 @@ Belongs to an `InterviewSession`.
 - `orderIndex`: Integer
 
 ### 3. `InterviewAnswer`
+
 Belongs to an `InterviewQuestion`. Preserves user answers and evaluation history.
+
 - `id`: UUID (Primary Key)
 - `questionId`: Foreign key to `InterviewQuestion` (Cascade delete)
 - `answerText`: Text
@@ -95,7 +102,9 @@ Belongs to an `InterviewQuestion`. Preserves user answers and evaluation history
 - `recommendedStructure`: Text nullable
 
 ### 4. `CalendarConnection`
+
 Stores Google Calendar OAuth access and refresh tokens encrypted with AES-256-GCM.
+
 - `id`: UUID (Primary Key)
 - `userId`: Foreign key to `User` (Unique, Cascade delete)
 - `provider`: String (e.g., `'GOOGLE'`)
@@ -105,7 +114,9 @@ Stores Google Calendar OAuth access and refresh tokens encrypted with AES-256-GC
 - `scope`: String nullable
 
 ### 5. `InterviewReminder`
+
 Supports scheduled reminders (e.g., 24h, 1h before) for interview sessions.
+
 - `id`: UUID (Primary Key)
 - `userId`: Foreign key to `User`
 - `sessionId`: Foreign key to `InterviewSession`
@@ -120,29 +131,31 @@ Supports scheduled reminders (e.g., 24h, 1h before) for interview sessions.
 All endpoints require JWT Bearer authentication and enforce tenant isolation (`userId` ownership), with the exception of the OAuth callback which verifies an HMAC-signed state token.
 
 ### Interview Preparation & Mock Sessions
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/v1/interviews` | Create a new interview session (links to app/job/resume) |
-| `GET` | `/api/v1/interviews` | List interview sessions for the authenticated user |
-| `GET` | `/api/v1/interviews/:id` | Get interview session details and status |
-| `PATCH` | `/api/v1/interviews/:id` | Update session metadata (title, difficulty, status) |
-| `DELETE` | `/api/v1/interviews/:id` | Delete session and cascade delete questions/answers |
-| `POST` | `/api/v1/interviews/:id/generate-questions` | Generate grounded questions via AIProvider |
-| `GET` | `/api/v1/interviews/:id/questions` | List ordered questions with evidence metadata |
-| `POST` | `/api/v1/interviews/:id/questions/:questionId/answer` | Save draft or submit an answer |
-| `GET` | `/api/v1/interviews/:id/questions/:questionId/answers` | View submission and evaluation history |
-| `POST` | `/api/v1/interviews/:id/questions/:questionId/evaluate` | Evaluate answer with AI STAR feedback |
-| `GET` | `/api/v1/interviews/:id/prep-plan` | Retrieve 5-day prep plan and technical checklist |
-| `POST` | `/api/v1/interviews/:id/complete` | Finalize session and trigger completion email |
-| `GET` | `/api/v1/interviews/:id/report` | Generate/view comprehensive interview readiness report |
+
+| Method   | Path                                                    | Description                                              |
+| -------- | ------------------------------------------------------- | -------------------------------------------------------- |
+| `POST`   | `/api/v1/interviews`                                    | Create a new interview session (links to app/job/resume) |
+| `GET`    | `/api/v1/interviews`                                    | List interview sessions for the authenticated user       |
+| `GET`    | `/api/v1/interviews/:id`                                | Get interview session details and status                 |
+| `PATCH`  | `/api/v1/interviews/:id`                                | Update session metadata (title, difficulty, status)      |
+| `DELETE` | `/api/v1/interviews/:id`                                | Delete session and cascade delete questions/answers      |
+| `POST`   | `/api/v1/interviews/:id/generate-questions`             | Generate grounded questions via AIProvider               |
+| `GET`    | `/api/v1/interviews/:id/questions`                      | List ordered questions with evidence metadata            |
+| `POST`   | `/api/v1/interviews/:id/questions/:questionId/answer`   | Save draft or submit an answer                           |
+| `GET`    | `/api/v1/interviews/:id/questions/:questionId/answers`  | View submission and evaluation history                   |
+| `POST`   | `/api/v1/interviews/:id/questions/:questionId/evaluate` | Evaluate answer with AI STAR feedback                    |
+| `GET`    | `/api/v1/interviews/:id/prep-plan`                      | Retrieve 5-day prep plan and technical checklist         |
+| `POST`   | `/api/v1/interviews/:id/complete`                       | Finalize session and trigger completion email            |
+| `GET`    | `/api/v1/interviews/:id/report`                         | Generate/view comprehensive interview readiness report   |
 
 ### Google Calendar Integration
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/v1/calendar/connect` | Returns Google OAuth authorization URL with signed state |
-| `GET` | `/api/v1/calendar/callback` | OAuth redirect callback; stores AES-256-GCM encrypted tokens |
-| `GET` | `/api/v1/calendar/status` | Returns Google Calendar connection status |
-| `POST` | `/api/v1/calendar/disconnect` | Deletes user calendar connection tokens |
+
+| Method | Path                                    | Description                                                    |
+| ------ | --------------------------------------- | -------------------------------------------------------------- |
+| `GET`  | `/api/v1/calendar/connect`              | Returns Google OAuth authorization URL with signed state       |
+| `GET`  | `/api/v1/calendar/callback`             | OAuth redirect callback; stores AES-256-GCM encrypted tokens   |
+| `GET`  | `/api/v1/calendar/status`               | Returns Google Calendar connection status                      |
+| `POST` | `/api/v1/calendar/disconnect`           | Deletes user calendar connection tokens                        |
 | `POST` | `/api/v1/interviews/:id/calendar-event` | Explicit user action to add interview event to Google Calendar |
 
 ---
@@ -150,12 +163,14 @@ All endpoints require JWT Bearer authentication and enforce tenant isolation (`u
 ## AI Provider Extensions & Grounding Guarantees
 
 The `AIProvider` interface is extended with 4 strictly-validated methods:
+
 1. `generateInterviewQuestions(params: GenerateInterviewQuestionsParams): Promise<InterviewQuestionGenerationResult>`
 2. `evaluateInterviewAnswer(params: EvaluateAnswerParams): Promise<InterviewAnswerEvaluation>`
 3. `generateInterviewPreparationPlan(params: GeneratePrepPlanParams): Promise<InterviewPreparationPlan>`
 4. `generateInterviewFinalReport(params: GenerateFinalReportParams): Promise<InterviewFinalReport>`
 
 ### Deterministic Mock & Schema-Validated Gemini
+
 - `MockAIProvider` provides reproducible, deterministic responses for all test suites.
 - `GeminiProvider` generates strict structured JSON parsed against Zod schemas (`InterviewQuestionGenerationResultSchema`, `InterviewAnswerEvaluationSchema`, etc.).
 - Robust error handling: Handles rate limits, quota exhaustion, and schema mismatches gracefully without leaking API keys or internal stack traces.
@@ -165,6 +180,7 @@ The `AIProvider` interface is extended with 4 strictly-validated methods:
 ## Provider Abstractions
 
 ### Email Provider
+
 - Interface: `EmailProvider` (`sendEmail(options): Promise<SendEmailResult>`)
 - Implementations:
   - `MockEmailProvider`: In-memory recording of sent messages for deterministic testing.
@@ -175,6 +191,7 @@ The `AIProvider` interface is extended with 4 strictly-validated methods:
   3. `interviewCompleted`: Sent with readiness score and category breakdown.
 
 ### Calendar Provider
+
 - Interface: `CalendarProvider` (`getAuthUrl`, `exchangeCode`, `createEvent`, `revokeToken`)
 - Implementations:
   - `MockCalendarProvider`: Deterministic state generation and event creation without live Google API calls.
@@ -184,15 +201,15 @@ The `AIProvider` interface is extended with 4 strictly-validated methods:
 
 ## Frontend Routes (Bootstrap 5, No Tailwind)
 
-| Route | Component | Purpose |
-|---|---|---|
-| `/interviews` | `interviews.tsx` | Dashboard displaying upcoming sessions, stats, category readiness |
-| `/interviews/new` | `interview-new.tsx` | Create session with mode, difficulty, and CRM app linkage |
-| `/interviews/:id` | `interview-detail.tsx` | Session overview, 5-day prep plan, technical checklist |
-| `/interviews/:id/questions` | `interview-questions.tsx` | Question practice, evidence references, answer editor & STAR evaluation |
-| `/interviews/:id/mock` | `interview-mock.tsx` | Interactive step-by-step mock interview simulation with timer |
-| `/interviews/:id/report` | `interview-report.tsx` | Final readiness report, category radar, strongest/weakest areas, GCal CTA |
-| `/integrations/google-calendar` | `integrations-google-calendar.tsx` | Google Calendar connection management with connect/disconnect actions |
+| Route                           | Component                          | Purpose                                                                   |
+| ------------------------------- | ---------------------------------- | ------------------------------------------------------------------------- |
+| `/interviews`                   | `interviews.tsx`                   | Dashboard displaying upcoming sessions, stats, category readiness         |
+| `/interviews/new`               | `interview-new.tsx`                | Create session with mode, difficulty, and CRM app linkage                 |
+| `/interviews/:id`               | `interview-detail.tsx`             | Session overview, 5-day prep plan, technical checklist                    |
+| `/interviews/:id/questions`     | `interview-questions.tsx`          | Question practice, evidence references, answer editor & STAR evaluation   |
+| `/interviews/:id/mock`          | `interview-mock.tsx`               | Interactive step-by-step mock interview simulation with timer             |
+| `/interviews/:id/report`        | `interview-report.tsx`             | Final readiness report, category radar, strongest/weakest areas, GCal CTA |
+| `/integrations/google-calendar` | `integrations-google-calendar.tsx` | Google Calendar connection management with connect/disconnect actions     |
 
 ---
 
