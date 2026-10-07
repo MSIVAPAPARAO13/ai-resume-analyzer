@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 import { applicationApi } from '../lib/api.js';
+import AppNavbar from '../components/AppNavbar.js';
 
 interface ApplicationItem {
   id: string;
@@ -62,7 +63,7 @@ const STATUS_COLUMNS = [
 ];
 
 export default function ApplicationsPage() {
-  const { user, initialized, logout } = useAuthStore();
+  const { user, initialized } = useAuthStore();
   const navigate = useNavigate();
 
   const [applications, setApplications] = useState<ApplicationItem[]>([]);
@@ -146,45 +147,7 @@ export default function ApplicationsPage() {
 
   return (
     <div className="min-vh-100 bg-dark text-white">
-      {/* Top Navbar */}
-      <nav className="navbar navbar-dark bg-dark border-bottom border-secondary px-4 sticky-top">
-        <div className="d-flex align-items-center gap-3">
-          <Link
-            to="/dashboard"
-            className="navbar-brand fw-bold text-primary mb-0"
-          >
-            Resumind
-          </Link>
-          <span className="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50">
-            Application CRM
-          </span>
-        </div>
-
-        <div className="d-flex align-items-center gap-2">
-          <Link to="/jobs" className="btn btn-outline-secondary btn-sm">
-            Jobs & Matching
-          </Link>
-          <Link to="/resumes" className="btn btn-outline-secondary btn-sm">
-            Resumes
-          </Link>
-          <Link to="/integrations" className="btn btn-outline-info btn-sm">
-            🐙 GitHub Evidence
-          </Link>
-          <Link
-            to="/applications/new"
-            className="btn btn-primary btn-sm d-flex align-items-center gap-1"
-            id="create-application-btn"
-          >
-            <span>+</span> New Application
-          </Link>
-          <button
-            onClick={() => logout()}
-            className="btn btn-outline-danger btn-sm ms-2"
-          >
-            Sign Out
-          </button>
-        </div>
-      </nav>
+      <AppNavbar />
 
       <div className="container-fluid px-4 py-4">
         {/* Header & Page Title */}
@@ -198,6 +161,13 @@ export default function ApplicationsPage() {
           </div>
 
           <div className="d-flex align-items-center gap-2">
+            <Link
+              to="/applications/new"
+              className="btn btn-primary btn-sm d-flex align-items-center gap-1"
+              id="create-application-btn"
+            >
+              <span>+</span> New Application
+            </Link>
             <div className="btn-group" role="group">
               <button
                 type="button"

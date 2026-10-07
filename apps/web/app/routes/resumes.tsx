@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 import { resumeApi } from '../lib/api.js';
+import AppNavbar from '../components/AppNavbar.js';
 
 export default function ResumesPage() {
-  const { user, initialized, logout } = useAuthStore();
+  const { user, initialized } = useAuthStore();
   const navigate = useNavigate();
 
   const [resumes, setResumes] = useState<any[]>([]);
@@ -126,37 +127,7 @@ export default function ResumesPage() {
 
   return (
     <div className="min-vh-100 bg-dark text-white">
-      {/* Navbar */}
-      <nav className="navbar navbar-dark bg-dark border-bottom border-secondary px-4">
-        <div className="d-flex align-items-center gap-3">
-          <Link
-            to="/dashboard"
-            className="navbar-brand fw-bold text-primary mb-0"
-          >
-            Resumind
-          </Link>
-          <span className="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25">
-            Phase 3: Resume Intelligence
-          </span>
-        </div>
-        <div className="d-flex align-items-center gap-3">
-          <Link to="/career" className="btn btn-outline-secondary btn-sm">
-            Career Twin
-          </Link>
-          <Link to="/dashboard" className="btn btn-outline-secondary btn-sm">
-            Dashboard
-          </Link>
-          <button
-            className="btn btn-outline-danger btn-sm"
-            onClick={async () => {
-              await logout();
-              navigate('/login');
-            }}
-          >
-            Sign out
-          </button>
-        </div>
-      </nav>
+      <AppNavbar />
 
       <div className="container py-5">
         {/* Header */}

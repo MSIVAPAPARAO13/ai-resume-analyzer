@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 import { jobApi } from '../lib/api.js';
+import AppNavbar from '../components/AppNavbar.js';
 
 interface JobSummary {
   id: string;
@@ -24,8 +25,7 @@ interface JobSummary {
 }
 
 export default function JobsDashboardPage() {
-  const { user, initialized, logout } = useAuthStore();
-  const navigate = useNavigate();
+  const { user, initialized } = useAuthStore();
 
   const [jobs, setJobs] = useState<JobSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,40 +81,7 @@ export default function JobsDashboardPage() {
 
   return (
     <div className="min-vh-100 bg-dark text-white pb-5">
-      {/* Navbar */}
-      <nav className="navbar navbar-dark bg-dark border-bottom border-secondary px-4">
-        <div className="d-flex align-items-center gap-3">
-          <Link
-            to="/dashboard"
-            className="navbar-brand fw-bold text-primary mb-0"
-          >
-            Resumind
-          </Link>
-          <span className="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25">
-            Phase 4: Job Intelligence
-          </span>
-        </div>
-        <div className="d-flex align-items-center gap-3">
-          <Link to="/resumes" className="btn btn-outline-secondary btn-sm">
-            Resumes
-          </Link>
-          <Link to="/career" className="btn btn-outline-secondary btn-sm">
-            Career Twin
-          </Link>
-          <Link to="/dashboard" className="btn btn-outline-secondary btn-sm">
-            Dashboard
-          </Link>
-          <button
-            className="btn btn-outline-danger btn-sm"
-            onClick={async () => {
-              await logout();
-              navigate('/login');
-            }}
-          >
-            Sign out
-          </button>
-        </div>
-      </nav>
+      <AppNavbar />
 
       <div className="container py-5">
         {/* Header */}

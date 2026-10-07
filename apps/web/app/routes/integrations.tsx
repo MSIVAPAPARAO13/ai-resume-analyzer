@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 import { githubApi } from '../lib/api.js';
+import AppNavbar from '../components/AppNavbar.js';
 
 interface GitHubStatus {
   connected: boolean;
@@ -13,7 +14,7 @@ interface GitHubStatus {
 }
 
 export default function IntegrationsPage() {
-  const { user, initialized, logout } = useAuthStore();
+  const { user, initialized } = useAuthStore();
   const [searchParams] = useSearchParams();
 
   const [status, setStatus] = useState<GitHubStatus | null>(null);
@@ -96,38 +97,7 @@ export default function IntegrationsPage() {
 
   return (
     <div className="min-vh-100 bg-dark text-white">
-      {/* Top Navbar */}
-      <nav className="navbar navbar-dark bg-dark border-bottom border-secondary px-4 sticky-top">
-        <div className="d-flex align-items-center gap-3">
-          <Link
-            to="/dashboard"
-            className="navbar-brand fw-bold text-primary mb-0"
-          >
-            Resumind
-          </Link>
-          <span className="badge bg-secondary bg-opacity-25 text-light border border-secondary">
-            Integrations
-          </span>
-        </div>
-
-        <div className="d-flex align-items-center gap-2">
-          <Link to="/applications" className="btn btn-outline-secondary btn-sm">
-            Applications CRM
-          </Link>
-          <Link to="/jobs" className="btn btn-outline-secondary btn-sm">
-            Jobs & Matching
-          </Link>
-          <Link to="/career" className="btn btn-outline-secondary btn-sm">
-            Career Twin
-          </Link>
-          <button
-            onClick={() => logout()}
-            className="btn btn-outline-danger btn-sm ms-2"
-          >
-            Sign Out
-          </button>
-        </div>
-      </nav>
+      <AppNavbar />
 
       <div className="container py-5" style={{ maxWidth: 900 }}>
         <div className="mb-4">

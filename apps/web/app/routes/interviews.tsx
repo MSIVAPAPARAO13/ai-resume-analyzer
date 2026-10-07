@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 import { interviewApi } from '../lib/api.js';
+import AppNavbar from '../components/AppNavbar.js';
 
 interface InterviewSessionItem {
   id: string;
@@ -75,34 +76,34 @@ export default function InterviewsPage() {
 
   return (
     <div className="min-vh-100 bg-dark text-white pb-5">
-      {/* Top Navbar */}
-      <nav className="navbar navbar-dark bg-dark border-bottom border-secondary px-4 sticky-top">
-        <div className="d-flex align-items-center gap-3">
-          <Link to="/dashboard" className="btn btn-outline-secondary btn-sm">
-            ← Dashboard
-          </Link>
-          <span className="navbar-brand fw-bold text-warning mb-0">
-            🎙️ Interview Intelligence
-          </span>
-        </div>
-        <div className="d-flex align-items-center gap-3">
-          <Link
-            to="/integrations/google-calendar"
-            className="btn btn-outline-info btn-sm"
-          >
-            📅 Google Calendar
-          </Link>
-          <Link
-            to="/interviews/new"
-            className="btn btn-warning btn-sm fw-semibold"
-            id="new-interview-btn"
-          >
-            + New Preparation Session
-          </Link>
-        </div>
-      </nav>
+      <AppNavbar />
 
       <div className="container py-4">
+        {/* Header & Actions */}
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <div>
+            <h1 className="h3 fw-bold mb-1">Interview Intelligence & Coach</h1>
+            <p className="text-secondary small mb-0">
+              Practice job-tailored STAR questions, evaluate answer evidence,
+              and simulate mock interviews.
+            </p>
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <Link
+              to="/integrations/google-calendar"
+              className="btn btn-outline-info btn-sm"
+            >
+              📅 Google Calendar
+            </Link>
+            <Link
+              to="/interviews/new"
+              className="btn btn-warning btn-sm fw-semibold"
+              id="new-interview-btn"
+            >
+              + New Preparation Session
+            </Link>
+          </div>
+        </div>
         {/* Metric Cards */}
         <div className="row g-3 mb-4">
           <div className="col-md-3">

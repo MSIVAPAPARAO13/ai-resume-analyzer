@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 import { analyticsApi } from '../lib/api.js';
+import AppNavbar from '../components/AppNavbar.js';
 
 export default function AnalyticsDashboardPage() {
   const { user, initialized } = useAuthStore();
@@ -79,32 +80,32 @@ export default function AnalyticsDashboardPage() {
 
   return (
     <div className="min-vh-100 bg-dark text-white pb-5">
-      {/* Top Navbar */}
-      <nav className="navbar navbar-dark bg-dark border-bottom border-secondary px-4 sticky-top">
-        <div className="d-flex align-items-center gap-3">
-          <Link to="/dashboard" className="btn btn-outline-secondary btn-sm">
-            ← Dashboard
-          </Link>
-          <span className="navbar-brand fw-bold text-primary mb-0">
-            📊 Career Intelligence & Analytics
-          </span>
-        </div>
-        <div className="d-flex align-items-center gap-2">
-          <button
-            onClick={handleTakeSnapshot}
-            disabled={snapshotLoading}
-            className="btn btn-outline-light btn-sm"
-            id="capture-snapshot-btn"
-          >
-            {snapshotLoading ? 'Capturing...' : '📸 Save Progress Snapshot'}
-          </button>
-          <Link to="/learning" className="btn btn-success btn-sm fw-semibold">
-            🎯 Learning Plans
-          </Link>
-        </div>
-      </nav>
+      <AppNavbar />
 
       <div className="container py-4">
+        {/* Header & Quick Action */}
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <div>
+            <h1 className="h3 fw-bold mb-1">Career Intelligence & Analytics</h1>
+            <p className="text-secondary small mb-0">
+              Explainable career readiness score, radar coverage, skill gaps,
+              and evidence strength.
+            </p>
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <button
+              onClick={handleTakeSnapshot}
+              disabled={snapshotLoading}
+              className="btn btn-outline-light btn-sm"
+              id="capture-snapshot-btn"
+            >
+              {snapshotLoading ? 'Capturing...' : '📸 Save Progress Snapshot'}
+            </button>
+            <Link to="/learning" className="btn btn-success btn-sm fw-semibold">
+              🎯 Learning Plans
+            </Link>
+          </div>
+        </div>
         {snapshotMsg && (
           <div
             className="alert alert-success alert-dismissible fade show"

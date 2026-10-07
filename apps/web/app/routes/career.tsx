@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 import { careerApi } from '../lib/api.js';
+import AppNavbar from '../components/AppNavbar.js';
 
 type Section =
   | 'profile'
@@ -13,7 +14,7 @@ type Section =
   | 'achievements';
 
 export default function CareerPage() {
-  const { user, logout, initialized } = useAuthStore();
+  const { user, initialized } = useAuthStore();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<Section>('profile');
   const [profile, setProfile] = useState<any>(null);
@@ -209,27 +210,7 @@ export default function CareerPage() {
 
   return (
     <div className="min-vh-100 bg-dark text-white">
-      {/* Navbar */}
-      <nav className="navbar navbar-dark bg-dark border-bottom border-secondary px-4">
-        <Link to="/dashboard" className="navbar-brand fw-bold text-primary">
-          ← Resumind
-        </Link>
-        <div className="d-flex align-items-center gap-3">
-          <span className="text-secondary small d-none d-md-inline">
-            Career Twin
-          </span>
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            id="logout-btn"
-            onClick={async () => {
-              await logout();
-              navigate('/login');
-            }}
-          >
-            Sign out
-          </button>
-        </div>
-      </nav>
+      <AppNavbar />
 
       <div className="container-fluid">
         <div className="row">
