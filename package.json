@@ -28,6 +28,7 @@
     "test:e2e": "playwright test",
     "db:generate": "npm run prisma:generate --workspace=@resumind/api",
     "db:migrate": "npm run prisma:migrate --workspace=@resumind/api",
+    "db:migrate:deploy": "npm run prisma:migrate:deploy --workspace=@resumind/api",
     "db:seed": "npm run prisma:seed --workspace=@resumind/api",
     "db:studio": "npm run prisma:studio --workspace=@resumind/api",
     "docker:up": "docker compose up -d postgres redis",

@@ -1,0 +1,91 @@
+services:
+  # ─── Resumind Express API Service ───────────────────────────────────────────
+  - type: web
+    name: resumind-api
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm ci && npm run db:generate && npm run build:api && npm run db:migrate:deploy
+    startCommand: npm run start:api
+    healthCheckPath: /api/v1/health
+    disk:
+      name: resumind-uploads
+      mountPath: /app/uploads
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: resumind-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: resumind-redis
+          property: connectionString
+      - key: FRONTEND_URL
+        value: https://resumind.onrender.com
+      - key: CORS_ORIGIN
+        value: https://resumind.onrender.com
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: GITHUB_ENCRYPTION_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ADZUNA_APP_ID
+        sync: false
+      - key: ADZUNA_APP_KEY
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_CALLBACK_URL
+        value: https://resumind-api.onrender.com/api/v1/github/callback
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_CALENDAR_REDIRECT_URI
+        value: https://resumind-api.onrender.com/api/v1/calendar/callback
+      - key: RESEND_API_KEY
+        sync: false
+
+  # ─── Resumind Web Frontend (React Router SSR) ───────────────────────────────
+  - type: web
+    name: resumind-web
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm ci && npm run build:web
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_URL
+        value: https://resumind-api.onrender.com
+
+  # ─── Resumind Managed Redis Cache ───────────────────────────────────────────
+  - type: redis
+    name: resumind-redis
+    region: oregon
+    plan: starter
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: [] # internal only
+
+# ─── Resumind Managed PostgreSQL Database ─────────────────────────────────────
+databases:
+  - name: resumind-db
+    databaseName: resumind_prod
+    user: resumind_user
+    region: oregon
+    plan: starter
+    postgresMajorVersion: 16

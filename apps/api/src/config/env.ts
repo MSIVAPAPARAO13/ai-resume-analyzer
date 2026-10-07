@@ -51,4 +51,22 @@ if (!parsedEnv.success) {
   process.exit(1);
 }
 
+// In production, reject default development secrets
+if (parsedEnv.data.NODE_ENV === 'production') {
+  if (parsedEnv.data.JWT_ACCESS_SECRET === 'dev-access-secret-change-in-prod') {
+    console.error(
+      '❌ FATAL: JWT_ACCESS_SECRET must be configured with a secure random key in production!',
+    );
+    process.exit(1);
+  }
+  if (
+    parsedEnv.data.JWT_REFRESH_SECRET === 'dev-refresh-secret-change-in-prod'
+  ) {
+    console.error(
+      '❌ FATAL: JWT_REFRESH_SECRET must be configured with a secure random key in production!',
+    );
+    process.exit(1);
+  }
+}
+
 export const env = parsedEnv.data;
