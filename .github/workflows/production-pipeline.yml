@@ -1,0 +1,83 @@
+name: Resumind Production Quality & CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    name: Lint, Typecheck, Test & Build Quality Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate Prisma Schema
+        run: npx prisma validate --schema=apps/api/prisma/schema.prisma
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Check Code Formatting
+        run: npm run format:check
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript Typecheck
+        run: npm run typecheck
+
+      - name: Run Unit & Integration Tests
+        run: npm run test
+
+      - name: Build Web Application
+        run: npm run build:web
+
+      - name: Build Express API
+        run: npm run build:api
+
+      - name: Dependency Security Audit
+        run: npm audit --omit=dev --audit-level=critical || true
+
+  deploy-production:
+    name: Trigger Production Deployment
+    needs: quality-gate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy API Service via Webhook
+        if: env.RENDER_API_DEPLOY_HOOK != ''
+        env:
+          RENDER_API_DEPLOY_HOOK: ${{ secrets.RENDER_API_DEPLOY_HOOK }}
+        run: |
+          curl -s -S -X POST "$RENDER_API_DEPLOY_HOOK" > /dev/null
+
+      - name: Deploy Web Service via Webhook
+        if: env.RENDER_WEB_DEPLOY_HOOK != ''
+        env:
+          RENDER_WEB_DEPLOY_HOOK: ${{ secrets.RENDER_WEB_DEPLOY_HOOK }}
+        run: |
+          curl -s -S -X POST "$RENDER_WEB_DEPLOY_HOOK" > /dev/null
