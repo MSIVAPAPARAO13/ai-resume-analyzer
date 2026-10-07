@@ -32,6 +32,12 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+/* ================= META ================= */
+
+export const meta: Route.MetaFunction = () => [
+  { name: 'robots', content: 'noindex, nofollow' },
+];
+
 /* ================= LAYOUT ================= */
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -52,8 +58,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {/* Robots: all pages default; individual routes override via meta() */}
-        <meta name="robots" content="noindex, nofollow" />
         <Meta />
         <Links />
 

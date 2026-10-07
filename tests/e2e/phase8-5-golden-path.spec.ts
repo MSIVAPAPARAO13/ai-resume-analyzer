@@ -61,11 +61,36 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
           success: true,
           data: {
             skills: [
-              { id: 'sk-1', name: 'JavaScript', category: 'Language', proficiency: 'Advanced' },
-              { id: 'sk-2', name: 'TypeScript', category: 'Language', proficiency: 'Intermediate' },
-              { id: 'sk-3', name: 'React', category: 'Frontend', proficiency: 'Advanced' },
-              { id: 'sk-4', name: 'Node.js', category: 'Backend', proficiency: 'Advanced' },
-              { id: 'sk-5', name: 'PostgreSQL', category: 'Database', proficiency: 'Intermediate' },
+              {
+                id: 'sk-1',
+                name: 'JavaScript',
+                category: 'Language',
+                proficiency: 'Advanced',
+              },
+              {
+                id: 'sk-2',
+                name: 'TypeScript',
+                category: 'Language',
+                proficiency: 'Intermediate',
+              },
+              {
+                id: 'sk-3',
+                name: 'React',
+                category: 'Frontend',
+                proficiency: 'Advanced',
+              },
+              {
+                id: 'sk-4',
+                name: 'Node.js',
+                category: 'Backend',
+                proficiency: 'Advanced',
+              },
+              {
+                id: 'sk-5',
+                name: 'PostgreSQL',
+                category: 'Database',
+                proficiency: 'Intermediate',
+              },
             ],
           },
         }),
@@ -83,13 +108,15 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
               {
                 id: 'proj-1',
                 name: 'TradeFlow',
-                description: 'Full-stack trading dashboard with real-time portfolio tracking.',
+                description:
+                  'Full-stack trading dashboard with real-time portfolio tracking.',
                 technologies: ['React', 'Node.js', 'Express', 'MongoDB'],
               },
               {
                 id: 'proj-2',
                 name: 'AI Career Assistant',
-                description: 'Interactive career assistant leveraging Gemini API.',
+                description:
+                  'Interactive career assistant leveraging Gemini API.',
                 technologies: ['React', 'Node.js', 'Gemini'],
               },
             ],
@@ -191,8 +218,16 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
               location: 'San Francisco, CA (Hybrid)',
               status: 'ANALYZED',
               createdAt: new Date().toISOString(),
-              latestAnalysis: { id: 'dna-1', role: 'Full Stack Developer', level: 'Entry Level' },
-              latestMatch: { id: 'match-1', overallScore: 88, createdAt: new Date().toISOString() },
+              latestAnalysis: {
+                id: 'dna-1',
+                role: 'Full Stack Developer',
+                level: 'Entry Level',
+              },
+              latestMatch: {
+                id: 'match-1',
+                overallScore: 88,
+                createdAt: new Date().toISOString(),
+              },
             },
           ],
         }),
@@ -281,13 +316,21 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
               interviewReadiness: 85,
               careerTwinCompleteness: 90,
               explanations: {
-                skillAlignment: 'Strong match for Full Stack Developer core requirements.',
+                skillAlignment:
+                  'Strong match for Full Stack Developer core requirements.',
                 resumeReadiness: 'ATS readiness score 84/100.',
-                evidenceStrength: 'Verified projects TradeFlow & AI Career Assistant.',
-                interviewReadiness: 'Preparation session completed with 85% score.',
+                evidenceStrength:
+                  'Verified projects TradeFlow & AI Career Assistant.',
+                interviewReadiness:
+                  'Preparation session completed with 85% score.',
               },
             },
-            skills: { totalSkills: 11, strongSkills: 7, moderateSkills: 4, weakSkills: 0 },
+            skills: {
+              totalSkills: 11,
+              strongSkills: 7,
+              moderateSkills: 4,
+              weakSkills: 0,
+            },
             skillGaps: {
               totalGaps: 1,
               criticalGaps: 0,
@@ -297,18 +340,25 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
                   priority: 'MEDIUM',
                   status: 'PARTIAL',
                   currentEvidence: 'Beginner proficiency in Career Twin',
-                  reason: 'Preferred skill in Apex Cloud Systems job description',
-                  recommendedAction: 'Containerize TradeFlow project with Dockerfile',
+                  reason:
+                    'Preferred skill in Apex Cloud Systems job description',
+                  recommendedAction:
+                    'Containerize TradeFlow project with Dockerfile',
                 },
               ],
             },
-            learningProgress: { activePlans: 1, activeGoals: 2, completedTasks: 2 },
+            learningProgress: {
+              activePlans: 1,
+              activeGoals: 2,
+              completedTasks: 2,
+            },
             targetRole: { title: 'Full Stack Developer', level: 'Entry Level' },
             insights: [
               {
                 category: 'Evidence',
                 title: 'Solid Full-Stack Portfolio',
-                observation: 'React and Node.js are supported by multiple projects.',
+                observation:
+                  'React and Node.js are supported by multiple projects.',
                 recommendation: 'Emphasize TradeFlow in upcoming interviews.',
               },
             ],
@@ -328,7 +378,8 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
             data: [
               {
                 id: 'plan-1',
-                title: 'Master Containerization with Docker for Full Stack Roles',
+                title:
+                  'Master Containerization with Docker for Full Stack Roles',
                 targetRole: 'Full Stack Developer',
                 status: 'ACTIVE',
                 goals: [
@@ -339,7 +390,8 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
                     tasks: [
                       {
                         id: 'task-1',
-                        title: 'Write Dockerfile and docker-compose for TradeFlow',
+                        title:
+                          'Write Dockerfile and docker-compose for TradeFlow',
                         status: 'COMPLETED',
                         evidenceRequired: true,
                       },
@@ -356,7 +408,9 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
     });
   });
 
-  test('Step 1: Dashboard loads with live user data and unified AppNavbar', async ({ page }) => {
+  test('Step 1: Dashboard loads with live user data and unified AppNavbar', async ({
+    page,
+  }) => {
     await page.goto(`${BASE}/dashboard`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('h1')).toContainText('Welcome back, Alex');
     await expect(page.locator('nav.navbar')).toBeVisible();
@@ -370,7 +424,9 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
     await expect(page.locator('nav.navbar')).toContainText('Learning');
   });
 
-  test('Step 2: Career Twin renders verified candidate skills and projects', async ({ page }) => {
+  test('Step 2: Career Twin renders verified candidate skills and projects', async ({
+    page,
+  }) => {
     await page.goto(`${BASE}/career`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('body')).toContainText('Career Twin');
     await expect(page.locator('nav.navbar')).toBeVisible();
@@ -381,11 +437,15 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
   }) => {
     await page.goto(`${BASE}/resumes`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('h1')).toContainText('Resume Intelligence');
-    await expect(page.locator('body')).toContainText('Alex Morgan — Full Stack Resume');
+    await expect(page.locator('body')).toContainText(
+      'Alex Morgan — Full Stack Resume',
+    );
     await expect(page.locator('nav.navbar')).toBeVisible();
   });
 
-  test('Step 4: Jobs & Matching page displays Target Jobs and Match Scores', async ({ page }) => {
+  test('Step 4: Jobs & Matching page displays Target Jobs and Match Scores', async ({
+    page,
+  }) => {
     await page.goto(`${BASE}/jobs`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('body')).toContainText('Apex Cloud Systems');
     await expect(page.locator('body')).toContainText('Full Stack Developer');
@@ -414,14 +474,20 @@ test.describe('Phase 8.5 — Golden Path User Journey (Alex Morgan Synthetic Pro
     page,
   }) => {
     await page.goto(`${BASE}/analytics`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('body')).toContainText('Career Intelligence & Analytics');
+    await expect(page.locator('body')).toContainText(
+      'Career Intelligence & Analytics',
+    );
     await expect(page.locator('body')).toContainText('84');
     await expect(page.locator('nav.navbar')).toBeVisible();
   });
 
-  test('Step 8: Learning Plans page displays active Docker mastery plan', async ({ page }) => {
+  test('Step 8: Learning Plans page displays active Docker mastery plan', async ({
+    page,
+  }) => {
     await page.goto(`${BASE}/learning`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('body')).toContainText('Evidence-Building Learning Plans');
+    await expect(page.locator('body')).toContainText(
+      'Evidence-Building Learning Plans',
+    );
     await expect(page.locator('body')).toContainText('Docker');
     await expect(page.locator('nav.navbar')).toBeVisible();
   });

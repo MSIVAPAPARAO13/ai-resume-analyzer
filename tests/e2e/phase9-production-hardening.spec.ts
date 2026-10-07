@@ -52,6 +52,7 @@ test.describe('Phase 9 — Production Hardening, SEO & Accessibility E2E Suite',
 
     const robots = await page
       .locator('meta[name="robots"]')
+      .first()
       .getAttribute('content');
     expect(robots).toContain('index');
   });
@@ -69,6 +70,7 @@ test.describe('Phase 9 — Production Hardening, SEO & Accessibility E2E Suite',
 
     const robots = await page
       .locator('meta[name="robots"]')
+      .first()
       .getAttribute('content');
     expect(robots).toContain('index');
   });
