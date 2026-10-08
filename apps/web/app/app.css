@@ -150,3 +150,8 @@ form {
     opacity: 1;
   }
 }
+
+/* Fix Tailwind visibility: collapse overriding Bootstrap navbar */
+.navbar-collapse.collapse {
+  visibility: visible !important;
+}

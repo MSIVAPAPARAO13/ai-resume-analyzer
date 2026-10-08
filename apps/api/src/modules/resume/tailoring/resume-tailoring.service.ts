@@ -1,6 +1,8 @@
 import { prisma } from '../../../config/database.js';
 import { AppError } from '../../../middleware/error-handler.js';
 import { getAIProvider } from '../ai/ai.factory.js';
+import { MockAIProvider } from '../ai/mock-ai.provider.js';
+import type { AIProvider } from '../ai/ai.interface.js';
 import { evidenceGuardService } from './evidence-guard.service.js';
 import { scoringEngine } from '../scoring/scoring.engine.js';
 import { comparisonEngine } from '../scoring/comparison.engine.js';
@@ -12,6 +14,12 @@ export interface CreateTailoringSessionOptions {
 }
 
 export class ResumeTailoringService {
+  private customAiProvider: AIProvider | null = null;
+
+  setAIProvider(provider: AIProvider | null) {
+    this.customAiProvider = provider;
+  }
+
   /**
    * Generates or retrieves an AI Resume Tailoring session
    */
@@ -104,21 +112,43 @@ export class ResumeTailoringService {
 
     // 5. Build Job DNA context
     const jobAnalysis = job.analyses[0];
-    const jobDna = jobAnalysis?.jobDna || {
-      role: job.title,
-      level: null,
-      skills: job.requirements
-        .filter((r: any) => r.type === 'SKILL')
-        .map((r: any) => ({ name: r.name, importance: r.importance })),
-      responsibilities: job.requirements
-        .filter((r: any) => r.type === 'RESPONSIBILITY')
-        .map((r: any) => r.name),
-      keywords: job.requirements
-        .filter((r: any) => r.type === 'KEYWORD')
-        .map((r: any) => r.name),
-      experienceRequirement: jobAnalysis?.experienceRequirement || null,
-      educationRequirement: jobAnalysis?.educationRequirement || null,
-    };
+    const rawDna = (jobAnalysis?.jobDna as any) || null;
+    const jobDna = rawDna
+      ? {
+          role: rawDna.role || job.title,
+          level: rawDna.level || null,
+          skills:
+            rawDna.skills || [
+              ...(rawDna.requiredSkills || []),
+              ...(rawDna.preferredSkills || []),
+            ] ||
+            [],
+          responsibilities: rawDna.responsibilities || [],
+          keywords: rawDna.keywords || [],
+          experienceRequirement:
+            rawDna.experienceRequirement?.raw ||
+            jobAnalysis?.experienceRequirement ||
+            null,
+          educationRequirement:
+            rawDna.educationRequirement?.raw ||
+            jobAnalysis?.educationRequirement ||
+            null,
+        }
+      : {
+          role: job.title,
+          level: null,
+          skills: job.requirements
+            .filter((r: any) => r.type === 'SKILL')
+            .map((r: any) => ({ name: r.name, importance: r.importance })),
+          responsibilities: job.requirements
+            .filter((r: any) => r.type === 'RESPONSIBILITY')
+            .map((r: any) => r.name),
+          keywords: job.requirements
+            .filter((r: any) => r.type === 'KEYWORD')
+            .map((r: any) => r.name),
+          experienceRequirement: jobAnalysis?.experienceRequirement || null,
+          educationRequirement: jobAnalysis?.educationRequirement || null,
+        };
 
     const parsedResume: ParsedResumeData =
       (latestVersion.parsedData as ParsedResumeData) || {
@@ -132,7 +162,7 @@ export class ResumeTailoringService {
       };
 
     // 6. Invoke AI Provider
-    const aiProvider = getAIProvider(options?.provider);
+    let aiProvider = this.customAiProvider || getAIProvider(options?.provider);
     let aiResult;
     try {
       aiResult = await aiProvider.generateTailoringSuggestions({
@@ -156,18 +186,45 @@ export class ResumeTailoringService {
         },
       });
     } catch (err: any) {
-      await (prisma as any).aIUsage.create({
-        data: {
-          userId,
-          provider: aiProvider.name,
-          operation: 'RESUME_TAILORING',
-          model:
-            aiProvider.name === 'GEMINI' ? 'gemini-2.5-flash' : 'mock-tailor',
-          requestCount: 1,
-          status: 'FAILED',
-        },
-      });
-      throw err;
+      if (options?.provider !== 'GEMINI' && !this.customAiProvider) {
+        try {
+          aiProvider = new MockAIProvider();
+          aiResult = await aiProvider.generateTailoringSuggestions({
+            resumeText: latestVersion.extractedText || '',
+            parsedResume,
+            careerTwin,
+            jobDna,
+            jobDescription: job.description,
+          });
+          await (prisma as any).aIUsage.create({
+            data: {
+              userId,
+              provider: 'MOCK',
+              operation: 'RESUME_TAILORING',
+              model: 'mock-tailor',
+              requestCount: 1,
+              status: 'FALLBACK_SUCCESS',
+            },
+          });
+        } catch {
+          // fallback failed, continue to throw original error
+        }
+      }
+
+      if (!aiResult) {
+        await (prisma as any).aIUsage.create({
+          data: {
+            userId,
+            provider: aiProvider.name,
+            operation: 'RESUME_TAILORING',
+            model:
+              aiProvider.name === 'GEMINI' ? 'gemini-2.5-flash' : 'mock-tailor',
+            requestCount: 1,
+            status: 'FAILED',
+          },
+        });
+        throw err;
+      }
     }
 
     // Fetch GitHub external evidence if available

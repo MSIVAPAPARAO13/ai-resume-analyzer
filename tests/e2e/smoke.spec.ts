@@ -10,7 +10,7 @@ const TEST_NAME = 'E2E Test User';
 
 test.describe('Phase 2: Authentication Flow', () => {
   test('Register new account and reach dashboard', async ({ page }) => {
-    await page.goto(`${BASE}/register`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${BASE}/register`, { waitUntil: 'networkidle' });
     await expect(page.locator('h4')).toContainText('Create your account');
 
     await page.fill('#name', TEST_NAME);
@@ -26,7 +26,7 @@ test.describe('Phase 2: Authentication Flow', () => {
 
   test('Logout and redirect to login', async ({ page }) => {
     // Login first
-    await page.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${BASE}/login`, { waitUntil: 'networkidle' });
     await page.fill('#email', TEST_EMAIL);
     await page.fill('#password', TEST_PASS);
     await page.click('#login-submit');
@@ -44,16 +44,17 @@ test.describe('Phase 2: Authentication Flow', () => {
   }) => {
     // Clear storage to ensure no tokens
     await page.context().clearCookies();
+    await page.goto(`${BASE}/login`, { waitUntil: 'networkidle' });
     await page.evaluate(() => localStorage.clear());
 
-    await page.goto(`${BASE}/dashboard`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' });
     await page.waitForURL(`${BASE}/login`, { timeout: 10000 });
     await expect(page).toHaveURL(`${BASE}/login`);
   });
 
   test('Login, open Career Twin, add a skill', async ({ page }) => {
     // Login
-    await page.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${BASE}/login`, { waitUntil: 'networkidle' });
     await page.fill('#email', TEST_EMAIL);
     await page.fill('#password', TEST_PASS);
     await page.click('#login-submit');

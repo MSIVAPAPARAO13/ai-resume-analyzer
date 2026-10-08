@@ -48,13 +48,32 @@ export const errorHandler: ErrorRequestHandler = (
     return;
   }
 
-  if (err instanceof AppError) {
-    res.status(err.statusCode).json({
+  const customStatusCode = (err as any).statusCode || (err as any).status;
+  if (
+    err instanceof AppError ||
+    err.name === 'AppError' ||
+    (typeof customStatusCode === 'number' &&
+      customStatusCode >= 400 &&
+      customStatusCode < 600)
+  ) {
+    const statusCode = customStatusCode || (err as any).statusCode || 500;
+    const code =
+      (err as any).code ||
+      (statusCode === 404
+        ? 'NOT_FOUND'
+        : statusCode === 401
+          ? 'UNAUTHORIZED'
+          : statusCode === 403
+            ? 'FORBIDDEN'
+            : statusCode === 400
+              ? 'BAD_REQUEST'
+              : 'ERROR');
+    res.status(statusCode).json({
       success: false,
       error: {
-        code: err.code,
+        code,
         message: err.message,
-        details: err.details,
+        details: (err as any).details,
       },
     });
     return;

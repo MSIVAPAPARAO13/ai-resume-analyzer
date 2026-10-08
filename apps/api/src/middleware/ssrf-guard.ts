@@ -71,7 +71,7 @@ export function assertSafeUrl(rawUrl: string, fieldName = 'URL'): void {
 
   if (BLOCKED_HOSTNAMES.includes(hostname)) {
     throw new AppError(
-      `${fieldName} targets a blocked or private host`,
+      `Blocked internal or private URL: ${fieldName} targets a blocked or private host`,
       400,
       'SSRF_BLOCKED',
     );
@@ -80,7 +80,7 @@ export function assertSafeUrl(rawUrl: string, fieldName = 'URL'): void {
   for (const prefix of PRIVATE_IP_PREFIXES) {
     if (hostname.startsWith(prefix)) {
       throw new AppError(
-        `${fieldName} targets a blocked or private network`,
+        `Blocked internal or private URL: ${fieldName} targets a blocked or private network`,
         400,
         'SSRF_BLOCKED',
       );

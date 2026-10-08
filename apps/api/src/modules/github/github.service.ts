@@ -319,10 +319,19 @@ export class GitHubService {
    * Get single repository details
    */
   async getRepository(userId: string, repoId: string) {
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        repoId,
+      );
+
     const repo = await prisma.gitHubRepository.findFirst({
       where: {
         userId,
-        OR: [{ id: repoId }, { githubRepositoryId: repoId }],
+        OR: [
+          ...(isUuid ? [{ id: repoId }] : []),
+          { githubRepositoryId: repoId },
+          { name: repoId },
+        ],
       },
     });
 

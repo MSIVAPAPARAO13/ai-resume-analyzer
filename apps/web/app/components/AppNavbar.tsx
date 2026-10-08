@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuthStore } from '../stores/authStore.js';
 
@@ -34,8 +35,10 @@ export default function AppNavbar() {
   const { user, logout } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   async function handleLogout() {
+    setUserMenuOpen(false);
     await logout();
     navigate('/login');
   }
@@ -116,13 +119,13 @@ export default function AppNavbar() {
 
           {/* User Profile & Actions */}
           <div className="d-flex align-items-center gap-3 pt-2 pt-lg-0 border-top border-secondary border-lg-0">
-            <div className="dropdown">
+            <div className={`dropdown ${userMenuOpen ? 'show' : ''}`}>
               <button
                 className="btn btn-dark border-secondary dropdown-toggle d-flex align-items-center gap-2 py-1 px-2"
                 type="button"
-                data-bs-toggle="dropdown"
                 id="user-menu"
-                aria-expanded="false"
+                aria-expanded={userMenuOpen}
+                onClick={() => setUserMenuOpen((prev) => !prev)}
               >
                 <div
                   className="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
@@ -138,7 +141,10 @@ export default function AppNavbar() {
                   {user?.name || user?.email || 'Account'}
                 </span>
               </button>
-              <ul className="dropdown-menu dropdown-menu-end bg-dark border-secondary shadow-lg">
+              <ul
+                className={`dropdown-menu dropdown-menu-end bg-dark border-secondary shadow-lg ${userMenuOpen ? 'show' : ''}`}
+                style={{ position: 'absolute', right: 0 }}
+              >
                 <li className="px-3 py-2 border-bottom border-secondary text-secondary small">
                   <div className="fw-semibold text-white">
                     {user?.name || 'User'}

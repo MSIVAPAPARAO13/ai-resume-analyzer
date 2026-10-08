@@ -198,7 +198,8 @@ export function createApp(): express.Application {
   app.use('/api/v1/interviews', interviewRouter);
   app.use('/api/v1/applications', applicationRouter);
   app.use('/api/v1/jobs', jobRouter);
-  app.use('/api/v1', jobSearchLimiter, jobSearchRouter);
+  app.use('/api/v1/job-search', jobSearchLimiter);
+  app.use('/api/v1', jobSearchRouter);
   app.use('/api/v1/analytics', analyticsRouter);
   app.use('/api/v1/learning-plans', learningRouter);
   app.use('/api/v1', learningEntityRouter);

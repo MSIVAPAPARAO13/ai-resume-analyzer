@@ -6,7 +6,10 @@ export const registerSchema = z.object({
     .string()
     .min(8, 'Password must be at least 8 characters')
     .max(100, 'Password must not exceed 100 characters'),
-  name: z.string().min(1).max(100).optional(),
+  name: z.preprocess(
+    (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+    z.string().min(1).max(100).optional(),
+  ),
 });
 
 export const loginSchema = z.object({

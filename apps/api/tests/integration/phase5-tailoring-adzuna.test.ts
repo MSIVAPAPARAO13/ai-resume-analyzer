@@ -107,7 +107,7 @@ describe('Phase 5 — Integration Tests: AI Resume Tailoring & Adzuna Job Search
         .set('Authorization', `Bearer ${token1}`)
         .attach('file', Buffer.from(SAMPLE_RESUME_PDF), 'samantha_resume.pdf');
 
-      resumeId = uploadRes.body.data?.id;
+      resumeId = uploadRes.body.data?.resume?.id || uploadRes.body.data?.id;
 
       // 5. Create Job for User 1
       const jobRes = await request(app)
@@ -294,7 +294,10 @@ Requirements:
       const initialVersions = await request(app)
         .get(`/api/v1/resumes/${resumeId}/versions`)
         .set('Authorization', `Bearer ${token1}`);
-      const initialCount = initialVersions.body.data.length;
+      const initialCount =
+        initialVersions.body.data?.versions?.length ??
+        initialVersions.body.data?.length ??
+        0;
 
       // Complete session
       const completeRes = await request(app)
@@ -313,15 +316,23 @@ Requirements:
       const updatedVersions = await request(app)
         .get(`/api/v1/resumes/${resumeId}/versions`)
         .set('Authorization', `Bearer ${token1}`);
-      expect(updatedVersions.body.data.length).toBe(initialCount + 1);
+      const updatedCount =
+        updatedVersions.body.data?.versions?.length ??
+        updatedVersions.body.data?.length ??
+        0;
+      expect(updatedCount).toBe(initialCount + 1);
 
       // Verify that analysis was automatically run for the new version
       const analysisRes = await request(app)
         .get(`/api/v1/resumes/${resumeId}/analysis`)
         .set('Authorization', `Bearer ${token1}`);
       expect(analysisRes.status).toBe(200);
-      expect(analysisRes.body.data.version.id).toBe(newVersion.id);
-      expect(analysisRes.body.data.overallScore).toBeGreaterThan(0);
+      const analysisData =
+        analysisRes.body.data?.analysis ?? analysisRes.body.data;
+      expect(analysisData.version?.id || analysisData.versionId).toBe(
+        newVersion.id,
+      );
+      expect(analysisData.overallScore).toBeGreaterThan(0);
     });
   });
 

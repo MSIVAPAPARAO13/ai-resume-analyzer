@@ -36,7 +36,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (email, password, name) => {
     set({ loading: true });
     try {
-      const data = await authApi.register({ email, password, name });
+      const data = await authApi.register({
+        email,
+        password,
+        name: name?.trim() || undefined,
+      });
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
       set({

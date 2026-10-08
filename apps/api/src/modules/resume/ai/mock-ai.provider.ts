@@ -114,9 +114,17 @@ export class MockAIProvider implements AIProvider {
     ]);
 
     // Matching required skills from Job DNA
-    const matchedJobSkills = jobDna.skills
-      .filter((s) => allEvidenceSkillNames.has(s.name.toLowerCase()))
-      .map((s) => s.name);
+    const jobSkills = Array.isArray(jobDna?.skills)
+      ? jobDna.skills
+      : Array.isArray((jobDna as any)?.requiredSkills)
+        ? (jobDna as any).requiredSkills
+        : [];
+    const matchedJobSkills = jobSkills
+      .filter((s: any) => {
+        const name = typeof s === 'string' ? s : s?.name;
+        return name && allEvidenceSkillNames.has(name.toLowerCase());
+      })
+      .map((s: any) => (typeof s === 'string' ? s : s?.name));
 
     const prioritizedSkills =
       matchedJobSkills.length > 0
