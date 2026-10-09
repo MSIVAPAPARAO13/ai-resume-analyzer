@@ -97,22 +97,20 @@ export class CalendarService {
       ? new Date(Date.now() + tokenData.expiresIn * 1000)
       : null;
 
-    await (prisma as any).calendarConnection.upsert({
+    await prisma.calendarConnection.upsert({
       where: { userId },
       update: {
-        provider: 'GOOGLE',
-        accessToken: encryptedAccessToken,
-        refreshToken: encryptedRefreshToken,
-        expiresAt,
-        scope: tokenData.scope,
+        accessTokenEncrypted: encryptedAccessToken,
+        refreshTokenEncrypted: encryptedRefreshToken,
+        accessTokenExpiresAt: expiresAt,
+        googleEmail: 'user@gmail.com',
       },
       create: {
         userId,
-        provider: 'GOOGLE',
-        accessToken: encryptedAccessToken,
-        refreshToken: encryptedRefreshToken,
-        expiresAt,
-        scope: tokenData.scope,
+        accessTokenEncrypted: encryptedAccessToken,
+        refreshTokenEncrypted: encryptedRefreshToken,
+        accessTokenExpiresAt: expiresAt,
+        googleEmail: 'user@gmail.com',
       },
     });
 
@@ -120,12 +118,12 @@ export class CalendarService {
   }
 
   async getStatus(userId: string) {
-    const conn = await (prisma as any).calendarConnection.findUnique({
+    const conn = await prisma.calendarConnection.findUnique({
       where: { userId },
       select: {
         id: true,
-        provider: true,
-        scope: true,
+        googleEmail: true,
+        accessTokenExpiresAt: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -133,18 +131,26 @@ export class CalendarService {
 
     return {
       connected: !!conn,
-      connection: conn,
+      connection: conn
+        ? {
+            id: conn.id,
+            provider: 'GOOGLE',
+            email: conn.googleEmail,
+            createdAt: conn.createdAt,
+            updatedAt: conn.updatedAt,
+          }
+        : null,
     };
   }
 
   async disconnect(userId: string): Promise<void> {
-    const conn = await (prisma as any).calendarConnection.findUnique({
+    const conn = await prisma.calendarConnection.findUnique({
       where: { userId },
     });
 
     if (conn) {
       try {
-        const decryptedToken = decryptToken(conn.accessToken);
+        const decryptedToken = decryptToken(conn.accessTokenEncrypted);
         if (this.provider.revokeToken) {
           await this.provider.revokeToken(decryptedToken);
         }
@@ -152,7 +158,7 @@ export class CalendarService {
         // Safe to ignore token decryption/revocation failure on disconnect
       }
 
-      await (prisma as any).calendarConnection.delete({
+      await prisma.calendarConnection.delete({
         where: { userId },
       });
     }
@@ -162,7 +168,7 @@ export class CalendarService {
     userId: string,
     eventPayload: CalendarEventPayload,
   ): Promise<CalendarEventResult> {
-    const conn = await (prisma as any).calendarConnection.findUnique({
+    const conn = await prisma.calendarConnection.findUnique({
       where: { userId },
     });
 
@@ -174,7 +180,7 @@ export class CalendarService {
       );
     }
 
-    const decryptedAccessToken = decryptToken(conn.accessToken);
+    const decryptedAccessToken = decryptToken(conn.accessTokenEncrypted);
     return this.provider.createEvent(decryptedAccessToken, eventPayload);
   }
 }

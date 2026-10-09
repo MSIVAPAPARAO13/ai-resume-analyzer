@@ -82,3 +82,16 @@ Verified `google-calendar.provider.ts` constructs RFC 6749 compliant Google OAut
 | **Production / Live GCP** | `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET` set | Google OAuth 2.0 consent dialog (`accounts.google.com`) | AES-256-GCM encrypted in PostgreSQL | Live Google Calendar API (`googleapis.com/calendar/v3`) |
 
 **Remaining External Blocker for Live Provider**: Live Google Calendar synchronization requires Google Cloud Console OAuth 2.0 client credentials (`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`) authorized for the target deployment domain. In local development without client credentials, the secure local mock provider executes the complete connected lifecycle end-to-end.
+
+---
+
+## 5. Defect Resolution: `CalendarConnection.upsert()` Field Mismatch (Status 500)
+
+- **Symptom**: During OAuth callback redirect, server returned HTTP 500: `Invalid any.calendarConnection.upsert() invocation: Unknown argument provider, accessToken, refreshToken, expiresAt, scope`.
+- **Root Cause**: `apps/api/src/modules/calendar/calendar.service.ts` bypassed TypeScript using `(prisma as any).calendarConnection` and attempted to write legacy/unmapped field names (`provider`, `accessToken`, `refreshToken`, `expiresAt`, `scope`) instead of the declared schema fields (`accessTokenEncrypted`, `refreshTokenEncrypted`, `accessTokenExpiresAt`, `googleEmail`).
+- **Remediation**:
+  1. Removed `any` casting and strongly typed all queries against Prisma's generated `prisma.calendarConnection` client.
+  2. Mapped `accessTokenEncrypted` to `encryptedAccessToken`, `refreshTokenEncrypted` to `encryptedRefreshToken`, and `accessTokenExpiresAt` to `expiresAt`.
+  3. Aligned `getStatus()` to select valid schema attributes (`id`, `googleEmail`, `accessTokenExpiresAt`, `createdAt`, `updatedAt`).
+  4. Verified end-to-end OAuth callback redirect returns HTTP 302 with `status=success` and updates connection record in PostgreSQL.
+

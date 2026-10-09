@@ -44,8 +44,8 @@ export default function AnalyticsRolesPage() {
     );
   }
 
-  const role = roleData?.targetRole || 'Software Engineer';
-  const level = roleData?.targetLevel || 'Mid-Level';
+  const role = roleData?.targetRole || 'Not specified';
+  const level = roleData?.targetLevel || 'Not specified';
   const strongSkills = roleData?.strongSkills || [];
   const partialSkills = roleData?.partialSkills || [];
   const missingSkills = roleData?.missingSkills || [];

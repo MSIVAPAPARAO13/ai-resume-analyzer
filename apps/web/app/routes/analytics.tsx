@@ -61,7 +61,7 @@ export default function AnalyticsDashboardPage() {
     );
   }
 
-  const cr = overview?.careerReadiness || {
+  const cr = overview?.careerReadiness || overview?.readiness || {
     overallScore: 0,
     skillAlignment: 0,
     resumeReadiness: 0,

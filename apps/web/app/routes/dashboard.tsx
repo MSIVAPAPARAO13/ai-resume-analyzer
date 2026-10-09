@@ -155,9 +155,9 @@ export default function DashboardPage() {
               id: firstPlan.id,
               title: firstPlan.title,
               targetRole: firstPlan.targetRole,
-              totalTasks: 5,
-              completedTasks: 2,
-              progressPercentage: 40,
+              totalTasks: 0,
+              completedTasks: 0,
+              progressPercentage: 0,
             };
           }
         }
@@ -171,23 +171,25 @@ export default function DashboardPage() {
           : gapsRes.value.gaps || [];
       }
 
+      const readinessObj = overview?.readiness || overview?.careerReadiness;
+
       setStats({
-        targetRole: profile?.targetRole || 'Full Stack Developer',
-        targetLevel: profile?.targetLevel || 'Entry Level',
+        targetRole: profile?.targetRole || 'Not specified',
+        targetLevel: profile?.targetLevel || 'Not specified',
         skillsCount: skills?.length || 0,
         experiencesCount: exp?.length || 0,
         projectsCount: proj?.length || 0,
-        readinessScore: overview?.readiness?.overallScore ?? 85,
+        readinessScore: readinessObj?.overallScore ?? 0,
         readinessBreakdown: {
-          skillAlignment: overview?.readiness?.skillAlignment ?? 90,
-          resumeReadiness: overview?.readiness?.resumeReadiness ?? 86,
-          evidenceStrength: overview?.readiness?.evidenceStrength ?? 88,
-          interviewReadiness: overview?.readiness?.interviewReadiness ?? 85,
+          skillAlignment: readinessObj?.skillAlignment ?? 0,
+          resumeReadiness: readinessObj?.resumeReadiness ?? 0,
+          evidenceStrength: readinessObj?.evidenceStrength ?? 0,
+          interviewReadiness: readinessObj?.interviewReadiness ?? 0,
         },
         activeApplicationsCount:
           overview?.pipelineSummary?.activeApplications ?? appsList.length,
         completedInterviewsCount:
-          overview?.pipelineSummary?.completedInterviews ?? 1,
+          overview?.pipelineSummary?.completedInterviews ?? 0,
         recentApplications: appsList.slice(0, 4).map((a) => ({
           id: a.id,
           company: a.company,

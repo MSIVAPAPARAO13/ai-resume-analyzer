@@ -594,6 +594,7 @@ export class AnalyticsService {
 
     const result = {
       readiness,
+      careerReadiness: readiness,
       skillsSummary: {
         totalSkills: userSkills.length,
         strong: strongSkillsCount,

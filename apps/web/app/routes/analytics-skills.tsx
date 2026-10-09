@@ -52,9 +52,11 @@ export default function AnalyticsSkillsPage() {
     );
   }
 
-  const allGaps = gapsData?.gaps || [];
+  const allGaps = Array.isArray(gapsData)
+    ? gapsData
+    : gapsData?.gaps || [];
   const filteredGaps = allGaps.filter((g: any) => {
-    const matchesSearch = g.skill
+    const matchesSearch = (g.skill || g.name || '')
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesPriority =
@@ -62,12 +64,17 @@ export default function AnalyticsSkillsPage() {
     return matchesSearch && matchesPriority;
   });
 
-  const allSkills = skillsData?.skills || [];
+  const allSkills = Array.isArray(skillsData)
+    ? skillsData
+    : skillsData?.skills || [];
   const filteredSkills = allSkills.filter((s: any) => {
+    const canonical = s.canonicalName || s.name || '';
+    const original = s.originalName || s.name || '';
+    const cat = s.category || '';
     return (
-      s.canonicalName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.originalName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.category.toLowerCase().includes(searchQuery.toLowerCase())
+      canonical.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      original.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cat.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
 

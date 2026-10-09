@@ -35,3 +35,15 @@ PostgreSQL 16 ──► Prisma ORM ──► Express REST Controller ──► R
 | **Career Velocity** | `/analytics` | `GET /api/v1/analytics/overview` | `CareerSnapshot` | **NO HARDCODED DATA** | Historical readiness graph data |
 | **Skill Gaps** | `/analytics/skills` | `GET /api/v1/analytics/skills/gaps` | `JobRequirement`, `Skill` | **NO HARDCODED DATA** | 6 prioritized market skill gaps |
 | **Learning Plans** | `/learning` | `GET /api/v1/learning-plans` | `LearningPlan`, `Goal`, `Task` | **NO HARDCODED DATA** | Docker Mastery (40% progress) |
+
+---
+
+## 3. Synthetic Fallback Elimination & Truthful User Analytics
+
+- **Defect Remediated**: In `apps/web/app/routes/dashboard.tsx`, several stats properties previously used synthetic fallback numbers (`?? 85`, `?? 90`, `?? 86`, `?? 88`, `?? 1`, `totalTasks: 5, completedTasks: 2, progressPercentage: 40`).
+- **Remediation**:
+  1. Replaced all synthetic constants with truthful defaults (`0` or `'Not specified'`).
+  2. In `apps/web/app/routes/analytics.tsx` and `analytics-roles.tsx`, normalized target role, level, and career readiness scores strictly to live user profile data.
+  3. In `apps/web/app/routes/analytics-skills.tsx`, normalized both array and wrapped `{ skills: [...] }` / `{ gaps: [...] }` response formats.
+  4. Tested with both pre-seeded demo user (`alex.morgan.qa@resumind.dev`) and newly registered users to confirm metrics reflect only the authenticated user's actual database records.
+
