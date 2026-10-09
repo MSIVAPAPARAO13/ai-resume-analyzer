@@ -1,8 +1,8 @@
 <p align="center">
-  <img width="692" height="210" alt="image" src="https://github.com/user-attachments/assets/7daedb09-167b-483a-981c-bd9be3889208" />
+  <img width="692" height="210" alt="Resumind Banner" src="https://github.com/user-attachments/assets/7daedb09-167b-483a-981c-bd9be3889208" />
 </p>
 
-# 🚀 Resumind — AI Career & Resume Optimization SaaS
+# 🚀 Resumind — AI Career Intelligence & Resume Optimization SaaS
 
 > **Enterprise-Grade AI Career Intelligence, Anti-Hallucination Resume Tailoring & Growth CRM**  
 > Built with React 19, Express 4, TypeScript, Prisma ORM, PostgreSQL 16, Redis 7, and Google Gemini AI.
@@ -11,40 +11,57 @@
 
 ## 📌 Product Overview
 
-Searching for jobs and optimizing resumes has become an opaque, noisy process dominated by applicant tracking systems (ATS) and generic generative AI that invents claims.
+Searching for jobs and optimizing resumes has become an opaque, noisy process dominated by applicant tracking systems (ATS) and generic generative AI that fabricates claims.
 
 **Resumind** solves this by treating candidate history as a verifiable **Career Twin**:
 1. **ATS Transparency**: Ingests PDF/DOCX resumes, scores formatting, structure, and keyword density against transparent ATS rubrics.
-2. **Evidence Guard (Anti-Hallucination)**: Tailors resumes to job descriptions while strictly constraining bullet points to verified achievements in the user's Career Twin and connected GitHub repositories. Unverified claims are flagged as `UNSUPPORTED`.
-3. **Unified Career Operations**: Integrates ATS scoring, Job DNA extraction, application pipeline CRM, role-specific STAR mock interviews, Google Calendar sync, and evidence-building learning plans into one cohesive platform.
+2. **Evidence Guard™ (Anti-Hallucination)**: Tailors resumes to job descriptions while strictly constraining bullet points to verified achievements in the user's Career Twin and connected GitHub repositories. Unverified claims are flagged as `UNSUPPORTED` or `NEEDS_REVIEW`.
+3. **Natural Slate-Indigo Aesthetics**: Premium cosmic slate gradient canvas, frosted glass depth (`backdrop-filter: blur(16px)`), luminous borders, and fluid micro-animations.
+4. **SEO & Growth Ready**: Full Schema.org JSON-LD structured data, dynamic OpenGraph & Twitter meta tags, semantic HTML5 structure, and high-converting public landing experience.
+5. **Unified Career Operations**: Integrates ATS scoring, Job DNA extraction, application pipeline CRM, role-specific STAR mock interviews, Google Calendar sync, and evidence-building learning plans into one cohesive platform.
 
 ---
 
-## 📸 Product Screenshots (Captured from Running Application)
+## 📸 Product Screenshots (Captured Live from Application)
 
-### Command Center Dashboard
+### 🌟 High-Converting SEO Landing Page
+![Resumind Landing Page](docs/screenshots/01-landing.png)
+
+### 🛡️ AI Resume Tailoring Studio with Evidence Guard™
+![AI Tailoring Studio](docs/screenshots/11-ai-tailoring.png)
+
+### 🏠 Command Center Dashboard
 ![Resumind Dashboard](docs/screenshots/04-dashboard.png)
 
-### Career Twin — Verified Profile Architecture
+### 💼 Career Twin — Verified Profile Architecture
 ![Career Twin](docs/screenshots/05-career-twin.png)
 
-### Resume Intelligence & ATS Diagnostics
+### 📄 Resume Intelligence & ATS Diagnostics
 ![Resume Analysis](docs/screenshots/08-resume-analysis.png)
 
-### Job DNA & Match Matrix
+### 🎯 Job DNA & Match Matrix
 ![Job Match](docs/screenshots/10-job-match.png)
 
-### Applications Pipeline CRM
+### 📋 Applications Pipeline CRM
 ![Applications Pipeline](docs/screenshots/12-applications.png)
 
-### Interview Intelligence & Mock Simulation
+### 🎙️ Interview Intelligence & Mock Simulation
 ![Interview Intelligence](docs/screenshots/13-interviews.png)
 
-### Google Calendar Integration
+### 📊 Career Velocity & Skill Gap Intelligence
+![Career Analytics](docs/screenshots/15-analytics.png)
+
+### 🔍 Skill Gaps Diagnostics
+![Skill Gaps](docs/screenshots/16-skill-gaps.png)
+
+### 🎓 Evidence-Building Learning Plans
+![Learning Plans](docs/screenshots/17-learning-plans.png)
+
+### 🔌 Google Calendar Integration
 ![Google Calendar Integration](docs/screenshots/14-calendar-integration.png)
 
-### Career Velocity & Skill Gap Intelligence
-![Career Analytics](docs/screenshots/15-analytics.png)
+### 🔐 Sign In & Authentication
+![Sign In](docs/screenshots/03-login.png)
 
 ---
 
@@ -82,7 +99,7 @@ graph TD
 | **Caching & Queues**| Redis 7 (`ioredis ^5.6.0`) |
 | **AI & External APIs**| Google Gemini AI (`@google/genai ^2.27.0`), GitHub REST API, Google Calendar API, Adzuna API |
 | **Testing & E2E** | Vitest `^3.0.8`, Playwright `^1.50.1`, Supertest `^7.0.0` |
-| **Design System** | Google Stitch Design Tokens (`--rm-*`), Bootstrap 5 CSS, Inter, JetBrains Mono |
+| **Design System** | Google Stitch Design Tokens (`--rm-*`), Bootstrap 5 CSS, Plus Jakarta Sans, Inter |
 
 ---
 
@@ -215,7 +232,7 @@ npm run test:e2e
 
 1. **Strict Tenant Isolation**: All database operations query strictly by `userId` resolved from signed JWT claims. Direct API access to other candidates' records is blocked (returns 404/403).
 2. **Password Security**: Passwords hashed using Argon2 with unique salts. Plaintext passwords are never logged or stored.
-3. **Evidence Guard**: AI resume suggestions are validated against verified Career Twin entries. Unsupported assertions are highlighted in red to prevent hallucinated claims.
+3. **Evidence Guard™**: AI resume suggestions are validated against verified Career Twin entries. Unsupported assertions are highlighted in red to prevent hallucinated claims.
 4. **Encrypted OAuth Tokens**: External OAuth tokens for Google Calendar and GitHub are encrypted in PostgreSQL using AES-256-GCM.
 5. **Hardened HTTP Headers**: Helmet enforces CSP, strict MIME sniffing protection, clickjacking defense (`X-Frame-Options: DENY`), and modern `Permissions-Policy`.
 
