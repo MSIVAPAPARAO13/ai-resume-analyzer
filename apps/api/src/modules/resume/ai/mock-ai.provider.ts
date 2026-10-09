@@ -102,11 +102,20 @@ export class MockAIProvider implements AIProvider {
     const { parsedResume, careerTwin, jobDna } = params;
 
     // Identify candidate skills from resume and Career Twin
-    const resumeSkillNames = parsedResume.skills.map((s) =>
-      s.name.toLowerCase(),
-    );
+    const resumeSkillsArray = Array.isArray(parsedResume?.skills)
+      ? parsedResume.skills
+      : [];
+    const resumeSkillNames = resumeSkillsArray
+      .map((s: any) =>
+        (typeof s === 'string' ? s : s?.name || '').toLowerCase(),
+      )
+      .filter(Boolean);
     const twinSkillNames = Array.isArray(careerTwin?.skills)
-      ? careerTwin.skills.map((s: any) => s.name.toLowerCase())
+      ? careerTwin.skills
+          .map((s: any) =>
+            (typeof s === 'string' ? s : s?.name || '').toLowerCase(),
+          )
+          .filter(Boolean)
       : [];
     const allEvidenceSkillNames = new Set([
       ...resumeSkillNames,
@@ -129,13 +138,16 @@ export class MockAIProvider implements AIProvider {
     const prioritizedSkills =
       matchedJobSkills.length > 0
         ? matchedJobSkills.slice(0, 8)
-        : parsedResume.skills.slice(0, 6).map((s) => s.name);
+        : resumeSkillsArray
+            .slice(0, 6)
+            .map((s: any) => (typeof s === 'string' ? s : s?.name || ''))
+            .filter(Boolean);
 
     const suggestions: TailoringSuggestion[] = [];
 
     // 1. SUMMARY_UPDATE
     const existingSummary =
-      parsedResume.summary || 'Software professional with industry experience.';
+      parsedResume?.summary || 'Software professional with industry experience.';
     const skillListStr =
       prioritizedSkills.slice(0, 3).join(', ') ||
       'modern software architectures';
@@ -155,8 +167,9 @@ export class MockAIProvider implements AIProvider {
       suggestions.push({
         type: 'KEYWORD_ALIGNMENT',
         original:
-          parsedResume.skills
-            .map((s) => s.name)
+          resumeSkillsArray
+            .map((s: any) => (typeof s === 'string' ? s : s?.name || ''))
+            .filter(Boolean)
             .slice(0, 5)
             .join(', ') || 'General Engineering',
         proposed: prioritizedSkills.join(' • '),
@@ -168,12 +181,15 @@ export class MockAIProvider implements AIProvider {
     }
 
     // 3. REWRITE (Experience bullet)
-    if (parsedResume.experience.length > 0) {
-      const firstExp = parsedResume.experience[0];
+    const resumeExp = Array.isArray(parsedResume?.experience)
+      ? parsedResume.experience
+      : [];
+    if (resumeExp.length > 0) {
+      const firstExp = resumeExp[0];
       const origBullet =
         firstExp.bullets?.[0] ||
         firstExp.description ||
-        `Developed software features at ${firstExp.company}.`;
+        `Developed software features at ${firstExp.company || 'previous employer'}.`;
       const techMention = matchedJobSkills[0] || 'Node.js';
       suggestions.push({
         type: 'REWRITE',
@@ -181,7 +197,7 @@ export class MockAIProvider implements AIProvider {
         proposed: `Architected and implemented production services using ${techMention}, enhancing reliability and supporting cross-functional team deliverables.`,
         reason: `Reframes bullet point to highlight required technology (${techMention}) and engineering ownership.`,
         evidenceReferences: [
-          `Resume: Experience (${firstExp.company})`,
+          `Resume: Experience (${firstExp.company || 'Industry'})`,
           'CareerTwin: Experience',
         ],
         confidence: 0.88,
@@ -190,6 +206,9 @@ export class MockAIProvider implements AIProvider {
     }
 
     // 4. PROJECT_EMPHASIS
+    const resumeProj = Array.isArray(parsedResume?.projects)
+      ? parsedResume.projects
+      : [];
     if (Array.isArray(careerTwin?.projects) && careerTwin.projects.length > 0) {
       const proj = careerTwin.projects[0];
       suggestions.push({
@@ -201,8 +220,8 @@ export class MockAIProvider implements AIProvider {
         confidence: 0.9,
         requiresUserApproval: true,
       });
-    } else if (parsedResume.projects && parsedResume.projects.length > 0) {
-      const proj = parsedResume.projects[0];
+    } else if (resumeProj.length > 0) {
+      const proj = resumeProj[0];
       suggestions.push({
         type: 'PROJECT_EMPHASIS',
         original: proj.description || proj.name,

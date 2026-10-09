@@ -150,16 +150,17 @@ export class ResumeTailoringService {
           educationRequirement: jobAnalysis?.educationRequirement || null,
         };
 
-    const parsedResume: ParsedResumeData =
-      (latestVersion.parsedData as ParsedResumeData) || {
-        contact: {},
-        summary: null,
-        skills: [],
-        experience: [],
-        education: [],
-        projects: [],
-        certifications: [],
-      };
+    const rawParsed = (latestVersion.parsedData as any) || {};
+    const parsedResume: ParsedResumeData = {
+      contact: rawParsed.contact || {},
+      summary: rawParsed.summary || null,
+      skills: Array.isArray(rawParsed.skills) ? rawParsed.skills : [],
+      experience: Array.isArray(rawParsed.experience) ? rawParsed.experience : [],
+      education: Array.isArray(rawParsed.education) ? rawParsed.education : [],
+      projects: Array.isArray(rawParsed.projects) ? rawParsed.projects : [],
+      certifications: Array.isArray(rawParsed.certifications) ? rawParsed.certifications : [],
+      achievements: Array.isArray(rawParsed.achievements) ? rawParsed.achievements : [],
+    };
 
     // 6. Invoke AI Provider
     let aiProvider = this.customAiProvider || getAIProvider(options?.provider);
@@ -434,9 +435,19 @@ export class ResumeTailoringService {
       (s: any) => s.status === 'ACCEPTED',
     );
 
-    const baseParsed: ParsedResumeData = JSON.parse(
+    const rawBase = JSON.parse(
       JSON.stringify(session.resumeVersion.parsedData || {}),
     );
+    const baseParsed: ParsedResumeData = {
+      contact: rawBase.contact || {},
+      summary: rawBase.summary || null,
+      skills: Array.isArray(rawBase.skills) ? rawBase.skills : [],
+      experience: Array.isArray(rawBase.experience) ? rawBase.experience : [],
+      education: Array.isArray(rawBase.education) ? rawBase.education : [],
+      projects: Array.isArray(rawBase.projects) ? rawBase.projects : [],
+      certifications: Array.isArray(rawBase.certifications) ? rawBase.certifications : [],
+      achievements: Array.isArray(rawBase.achievements) ? rawBase.achievements : [],
+    };
     let updatedText = session.resumeVersion.extractedText || '';
 
     // Apply accepted suggestions

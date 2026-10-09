@@ -35,36 +35,41 @@ export class ComparisonEngine {
     parsed: ParsedResumeData,
     careerTwin: any,
   ): CareerTwinComparisonResult {
+    const parsedSkills = Array.isArray(parsed?.skills) ? parsed.skills : [];
+    const parsedExp = Array.isArray(parsed?.experience) ? parsed.experience : [];
+    const parsedProjects = Array.isArray(parsed?.projects) ? parsed.projects : [];
+    const parsedEdu = Array.isArray(parsed?.education) ? parsed.education : [];
+
     if (!careerTwin) {
       return {
         hasTwin: false,
         skills: {
           presentInBoth: [],
           inTwinOnly: [],
-          inResumeOnly: parsed.skills.map((s) => s.name),
+          inResumeOnly: parsedSkills.map((s: any) => (typeof s === 'string' ? s : s?.name || '')),
         },
         experiences: {
           presentInBoth: [],
           inTwinOnly: [],
-          inResumeOnly: parsed.experience.map((e) => ({
-            company: e.company,
-            title: e.title,
+          inResumeOnly: parsedExp.map((e: any) => ({
+            company: e?.company || '',
+            title: e?.title || '',
           })),
         },
         projects: {
           presentInBoth: [],
           inTwinOnly: [],
-          inResumeOnly: parsed.projects.map((p) => p.name),
+          inResumeOnly: parsedProjects.map((p: any) => (typeof p === 'string' ? p : p?.name || '')),
         },
         education: {
           presentInBoth: [],
           inTwinOnly: [],
-          inResumeOnly: parsed.education.map((e) => e.institution),
+          inResumeOnly: parsedEdu.map((e: any) => (typeof e === 'string' ? e : e?.institution || '')),
         },
         summary: {
           matchRate: 0,
           twinSkillsCount: 0,
-          resumeSkillsCount: parsed.skills.length,
+          resumeSkillsCount: parsedSkills.length,
           missingHighValueSkillsCount: 0,
         },
       };
@@ -72,9 +77,11 @@ export class ComparisonEngine {
 
     // ─── 1. Skills Comparison ───────────────────────────────────────────────────
     const twinSkills: string[] = (careerTwin.skills || []).map((s: any) =>
-      s.name.trim(),
+      (typeof s === 'string' ? s : s?.name || '').trim(),
     );
-    const resumeSkills: string[] = parsed.skills.map((s) => s.name.trim());
+    const resumeSkills: string[] = parsedSkills.map((s: any) =>
+      (typeof s === 'string' ? s : s?.name || '').trim(),
+    );
 
     const twinSkillsLower = twinSkills.map((s) => s.toLowerCase());
     const resumeSkillsLower = resumeSkills.map((s) => s.toLowerCase());
@@ -101,12 +108,12 @@ export class ComparisonEngine {
 
     // ─── 2. Experiences Comparison ──────────────────────────────────────────────
     const twinExp = (careerTwin.experiences || []).map((e: any) => ({
-      company: e.company.trim(),
-      title: e.title.trim(),
+      company: (e?.company || '').trim(),
+      title: (e?.title || '').trim(),
     }));
-    const resumeExp = parsed.experience.map((e) => ({
-      company: e.company.trim(),
-      title: e.title.trim(),
+    const resumeExp = parsedExp.map((e: any) => ({
+      company: (e?.company || '').trim(),
+      title: (e?.title || '').trim(),
     }));
 
     const expInBoth: Array<{ company: string; title: string }> = [];
@@ -139,9 +146,11 @@ export class ComparisonEngine {
 
     // ─── 3. Projects Comparison ─────────────────────────────────────────────────
     const twinProjects: string[] = (careerTwin.projects || []).map((p: any) =>
-      p.name.trim(),
+      (typeof p === 'string' ? p : p?.name || '').trim(),
     );
-    const resumeProjects: string[] = parsed.projects.map((p) => p.name.trim());
+    const resumeProjects: string[] = parsedProjects.map((p: any) =>
+      (typeof p === 'string' ? p : p?.name || '').trim(),
+    );
 
     const projInBoth: string[] = [];
     const projInTwinOnly: string[] = [];
@@ -173,10 +182,10 @@ export class ComparisonEngine {
 
     // ─── 4. Education Comparison ────────────────────────────────────────────────
     const twinEdu: string[] = (careerTwin.education || []).map((e: any) =>
-      e.institution.trim(),
+      (typeof e === 'string' ? e : e?.institution || '').trim(),
     );
-    const resumeEdu: string[] = parsed.education.map((e) =>
-      e.institution.trim(),
+    const resumeEdu: string[] = parsedEdu.map((e: any) =>
+      (typeof e === 'string' ? e : e?.institution || '').trim(),
     );
 
     const eduInBoth: string[] = [];
