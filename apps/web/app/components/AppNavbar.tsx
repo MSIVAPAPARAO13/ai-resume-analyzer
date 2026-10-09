@@ -11,9 +11,9 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: '/dashboard', label: 'Dashboard', icon: '🏠', id: 'nav-dashboard' },
-  { to: '/career', label: 'Career Twin', icon: '💼', id: 'nav-career' },
+  { to: '/career', label: 'Career', icon: '💼', id: 'nav-career' },
   { to: '/resumes', label: 'Resumes', icon: '📄', id: 'nav-resumes' },
-  { to: '/jobs', label: 'Jobs & Matching', icon: '🎯', id: 'nav-jobs' },
+  { to: '/jobs', label: 'Jobs', icon: '🎯', id: 'nav-jobs' },
   {
     to: '/applications',
     label: 'Applications',
@@ -56,7 +56,7 @@ export default function AppNavbar() {
 
   return (
     <nav
-      className="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary px-3 px-lg-4 sticky-top"
+      className="navbar navbar-expand-xl navbar-dark bg-dark border-bottom border-secondary px-3 px-xl-4 sticky-top"
       role="navigation"
       aria-label="Main Application Navigation"
     >
@@ -135,8 +135,8 @@ export default function AppNavbar() {
                   {initials}
                 </div>
                 <span
-                  className="text-secondary small d-none d-sm-inline text-truncate"
-                  style={{ maxWidth: 160 }}
+                  className="text-secondary small d-none d-xxl-inline text-truncate"
+                  style={{ maxWidth: 120 }}
                 >
                   {user?.name || user?.email || 'Account'}
                 </span>

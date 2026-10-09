@@ -1,3 +1,4 @@
+import { env } from '../../config/env.js';
 import type {
   ICalendarProvider,
   CalendarEventPayload,
@@ -8,7 +9,8 @@ export class MockCalendarProvider implements ICalendarProvider {
   readonly name = 'MOCK_CALENDAR';
 
   getAuthUrl(state: string): string {
-    return `https://accounts.google.com/o/oauth2/v2/auth?mock=true&state=${encodeURIComponent(state)}`;
+    const callbackUri = env.GOOGLE_CALENDAR_REDIRECT_URI;
+    return `${callbackUri}?code=mock_calendar_auth_code_123&state=${encodeURIComponent(state)}`;
   }
 
   async exchangeCode(code: string): Promise<{

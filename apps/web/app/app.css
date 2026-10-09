@@ -21,6 +21,7 @@
 html,
 body {
   @apply bg-white;
+  overflow-x: hidden;
 }
 
 main {
@@ -154,4 +155,121 @@ form {
 /* Fix Tailwind visibility: collapse overriding Bootstrap navbar */
 .navbar-collapse.collapse {
   visibility: visible !important;
+}
+
+:root {
+  /* ── Canvas & Surface Colors ── */
+  --rm-canvas-bg: #090d16;
+  --rm-surface-base: #0f172a;
+  --rm-surface-raised: #141e33;
+  --rm-surface-overlay: #1e293b;
+  --rm-surface-subtle: #0b1120;
+
+  /* ── Border & Dividers ── */
+  --rm-border-subtle: #1e293b;
+  --rm-border-default: #2a374d;
+  --rm-border-emphasis: #3b4d6b;
+
+  /* ── Typography & Text ── */
+  --rm-text-primary: #f8fafc;
+  --rm-text-secondary: #94a3b8;
+  --rm-text-muted: #64748b;
+  --rm-text-inverse: #090d16;
+
+  /* ── Brand Primary (Intelligence Blue) ── */
+  --rm-primary-500: #3b82f6;
+  --rm-primary-600: #2563eb;
+  --rm-primary-700: #1d4ed8;
+  --rm-primary-glow: rgba(59, 130, 246, 0.25);
+
+  /* ── Evidence Guard Status Colors ── */
+  --rm-evidence-verified-bg: rgba(16, 185, 129, 0.12);
+  --rm-evidence-verified-border: #10b981;
+  --rm-evidence-verified-text: #34d399;
+
+  --rm-evidence-review-bg: rgba(245, 158, 11, 0.12);
+  --rm-evidence-review-border: #f59e0b;
+  --rm-evidence-review-text: #fbbf24;
+
+  --rm-evidence-unsupported-bg: rgba(239, 68, 68, 0.12);
+  --rm-evidence-unsupported-border: #ef4444;
+  --rm-evidence-unsupported-text: #f87171;
+
+  /* ── Semantic Feedback ── */
+  --rm-success: #10b981;
+  --rm-warning: #f59e0b;
+  --rm-danger: #ef4444;
+  --rm-info: #06b6d4;
+
+  /* ── Radii & Elevation ── */
+  --rm-radius-sm: 6px;
+  --rm-radius-md: 10px;
+  --rm-radius-lg: 14px;
+  --rm-radius-full: 9999px;
+
+  --rm-shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+  --rm-shadow-glow: 0 0 25px -5px var(--rm-primary-glow);
+}
+
+.bg-canvas {
+  background-color: var(--rm-canvas-bg) !important;
+}
+
+.bg-surface-base {
+  background-color: var(--rm-surface-base) !important;
+}
+
+.bg-surface-raised {
+  background-color: var(--rm-surface-raised) !important;
+}
+
+.bg-surface-overlay {
+  background-color: var(--rm-surface-overlay) !important;
+}
+
+.border-rm-subtle {
+  border-color: var(--rm-border-subtle) !important;
+}
+
+.border-rm-default {
+  border-color: var(--rm-border-default) !important;
+}
+
+.text-rm-primary {
+  color: var(--rm-text-primary) !important;
+}
+
+.text-rm-secondary {
+  color: var(--rm-text-secondary) !important;
+}
+
+.text-rm-muted {
+  color: var(--rm-text-muted) !important;
+}
+
+.badge-verified {
+  background-color: var(--rm-evidence-verified-bg) !important;
+  border: 1px solid var(--rm-evidence-verified-border) !important;
+  color: var(--rm-evidence-verified-text) !important;
+}
+
+.badge-review {
+  background-color: var(--rm-evidence-review-bg) !important;
+  border: 1px solid var(--rm-evidence-review-border) !important;
+  color: var(--rm-evidence-review-text) !important;
+}
+
+.badge-unsupported {
+  background-color: var(--rm-evidence-unsupported-bg) !important;
+  border: 1px solid var(--rm-evidence-unsupported-border) !important;
+  color: var(--rm-evidence-unsupported-text) !important;
+}
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--rm-shadow-card);
 }

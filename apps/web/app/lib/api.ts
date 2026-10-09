@@ -161,7 +161,16 @@ export const careerApi = {
 // ─── Resume Intelligence API ──────────────────────────────────────────────────
 
 export const resumeApi = {
-  listResumes: () => apiClient.get('/resumes').then((r) => r.data.data),
+  listResumes: () =>
+    apiClient
+      .get('/resumes')
+      .then((r) =>
+        Array.isArray(r.data.data?.resumes)
+          ? r.data.data.resumes
+          : Array.isArray(r.data.data)
+            ? r.data.data
+            : [],
+      ),
   getResume: (id: string) =>
     apiClient.get(`/resumes/${id}`).then((r) => r.data.data),
   uploadResume: (formData: FormData) =>

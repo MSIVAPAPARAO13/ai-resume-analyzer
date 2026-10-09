@@ -1,171 +1,229 @@
-# 🚀 Resumind
+# 🚀 Resumind — AI Career & Resume Optimization SaaS
 
-> **Enterprise-Grade AI Career Intelligence & Resume Optimization SaaS**
-> A production-hardened full-stack platform empowering modern candidates with ATS scoring, evidence-backed resume tailoring, GitHub evidence ingestion, application CRM, and interview readiness.
+> **Enterprise-Grade AI Career Intelligence, Anti-Hallucination Resume Tailoring & Growth CRM**  
+> Built with React 19, Express 4, TypeScript, Prisma ORM, PostgreSQL 16, Redis 7, and Google Gemini AI.
 
 ---
 
-## 📌 Overview & Problem Statement
+## 📌 Product Overview
 
-Resumind eliminates the guesswork in job searching:
+Searching for jobs and optimizing resumes has become an opaque, noisy process dominated by applicant tracking systems (ATS) and generic generative AI that invents claims.
 
-- **ATS Transparency**: Ingests PDF/DOCX resumes and audits them against transparent ATS rubrics (ATS compatibility, content quality, structural hierarchy, and skill density).
-- **Anti-Hallucination ("Evidence Guard")**: Unlike generic AI resume tools that invent experience to pass filters, Resumind grounds all tailored bullet points in verified achievements stored in your canonical **Career Twin** and connected **GitHub repositories**.
-- **Unified Career Ecosystem**: Combines resume intelligence, job market matching (Job DNA), an application Kanban CRM, automated GitHub evidence sync, and role-specific STAR-method interview preparation in one coherent platform.
+**Resumind** solves this by treating candidate history as a verifiable **Career Twin**:
+1. **ATS Transparency**: Ingests PDF/DOCX resumes, scores formatting, structure, and keyword density against transparent ATS rubrics.
+2. **Evidence Guard (Anti-Hallucination)**: Tailors resumes to job descriptions while strictly constraining bullet points to verified achievements in the user's Career Twin and connected GitHub repositories. Unverified claims are flagged as `UNSUPPORTED`.
+3. **Unified Career Operations**: Integrates ATS scoring, Job DNA extraction, application pipeline CRM, role-specific STAR mock interviews, Google Calendar sync, and evidence-building learning plans into one cohesive platform.
+
+---
+
+## 📸 Product Screenshots (Captured from Running Application)
+
+### Command Center Dashboard
+![Resumind Dashboard](docs/screenshots/04-dashboard.png)
+
+### Career Twin — Verified Profile Architecture
+![Career Twin](docs/screenshots/05-career-twin.png)
+
+### Resume Intelligence & ATS Diagnostics
+![Resume Analysis](docs/screenshots/08-resume-analysis.png)
+
+### Job DNA & Match Matrix
+![Job Match](docs/screenshots/10-job-match.png)
+
+### Applications Pipeline CRM
+![Applications Pipeline](docs/screenshots/12-applications.png)
+
+### Interview Intelligence & Mock Simulation
+![Interview Intelligence](docs/screenshots/13-interviews.png)
+
+### Google Calendar Integration
+![Google Calendar Integration](docs/screenshots/14-calendar-integration.png)
+
+### Career Velocity & Skill Gap Intelligence
+![Career Analytics](docs/screenshots/15-analytics.png)
+
+---
+
+## 🏗️ Architecture & System Design
+
+```mermaid
+graph TD
+    Client["React 19 + Bootstrap 5 Frontend<br/>(React Router v7 / Vite)"]
+    API["Express 4 + TypeScript REST API<br/>(/api/v1/*)"]
+    DB[(PostgreSQL 16 Database<br/>Prisma ORM)]
+    Cache[(Redis 7 Cache & Rate Limiting)]
+    Gemini["Google Gemini AI API<br/>(Explainable ATS & Tailoring)"]
+    Adzuna["Adzuna Job Search API"]
+    GitHub["GitHub OAuth & REST API<br/>(Code Evidence Sync)"]
+    GCal["Google Calendar OAuth<br/>(Interview Scheduling)"]
+
+    Client -->|JWT Bearer Requests| API
+    API -->|Prisma Queries| DB
+    API -->|Rate Limits & Sessions| Cache
+    API -->|Anti-Hallucination Prompts| Gemini
+    API -->|Job Market Discovery| Adzuna
+    API -->|OAuth / Repositories| GitHub
+    API -->|OAuth / Calendar Events| GCal
+```
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer                | Technologies                                                                                                                                        |
-| :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Frontend**         | React 19, TypeScript, React Router v7 (SSR), Bootstrap 5, Zustand, TanStack Query, Axios, React Hook Form, Zod, Recharts, Framer Motion, pdfjs-dist |
-| **Backend**          | Node.js 20, Express 4, TypeScript, Zod, Helmet CSP, Tiered Rate Limiting, CORS, Pino, pino-http                                                     |
-| **Database & Cache** | PostgreSQL 16, Prisma ORM, Redis 7 (ioredis)                                                                                                        |
-| **AI & Providers**   | Google Gemini 1.5 Pro / Flash (`@google/genai`), GitHub OAuth 2.0 & REST API, Google Calendar API, Adzuna API, Resend                               |
-| **Testing & CI/CD**  | Vitest (207 unit/integration tests), Playwright (15 E2E suites), GitHub Actions CI/CD                                                               |
-| **Cloud & DevOps**   | Render Blueprint (`render.yaml`), Docker multi-stage builds, Docker Compose                                                                         |
+| Layer | Technologies & Versions |
+|:---|:---|
+| **Frontend** | React `^19.0.0`, TypeScript `^5.7.3`, React Router `^7.3.1`, Bootstrap `^5.3.3`, Zustand `^5.0.3`, TanStack Query `^5.66.9`, Axios `^1.8.1`, Recharts `^2.15.1`, pdfjs-dist `^4.10.38` |
+| **Backend API** | Node.js `20+`, Express `^4.21.2`, TypeScript `^5.7.3`, Zod `^3.24.2`, Helmet `^8.0.0`, Argon2 `^0.45.1`, jsonwebtoken `^9.0.3`, Pino `^9.6.0`, Multer `^2.4.0` |
+| **Database & ORM** | PostgreSQL 16, Prisma ORM `^6.4.1` / `@prisma/client 6.19.3` |
+| **Caching & Queues**| Redis 7 (`ioredis ^5.6.0`) |
+| **AI & External APIs**| Google Gemini AI (`@google/genai ^2.27.0`), GitHub REST API, Google Calendar API, Adzuna API |
+| **Testing & E2E** | Vitest `^3.0.8`, Playwright `^1.50.1`, Supertest `^7.0.0` |
+| **Design System** | Google Stitch Design Tokens (`--rm-*`), Bootstrap 5 CSS, Inter, JetBrains Mono |
 
 ---
 
-## 📂 Repository Structure
+## ⚙️ Prerequisites & Environment Configuration
 
-```
-resumind/
-├── apps/
-│   ├── web/                    # React 19 + React Router v7 SSR Frontend
-│   └── api/                    # Express 4 + TypeScript + Prisma Backend API
-├── packages/
-│   ├── shared-types/           # Shared TypeScript interfaces & envelopes
-│   ├── validation/             # Common Zod validation schemas
-│   ├── config/                 # Shared constants & HTTP status codes
-│   ├── utils/                  # Pure utility functions
-│   └── ui/                     # Shared UI component primitives
-├── docs/
-│   ├── PRODUCTION_RUNBOOK.md   # Production incident, deployment & DR runbook
-│   ├── DEPLOYMENT.md           # Step-by-step production cloud deployment guide
-│   ├── PORTFOLIO_PROJECT_REPORT.md # Technical case study & architecture review
-│   ├── RESUME_PROJECT_DESCRIPTION.md # Executive resume bullets & technical highlights
-│   └── walkthroughs/           # Verification logs for Phases 1 through 10
-├── .github/workflows/          # Production CI/CD pipelines
-├── render.yaml                 # Infrastructure-as-Code Blueprint
-├── docker-compose.yml          # Local PostgreSQL & Redis containers
-├── package.json                # Monorepo workspaces orchestration
-└── tsconfig.base.json          # Root TypeScript configuration
-```
+### Prerequisites
+- Node.js 20 LTS or higher
+- npm 10 or higher
+- PostgreSQL 16
+- Redis 7
 
----
+### Environment Setup
 
-## 🌟 Key Features
-
-1. **Career Twin**: Single source of truth for verified candidate skills, work history, education, and portfolio projects.
-2. **Resume Intelligence**: Multi-page PDF/DOCX parsing, keyword density calculation, and comprehensive ATS scoring.
-3. **Job Intelligence & Matching**: Job description ingestion, canonical skill extraction, and bidirectional candidate-to-job match scoring.
-4. **Evidence Guard & AI Tailoring**: Google Gemini 1.5 powered bullet tailoring strictly bounded by verified candidate achievements, preventing factual fabrication.
-5. **Application CRM**: Kanban-style application pipeline with timeline tracking and status updates.
-6. **GitHub Career Evidence**: OAuth 2.0 integration extracting commit history, repositories, and technical evidence directly into candidate profiles.
-7. **Interview Intelligence**: Role-tailored behavioral & technical interview question generation with Google Calendar interview event creation.
-8. **Career Analytics & Learning Plans**: Aggregated career readiness scores, identified skill gaps, and evidence-building learning roadmaps.
-
----
-
-## ⚙️ Quick Start (Local Development)
-
-### 1. Clone & Install
+Copy `.env.example` in `apps/api/.env` and update secrets as needed:
 
 ```bash
-git clone https://github.com/MSIVAPAPARAO13/ai-resume-analyzer.git resumind
-cd resumind
+# Core
+NODE_ENV=development
+PORT=4000
+FRONTEND_URL=http://localhost:5173
+BACKEND_URL=http://localhost:4000
+CORS_ORIGIN=http://localhost:5173
+
+# Database & Cache
+DATABASE_URL=postgresql://resumind_user:resumind_password@localhost:5432/resumind_dev?schema=public
+REDIS_URL=redis://localhost:6379
+
+# Authentication Secrets
+JWT_ACCESS_SECRET=dev-access-secret-min-64-characters-random-string
+JWT_REFRESH_SECRET=dev-refresh-secret-min-64-characters-random-string
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+GITHUB_ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+
+# Optional External Providers (Fallback mocks active in local development)
+GEMINI_API_KEY=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+ADZUNA_APP_ID=
+ADZUNA_APP_KEY=
+```
+
+---
+
+## 🚀 Local Development Setup
+
+### 1. Install Dependencies
+```bash
 npm install
 ```
 
-### 2. Configure Environment
-
+### 2. Start PostgreSQL & Redis
+In native Windows / WSL2 environments:
 ```bash
-cp .env.example .env
+node scripts/start-local-db.js
+```
+Or via Docker:
+```bash
+docker compose up -d postgres redis
 ```
 
-### 3. Launch PostgreSQL & Redis Containers
-
-```bash
-npm run docker:up
-# Or: docker compose up -d postgres redis
-```
-
-### 4. Database Setup
-
+### 3. Generate Prisma & Deploy Migrations
 ```bash
 npm run db:generate
-npm run db:migrate
+npm run db:migrate:deploy
+```
+
+### 4. Seed Deterministic Development Data
+```bash
 npm run db:seed
 ```
 
-### 5. Launch Applications
-
+### 5. Launch Full-Stack Application
+In terminal 1 (API Server):
 ```bash
-# Terminal 1: Backend API (http://localhost:4000)
 npm run dev:api
-
-# Terminal 2: Web Frontend (http://localhost:5173)
-npm run dev
 ```
+In terminal 2 (Web Client):
+```bash
+npm run dev:web
+```
+
+- **Web Application**: [http://localhost:5173](http://localhost:5173)
+- **API Health Check**: [http://localhost:4000/api/v1/health](http://localhost:4000/api/v1/health)
+
+---
+
+## 🔑 Demo Account Credentials
+
+The local database contains an active, pre-populated demonstration profile:
+
+| Field | Value |
+|:---|:---|
+| **Email** | `alex.morgan.qa@resumind.dev` (or `demo@resumind.dev`) |
+| **Password** | `Password123!` |
+| **Target Role** | Full Stack Developer |
+| **Experience** | Junior Full Stack Engineer at Apex Cloud Innovations |
+| **Resumes** | `Alex_Morgan_FullStack_Resume.pdf` (Score: 86%, ATS: 91%) |
+| **Applications** | 6 tracked CRM applications across all stages |
+| **Learning Plans** | Docker Mastery (40% progress) |
 
 ---
 
 ## 🧪 Testing & Quality Gates
 
+Run all quality checks using verified repository scripts:
+
 ```bash
-# Run all 207 unit and integration tests
+# TypeScript Typecheck (Web + API)
+npm run typecheck
+
+# Unit & Integration Tests (Vitest)
 npm run test
 
-# Run end-to-end browser test suites
+# Frontend Production Build
+npm run build:web
+
+# Backend Production Build
+npm run build:api
+
+# End-to-End Test Suite (Playwright)
 npm run test:e2e
-
-# Run static quality checks
-npm run typecheck
-npm run lint
-npm run format:check
-
-# Verify database schema
-npx prisma validate --schema=apps/api/prisma/schema.prisma
 ```
 
 ---
 
-## 🚀 Production Deployment
+## 🔒 Security Architecture
 
-Resumind is pre-configured for automated zero-downtime deployment on Render via `render.yaml` or containerized deployment via Docker:
-
-- See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for step-by-step deployment instructions.
-- See [docs/PRODUCTION_RUNBOOK.md](docs/PRODUCTION_RUNBOOK.md) for operations, monitoring, alerts, and disaster recovery procedures.
-
----
-
-## 🔒 Security & Privacy Posture
-
-- **Zero Client Secrets**: All API keys, database credentials, and signing secrets reside exclusively in the server environment.
-- **OWASP Hardening**: Strict Helmet Content Security Policy, magic-byte file signature validation, and SSRF loopback/cloud metadata protection.
-- **Tenant Isolation**: Every database query scopes data to the authenticated user ID (`where: { userId }`).
-- **Private Resumes**: Candidates' resume uploads and profile data are protected and excluded from public search indexing (`noindex, nofollow`).
+1. **Strict Tenant Isolation**: All database operations query strictly by `userId` resolved from signed JWT claims. Direct API access to other candidates' records is blocked (returns 404/403).
+2. **Password Security**: Passwords hashed using Argon2 with unique salts. Plaintext passwords are never logged or stored.
+3. **Evidence Guard**: AI resume suggestions are validated against verified Career Twin entries. Unsupported assertions are highlighted in red to prevent hallucinated claims.
+4. **Encrypted OAuth Tokens**: External OAuth tokens for Google Calendar and GitHub are encrypted in PostgreSQL using AES-256-GCM.
+5. **Hardened HTTP Headers**: Helmet enforces CSP, strict MIME sniffing protection, clickjacking defense (`X-Frame-Options: DENY`), and modern `Permissions-Policy`.
 
 ---
 
-## 🗺️ Project Phases
+## 📦 Documentation Directory
 
-- [x] **Phase 1**: Foundation + Database + API
-- [x] **Phase 2**: Authentication + Career Twin
-- [x] **Phase 3**: Resume Intelligence
-- [x] **Phase 4**: Job Intelligence + Resume/Job Matching
-- [x] **Phase 5**: Gemini + Evidence Guard + AI Resume Tailoring + Adzuna
-- [x] **Phase 6**: Application CRM + GitHub Career Evidence
-- [x] **Phase 7**: Interview Intelligence + Interview Preparation
-- [x] **Phase 8**: Career Analytics + Skill Gap + Learning Plan
-- [x] **Phase 8.5**: Full Product QA + UI/UX Audit
-- [x] **Phase 9**: Production Hardening (Security + Performance + SEO + A11y)
-- [x] **Phase 10**: Production Deployment & Portfolio Readiness
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
+- [CALENDAR_INTEGRATION_AUDIT.md](docs/CALENDAR_INTEGRATION_AUDIT.md) — Google Calendar OAuth audit, root cause & remediation
+- [INTERACTIVE_ELEMENT_AUDIT.md](docs/INTERACTIVE_ELEMENT_AUDIT.md) — Exhaustive audit of all controls, buttons, and forms
+- [DATA_SOURCE_AUDIT.md](docs/DATA_SOURCE_AUDIT.md) — Audit proving zero hardcoded metrics and live API backing
+- [DEPLOYMENT_READINESS_REPORT.md](docs/DEPLOYMENT_READINESS_REPORT.md) — Production container & cloud deployment readiness
+- [PRODUCT_QA_REPORT.md](docs/PRODUCT_QA_REPORT.md) — Master product QA audit and verification report
+- [DESIGN.md](docs/DESIGN.md) — Extracted design tokens and visual guidelines
+- [STITCH_PROJECT_INVENTORY.md](docs/STITCH_PROJECT_INVENTORY.md) — Complete 14-screen Google Stitch inventory
+- [LOCAL_DEMO_DATA.md](docs/LOCAL_DEMO_DATA.md) — Seed schema and Alex Morgan demo dataset specification

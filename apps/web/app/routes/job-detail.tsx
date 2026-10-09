@@ -31,10 +31,13 @@ export default function JobDetailPage() {
       ]);
 
       setJob(jobData);
-      setResumes(resumeList);
+      const list = Array.isArray(resumeList)
+        ? resumeList
+        : resumeList?.resumes || [];
+      setResumes(list);
 
-      if (resumeList.length > 0) {
-        setSelectedResumeId(resumeList[0].id);
+      if (list.length > 0) {
+        setSelectedResumeId(list[0].id);
       }
     } catch (err: any) {
       setError(

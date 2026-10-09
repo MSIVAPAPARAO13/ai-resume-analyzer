@@ -34,7 +34,7 @@ export default function ResumesPage() {
     try {
       setLoading(true);
       const data = await resumeApi.listResumes();
-      setResumes(data.resumes || []);
+      setResumes(Array.isArray(data) ? data : data?.resumes || []);
     } catch {
       // Failed to load
     } finally {

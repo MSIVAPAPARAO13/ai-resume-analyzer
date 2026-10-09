@@ -139,10 +139,10 @@ export function createApp(): express.Application {
 
   // ─── Rate Limiting ───────────────────────────────────────────────────────────
 
-  // Auth endpoints: strict 20 req / 15 min
+  // Auth endpoints: strict 20 req / 15 min in production; generous in dev
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 20,
+    max: env.NODE_ENV === 'development' ? 500 : 20,
     standardHeaders: true,
     legacyHeaders: false,
     skip: () => env.NODE_ENV === 'test',
@@ -171,10 +171,10 @@ export function createApp(): express.Application {
     },
   });
 
-  // General API: 300 req / 15 min (generous for normal use)
+  // General API: 300 req / 15 min (generous in prod, unthrottled in dev)
   const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 300,
+    max: env.NODE_ENV === 'development' ? 10000 : 300,
     standardHeaders: true,
     legacyHeaders: false,
     skip: () => env.NODE_ENV === 'test',

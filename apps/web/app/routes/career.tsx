@@ -272,13 +272,20 @@ export default function CareerPage() {
                 {activeSection === 'profile' && (
                   <div>
                     <h5 className="fw-bold mb-4">Personal Profile</h5>
-                    <form onSubmit={handleSaveProfile}>
+                    <form
+                      onSubmit={handleSaveProfile}
+                      key={profile?.id || user?.id || 'new'}
+                    >
                       <div className="row g-3">
                         <div className="col-12 col-md-6">
-                          <label className="form-label text-secondary small">
+                          <label
+                            htmlFor="profile-name"
+                            className="form-label text-secondary small"
+                          >
                             Full Name
                           </label>
                           <input
+                            id="profile-name"
                             className="form-control bg-dark border-secondary text-white"
                             defaultValue={user.name || ''}
                             onChange={(e) =>
@@ -290,10 +297,14 @@ export default function CareerPage() {
                           />
                         </div>
                         <div className="col-12 col-md-6">
-                          <label className="form-label text-secondary small">
+                          <label
+                            htmlFor="profile-headline"
+                            className="form-label text-secondary small"
+                          >
                             Headline
                           </label>
                           <input
+                            id="profile-headline"
                             className="form-control bg-dark border-secondary text-white"
                             defaultValue={profile?.headline || ''}
                             onChange={(e) =>
@@ -305,10 +316,14 @@ export default function CareerPage() {
                           />
                         </div>
                         <div className="col-12 col-md-6">
-                          <label className="form-label text-secondary small">
+                          <label
+                            htmlFor="profile-target-role"
+                            className="form-label text-secondary small"
+                          >
                             Target Role
                           </label>
                           <input
+                            id="profile-target-role"
                             className="form-control bg-dark border-secondary text-white"
                             defaultValue={profile?.targetRole || ''}
                             onChange={(e) =>
@@ -320,10 +335,14 @@ export default function CareerPage() {
                           />
                         </div>
                         <div className="col-12 col-md-6">
-                          <label className="form-label text-secondary small">
+                          <label
+                            htmlFor="profile-target-level"
+                            className="form-label text-secondary small"
+                          >
                             Target Level
                           </label>
                           <select
+                            id="profile-target-level"
                             className="form-select bg-dark border-secondary text-white"
                             defaultValue={profile?.targetLevel || ''}
                             onChange={(e) =>
