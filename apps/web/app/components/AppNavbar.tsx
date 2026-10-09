@@ -63,16 +63,16 @@ export default function AppNavbar() {
       <div className="container-fluid px-0">
         <Link
           to="/dashboard"
-          className="navbar-brand fw-bold text-primary d-flex align-items-center gap-2 me-3 me-xl-4"
+          className="navbar-brand fw-bold text-white d-flex align-items-center gap-2 me-3 me-xl-4 text-decoration-none"
         >
           <div
-            className="d-inline-flex align-items-center justify-content-center rounded bg-primary bg-opacity-25 text-primary"
-            style={{ width: 28, height: 28, fontSize: 14 }}
+            className="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary bg-opacity-25 text-primary border border-primary border-opacity-30 shadow-sm"
+            style={{ width: 30, height: 30, fontSize: 15 }}
             aria-hidden="true"
           >
             ✦
           </div>
-          <span>Resumind</span>
+          <span className="tracking-tight">Resumind</span>
         </Link>
 
         {/* Mobile Toggle Button */}
@@ -102,9 +102,9 @@ export default function AppNavbar() {
                   <Link
                     to={item.to}
                     id={item.id}
-                    className={`nav-link px-2 py-1 rounded small d-flex align-items-center gap-1 ${
+                    className={`nav-link px-2 py-1 rounded small d-flex align-items-center gap-1 transition-all ${
                       isActive
-                        ? 'active bg-primary bg-opacity-10 text-primary fw-semibold'
+                        ? 'active bg-primary bg-opacity-20 text-white fw-semibold border border-primary border-opacity-30 shadow-sm'
                         : 'text-secondary hover-text-white'
                     }`}
                     aria-current={isActive ? 'page' : undefined}

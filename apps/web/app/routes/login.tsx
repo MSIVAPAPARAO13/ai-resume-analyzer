@@ -55,28 +55,17 @@ export default function LoginPage() {
         <div className="card-body p-5">
           {/* Logo */}
           <div className="text-center mb-4">
-            <div
-              className="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10 mb-3"
-              style={{ width: 56, height: 56 }}
-            >
-              <svg
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+            <Link to="/" className="text-decoration-none d-inline-block">
+              <div
+                className="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary bg-opacity-25 text-primary border border-primary border-opacity-30 shadow-sm mb-3"
+                style={{ width: 48, height: 48, fontSize: 22 }}
               >
-                <path
-                  d="M9 12h6M9 16h6M9 8h6M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"
-                  stroke="#0d6efd"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-            <h4 className="text-white fw-bold mb-1">Welcome back</h4>
+                ✦
+              </div>
+            </Link>
+            <h4 className="text-white fw-bold mb-1 tracking-tight">Welcome back</h4>
             <p className="text-secondary small">
-              Sign in to your Resumind account
+              Sign in to your Resumind workspace
             </p>
           </div>
 

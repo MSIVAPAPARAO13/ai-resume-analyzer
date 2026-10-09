@@ -8,14 +8,13 @@ import {
 } from 'react-router'; // ✅ IMPORTANT (NOT react-router-dom)
 
 import type { Route } from './+types/root';
+// Bootstrap CSS — loaded before custom styles so app.css overrides take effect
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
 
 import { usePuterStore } from './lib/puter';
 import { useAuthStore } from './stores/authStore';
 import { useEffect } from 'react';
-
-// Bootstrap CSS — loaded globally for Phase 2
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 /* ================= LINKS ================= */
 
@@ -28,14 +27,44 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900',
+    href: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
   },
 ];
 
 /* ================= META ================= */
 
 export const meta: Route.MetaFunction = () => [
-  { name: 'robots', content: 'noindex, nofollow' },
+  { title: 'Resumind — AI Career Intelligence, Resume Tailoring & ATS Optimization SaaS' },
+  {
+    name: 'description',
+    content:
+      'Elevate your career with Resumind: AI-driven resume tailoring, real-time job matching, Evidence Guard anti-hallucination verification, and interview intelligence.',
+  },
+  {
+    name: 'keywords',
+    content:
+      'AI resume builder, ATS resume optimizer, career intelligence, resume tailoring, Evidence Guard, job match score, mock interview coach, skill gap analysis',
+  },
+  { name: 'author', content: 'Resumind' },
+  { name: 'robots', content: 'index, follow' },
+  { name: 'theme-color', content: '#0a0e17' },
+  { property: 'og:site_name', content: 'Resumind' },
+  { property: 'og:title', content: 'Resumind — AI Career Intelligence & Resume Tailoring SaaS' },
+  {
+    property: 'og:description',
+    content:
+      'Elevate your career with Resumind: AI-driven resume tailoring, real-time job matching, Evidence Guard verification, and interview intelligence.',
+  },
+  { property: 'og:type', content: 'website' },
+  { property: 'og:locale', content: 'en_US' },
+  { name: 'twitter:card', content: 'summary_large_image' },
+  { name: 'twitter:site', content: '@resumind' },
+  { name: 'twitter:title', content: 'Resumind — AI Career Intelligence & Resume Tailoring SaaS' },
+  {
+    name: 'twitter:description',
+    content:
+      'AI resume tailoring, ATS match scoring, Evidence Guard anti-hallucination verification, and interview prep.',
+  },
 ];
 
 /* ================= LAYOUT ================= */
@@ -53,6 +82,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
     restore();
   }, [restore]);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Resumind',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'All',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    description:
+      'AI Career Intelligence & Resume Optimization SaaS with Evidence Guard anti-hallucination verification.',
+  };
+
   return (
     <html lang="en">
       <head>
@@ -60,6 +104,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+
+        {/* Structured Data for SEO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
 
         {/* Puter Script */}
         <script src="https://js.puter.com/v2/"></script>

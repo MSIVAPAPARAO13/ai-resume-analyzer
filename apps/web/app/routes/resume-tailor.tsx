@@ -399,7 +399,7 @@ export default function ResumeTailorPage() {
             <p className="mb-0">No suggestions match the selected filter.</p>
           </div>
         ) : (
-          <div className="d-flex flex-col gap-4">
+          <div className="d-flex flex-column gap-4">
             {filteredSuggestions.map((sug, index) => {
               const isAccepted = sug.status === 'ACCEPTED';
               const isRejected = sug.status === 'REJECTED';
