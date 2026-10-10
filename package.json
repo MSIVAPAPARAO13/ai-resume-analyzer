@@ -35,6 +35,8 @@
     "docker:down": "docker compose down"
   },
   "devDependencies": {
+    "@neon/config": "^1.8.6",
+    "@neon/env": "^1.5.3",
     "@playwright/test": "^1.50.1",
     "@types/node": "^22.13.9",
     "@typescript-eslint/eslint-plugin": "8.24.1",

@@ -150,3 +150,15 @@ This document details the deterministic development and demo dataset seeded into
 - **Active Applications Count**: 4
 - **Completed Interviews**: 1
 - **Learning Progress**: 40.0%
+
+---
+
+## 10. Neon Database Branching & Environment Isolation
+
+| Target Database | Neon Branch | Seed Policy | Verification Script |
+| :--- | :--- | :--- | :--- |
+| **Neon Development** | `development` (`br-royal-glitter-b5jsldv1`) | **SEEDED** with Alex Morgan test persona | `node scripts/seed-neon-development.js` |
+| **Neon Production** | `production` (`br-solitary-recipe-b5ypcupm`) | **CLEAN** (0 synthetic records) | `node scripts/test-neon-db.js` |
+| **Local Docker** | `localhost:5432/resumind_dev` | Optional local development seed | `npm run db:seed` |
+
+> **Critical Isolation Rule**: The Neon `production` branch must NEVER be seeded with synthetic demo users. All development, staging, and QA seeding operations run strictly against the Neon `development` branch or local developer environments.

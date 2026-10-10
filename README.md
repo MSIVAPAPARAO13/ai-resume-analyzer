@@ -5,7 +5,20 @@
 # 🚀 Resumind — AI Career Intelligence & Resume Optimization SaaS
 
 > **Enterprise-Grade AI Career Intelligence, Anti-Hallucination Resume Tailoring & Growth CRM**  
-> Built with React 19, Express 4, TypeScript, Prisma ORM, PostgreSQL 16, Redis 7, and Google Gemini AI.
+> Built with React 19, Express 4, TypeScript, Prisma ORM, Neon Serverless PostgreSQL 18, Redis 7, and Google Gemini AI.  
+> Designed with **Google Stitch Project `13898246341962442915`** and powered by **Neon Project `orange-resonance-81564919`**.
+
+---
+
+## 🎨 Google Stitch Project & Neon Cloud Architecture
+
+- **Google Stitch Project ID**: `13898246341962442915`
+- **Google Stitch Design Studio**: [https://stitch.withgoogle.com/projects/13898246341962442915](https://stitch.withgoogle.com/projects/13898246341962442915)
+- **Neon Database Project ID**: `orange-resonance-81564919` (`resumind`)
+- **Neon Cloud Region**: `aws-us-east-2` (US East, Ohio)
+- **Target Production Branch**: `production` (`br-solitary-recipe-b5ypcupm` — 33 tables, 0 synthetic records)
+- **Target Development Branch**: `development` (`br-royal-glitter-b5jsldv1` — 33 tables, seeded with Alex Morgan QA persona)
+- **Zero-Credit-Card Policy**: 100% compliant with free-tier serverless PostgreSQL, zero financial barrier to deployment.
 
 ---
 
@@ -16,7 +29,7 @@ Searching for jobs and optimizing resumes has become an opaque, noisy process do
 **Resumind** solves this by treating candidate history as a verifiable **Career Twin**:
 1. **ATS Transparency**: Ingests PDF/DOCX resumes, scores formatting, structure, and keyword density against transparent ATS rubrics.
 2. **Evidence Guard™ (Anti-Hallucination)**: Tailors resumes to job descriptions while strictly constraining bullet points to verified achievements in the user's Career Twin and connected GitHub repositories. Unverified claims are flagged as `UNSUPPORTED` or `NEEDS_REVIEW`.
-3. **Natural Slate-Indigo Aesthetics**: Premium cosmic slate gradient canvas, frosted glass depth (`backdrop-filter: blur(16px)`), luminous borders, and fluid micro-animations.
+3. **Natural Slate-Indigo Aesthetics**: Premium cosmic slate gradient canvas, frosted glass depth (`backdrop-filter: blur(16px)`), luminous borders, and fluid micro-animations designed from Google Stitch screen specifications.
 4. **SEO & Growth Ready**: Full Schema.org JSON-LD structured data, dynamic OpenGraph & Twitter meta tags, semantic HTML5 structure, and high-converting public landing experience.
 5. **Unified Career Operations**: Integrates ATS scoring, Job DNA extraction, application pipeline CRM, role-specific STAR mock interviews, Google Calendar sync, and evidence-building learning plans into one cohesive platform.
 
@@ -240,6 +253,7 @@ npm run test:e2e
 
 ## 📦 Documentation Directory
 
+- [NEON_SETUP_REPORT.md](docs/NEON_SETUP_REPORT.md) — Neon Serverless PostgreSQL architecture, dual-branch setup & zero-leak audit
 - [CALENDAR_INTEGRATION_AUDIT.md](docs/CALENDAR_INTEGRATION_AUDIT.md) — Google Calendar OAuth audit, root cause & remediation
 - [INTERACTIVE_ELEMENT_AUDIT.md](docs/INTERACTIVE_ELEMENT_AUDIT.md) — Exhaustive audit of all controls, buttons, and forms
 - [DATA_SOURCE_AUDIT.md](docs/DATA_SOURCE_AUDIT.md) — Audit proving zero hardcoded metrics and live API backing
